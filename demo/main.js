@@ -1,5 +1,6 @@
+// file only for dev. purposes
 import Vue from 'vue'
-import VuePostgrest from './VuePostgrest.vue'
+import VuePostgrest from '@/Postgrest'
 
 Vue.config.productionTip = false
 

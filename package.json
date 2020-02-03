@@ -1,7 +1,7 @@
 {
   "name": "vue-postgrest",
   "private": "false",
-  "version": "0.0.0-development",
+  "version": "0.1.0",
   "description": "Vue.js Component providing PostgREST integration",
   "author": {
     "name": "julian walther",
@@ -11,22 +11,16 @@
     "url": "https://github.com/technowledgy/vue-postgrest/issues"
   },
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "demo": "vue-cli-service serve demo/main.js",
     "build": "vue-cli-service build --target lib --name vue-postgrest src/index.js",
-    "test": "yarn lint && vue-cli-service test:unit",
+    "test": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint",
     "release": "standard-version"
   },
   "files": [
     "dist/*"
   ],
-  "dependencies": {
-    "core-js": "^3.4.4",
-    "vue": "^2.6.10"
-  },
   "devDependencies": {
-    "@commitlint/cli": "^8.3.5",
-    "@commitlint/config-conventional": "^8.3.4",
     "@vue/cli-plugin-babel": "^4.1.0",
     "@vue/cli-plugin-eslint": "^4.1.0",
     "@vue/cli-plugin-unit-jest": "^4.1.0",
@@ -34,9 +28,11 @@
     "@vue/eslint-config-standard": "^4.0.0",
     "@vue/test-utils": "1.0.0-beta.29",
     "babel-eslint": "^10.0.3",
+    "core-js": "^3.4.4",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
     "standard-version": "^7.1.0",
+    "vue": "^2.6.10",
     "vue-template-compiler": "^2.6.10"
   },
   "homepage": "https://github.com/technowledgy/vue-postgrest#readme",
