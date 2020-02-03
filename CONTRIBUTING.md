@@ -29,3 +29,7 @@ yarn lint
 ```
 yarn release
 ```
+
+## Committing
+
+Commit messages should conform to the conventional commit format. See: https://www.conventionalcommits.org/en/v1.0.0/#specification
