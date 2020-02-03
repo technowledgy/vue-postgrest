@@ -1,3 +1,11 @@
 export default {
-  name: 'Postgrest'
+  name: 'Postgrest',
+  props: {
+    route: {
+      type: String
+    }
+  },
+  render (h) {
+    return h()
+  }
 }
