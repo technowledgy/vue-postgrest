@@ -16,8 +16,9 @@ Vue.use(VuePostgrest, pluginOptions)
 
 available pluginOptions are:
 
-|option |default |type |
-|-------|--------|-----|
+|option |default |type  |description |
+|-------|--------|------|------------|
+|apiRoot|''------|String|api base URI|
 
 ### With script tag
 Include `<script src="https://unpkg.com/vue-postgrest"></script>`
