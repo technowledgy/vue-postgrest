@@ -50,5 +50,8 @@
   },
   "main": "dist/vue-postgrest.umd.js",
   "module": "dist/vue-postgrest.common.js",
-  "unpkg": "dist/vue-postgrest.umd.min.js"
+  "unpkg": "dist/vue-postgrest.umd.min.js",
+  "dependencies": {
+    "rfdc": "^1.1.4"
+  }
 }

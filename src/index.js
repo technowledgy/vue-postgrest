@@ -1,11 +1,16 @@
 import Postgrest from './Postgrest'
-
-// eslint-disable-next-line
-console.log('hello')
+import rfdc from 'rfdc'
+const clone = rfdc()
 
 const plugin = {
   install (Vue, options) {
-    Vue.component('postgrest', Postgrest)
+    if (options && options.apiRoot) {
+      const customPostgrest = clone(Postgrest)
+      customPostgrest.props.apiRoot.default = options.apiRoot
+      Vue.component('postgrest', customPostgrest)
+    } else {
+      Vue.component('postgrest', Postgrest)
+    }
   }
 }
 
