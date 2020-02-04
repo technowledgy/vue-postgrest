@@ -1,5 +1,5 @@
-import { mount } from '@vue/test-utils'
-import Postgrest from '@/Postgrest'
+import { createLocalVue, mount } from '@vue/test-utils'
+import Postgrest from '@/index'
 import request from 'superagent'
 import config from '../mock-api-config'
 import mock from 'superagent-mock'
@@ -7,28 +7,22 @@ import mock from 'superagent-mock'
 mock(request, config)
 
 describe('Postgrest', () => {
-  describe('Component definition', () => {
-    let wrapper;
-    beforeAll(() => {
-      wrapper = mount(Postgrest, {
-        propsData: {
-          route: 'test',
-          query: 'test',
-          single: true
-        }
+  describe('Plugin installation', () => {
+
+    it('registers a global component', () => {
+      const localVue = createLocalVue()
+      expect(localVue.options.components.postgrest).toBe(undefined)
+      localVue.use(Postgrest)
+      expect(localVue.options.components.postgrest).toBeTruthy()
+    })
+
+    it('uses api root path set in install options', () => {
+      const localVue = createLocalVue()
+      localVue.use(Postgrest, {
+        apiRoot: 'global-root/'
       })
+      expect(localVue.options.components.postgrest.options.props.apiRoot.default).toBe('global-root/')
     })
 
-    it('has prop "route"', () => {
-      expect(wrapper.props().route).toBeTruthy()
-    })
-
-    it('has prop "query"', () => {
-      expect(wrapper.props().query).toBeTruthy()
-    })
-
-    it('has prop "single"', () => {
-      expect(wrapper.props().single).toBeTruthy()
-    })
   })
 })
