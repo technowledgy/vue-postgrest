@@ -56,7 +56,7 @@ Available component props are:
 
 The api-response and following methods are available via slot-props:
 
-|Dlot-prop |Type    |Provided if     |Description                            |
+|Slot-prop |Type    |Provided if     |Description                            |
 |----------|--------|----------------|---------------------------------------|
 |items     |Array   |query && !single|An array of existing data entities     |
 |item      |Object  |query && single |A single existing data entity          |
