@@ -47,7 +47,7 @@ Component "postgrest" is registered globally on your Vue instance.
 
 Available component props are:
 
-|prop   |required|default  |type  |description                        |
+|Prop   |Required|Default  |Type  |Description                        |
 |-------|--------|---------|------|-----------------------------------|
 |route  |yes     |-        |String|The table/view that is queried     |
 |query  |no      |undefined|Object|The postgrest query                |
@@ -56,7 +56,7 @@ Available component props are:
 
 The api-response and following methods are available via slot-props:
 
-|slot-prop |type    |provided if     |description                            |
+|Dlot-prop |Type    |Provided if     |Description                            |
 |----------|--------|----------------|---------------------------------------|
 |items     |Array   |query && !single|An array of existing data entities     |
 |item      |Object  |query && single |A single existing data entity          |
