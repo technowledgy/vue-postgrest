@@ -49,10 +49,10 @@ Available component props are:
 
 |prop   |required|default  |type  |description                        |
 |-------|--------|---------|------|-----------------------------------|
-|route  |yes     |-        |String|the table/view that is queried     |
-|query  |no      |undefined|Object|the postgrest query                |
-|single |no      |false    |Bool  |request a single entity            |
-|create |no      |undefined|Object|template for a entity to be created|
+|route  |yes     |-        |String|The table/view that is queried     |
+|query  |no      |undefined|Object|The postgrest query                |
+|single |no      |false    |Bool  |Request a single entity            |
+|create |no      |undefined|Object|Template for a entity to be created|
 
 The api-response and following methods are available via slot-props:
 
