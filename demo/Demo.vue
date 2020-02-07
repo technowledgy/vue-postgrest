@@ -3,7 +3,7 @@
     route="clients"
     :query="{}"
     :create="{}">
-      <template v-slot:default="{ get, items, newItem }">
+      <template v-slot:default="{ get, items, totalCount, newItem }">
       </template>
   </postgrest>
 </template>

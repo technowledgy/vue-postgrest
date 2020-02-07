@@ -144,5 +144,50 @@ describe('Postgrest', () => {
         }
       })
     })
+
+    it('provides "totalCount" if prop "query" is set and prop "single" is not set', () => {
+      expect.assertions(1)
+      const postgrest = shallowMount(Postgrest, {
+        propsData: {
+          route: '',
+          query: {}
+        },
+        scopedSlots: {
+          default (props) {
+            expect(typeof props.totalCount).toBe('number')
+          }
+        }
+      })
+    })
+
+    it('does not provide "totalCount" if prop "query" is not set', () => {
+      expect.assertions(1)
+      const postgrest = shallowMount(Postgrest, {
+        propsData: {
+          route: ''
+        },
+        scopedSlots: {
+          default (props) {
+            expect(props.totalCount).toBe(undefined)
+          }
+        }
+      })
+    })
+
+    it('does not provide "totalCount" if prop "query" is set and prop "single" is true', () => {
+      expect.assertions(1)
+      const postgrest = shallowMount(Postgrest, {
+        propsData: {
+          route: '',
+          query: {},
+          single: true
+        },
+        scopedSlots: {
+          default (props) {
+            expect(props.totalCount).toBe(undefined)
+          }
+        }
+      })
+    })
   })
 })

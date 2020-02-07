@@ -38,7 +38,7 @@ Component "postgrest" is registered globally on your Vue instance.
   route="users"
   :query="{}"
   :create="{}">
-    <template v-slot:default="{ get, items, newItem }">
+    <template v-slot:default="{ get, items, totalCount, newItem }">
     </template>
 </postgrest>
 ```
@@ -56,9 +56,10 @@ Available component props are:
 
 The api-response and following methods are available via slot-props:
 
-|slot-prop|type    |provided if     |description                            |
-|---------|--------|----------------|---------------------------------------|
-|items    |Array   |query && !single|An array of existing data entities     |
-|item     |Object  |query && single |A single existing data entity          |
-|newItem  |Object  |create          |The data entity to create              |
-|get      |Function|query           |Utility function for get requests      | 
+|slot-prop |type    |provided if     |description                            |
+|----------|--------|----------------|---------------------------------------|
+|items     |Array   |query && !single|An array of existing data entities     |
+|item      |Object  |query && single |A single existing data entity          |
+|newItem   |Object  |create          |The data entity to create              |
+|get       |Function|query           |Utility function for get requests      |
+|totalCount|Number  |query && !single|Total no. of entities in the database (can differ from no. of response entities when pagination is active)|

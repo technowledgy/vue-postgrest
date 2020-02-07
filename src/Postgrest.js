@@ -28,7 +28,8 @@ export default {
         get: this.query !== undefined ? () => {} : undefined,
         items: (this.query !== undefined && !this.single) ? [] : undefined,
         item: (this.query !== undefined && this.single) ? {} : undefined,
-        newItem: this.create !== undefined ? {} : undefined
+        newItem: this.create !== undefined ? {} : undefined,
+        totalCount: (this.query !== undefined && !this.single) ? Math.random() : undefined
       }
     }
   },
