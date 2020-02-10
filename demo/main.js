@@ -1,7 +1,7 @@
 // file only for dev. purposes
 import Vue from 'vue'
 import Postgrest from '@/index'
-import Demo from './Demo'
+import Example from './Example'
 
 Vue.config.productionTip = false
 
@@ -10,5 +10,5 @@ Vue.use(Postgrest, {
 })
 
 new Vue({
-  render: h => h(Demo)
+  render: h => h(Example)
 }).$mount('#app')
