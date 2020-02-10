@@ -41,7 +41,7 @@ export default {
     try {
       return this.$scopedSlots.default(this.scope)
     } catch (e) {
-      if (e instanceof TypeError) {
+      if (e instanceof TypeError && e.message === 'this.$scopedSlots.default is not a function') {
         return h()
       } else {
         throw e
