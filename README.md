@@ -61,8 +61,11 @@ The api-response and following methods are available via slot-props:
 |items                |Array   |query && !single|An array of existing data entities     |
 |item                 |Object  |query && single |A single existing data entity          |
 |newItem              |Object  |create          |The data entity to create              |
-|get                  |Function|query           |Utility function for get requests      |
-|pagination           |Object  |query && !single|Information on server-side pagination of results|
-|pagination.totalCount|Number  |query && !single|Total count of entities in DB|
-|pagination.from      |Number  |query && !single|First retrieved entity|
-|pagination.to        |Number  |query && !single|Last retrieved entity|
+|get                  |Object  |query           |Utility for get requests      |
+|get.call             |Function|query           |Resend the get request      |
+|get.isPending        |Function|boolean         |Request is pending      |
+|get.hasError         |Function|boolean         |Request failed with error      |
+|range                |Object  |query && !single|Information on server-side pagination of results|
+|range.totalCount     |Number  |query && !single|Total count of entities in DB|
+|range.first          |Number  |query && !single|First retrieved entity|
+|range.last           |Number  |query && !single|Last retrieved entity|

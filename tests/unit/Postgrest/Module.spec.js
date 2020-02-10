@@ -17,7 +17,7 @@ describe('Module', () => {
 
   describe('Slot scope', () => {
     it('provides GET function if prop QUERY is set', () => {
-      expect.assertions(1)
+      expect.assertions(4)
       const postgrest = shallowMount(Postgrest, {
         propsData: {
           route: '',
@@ -25,7 +25,10 @@ describe('Module', () => {
         },
         scopedSlots: {
           default (props) {
-            expect(typeof props.get).toBe('function')
+            expect(typeof props.get).toBe('object')
+            expect(typeof props.get.call).toBe('function')
+            expect(typeof props.get.isPending).toBe('boolean')
+            expect(typeof props.get.hasError).toBe('boolean')
           }
         }
       })
@@ -120,23 +123,7 @@ describe('Module', () => {
       })
     })
 
-    it('provides "pagination" if prop "query" is set and prop "single" is not set', () => {
-      expect.assertions(4)
-      const postgrest = shallowMount(Postgrest, {
-        propsData: {
-          route: '',
-          query: {}
-        },
-        scopedSlots: {
-          default (props) {
-            expect(typeof props.pagination).toBe('object')
-            expect(typeof props.pagination.totalCount).toBe('number')
-            expect(typeof props.pagination.from).toBe('number')
-            expect(typeof props.pagination.to).toBe('number')
-          }
-        }
-      })
-    })
+    // slot-prop "range" is tested in Get.spec, since setting it should be invoked by api response headers
 
     it('does not provide "pagination" if prop "query" is not set', () => {
       expect.assertions(1)
