@@ -1,16 +1,12 @@
 import Postgrest from './Postgrest'
-import rfdc from 'rfdc'
-const clone = rfdc()
 
 const plugin = {
   install (Vue, options) {
     if (options && options.apiRoot) {
-      const customPostgrest = clone(Postgrest)
-      customPostgrest.props.apiRoot.default = options.apiRoot
-      Vue.component('postgrest', customPostgrest)
-    } else {
+      Postgrest.props.apiRoot.default = options.apiRoot
       Vue.component('postgrest', Postgrest)
     }
+    Vue.component('postgrest', Postgrest)
   }
 }
 
