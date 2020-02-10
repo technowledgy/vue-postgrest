@@ -1,32 +1,8 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils'
 import PostgrestPlugin from '@/index'
 import Postgrest from '@/Postgrest'
-import request from 'superagent'
-import config from '../mock-api-config'
-import mock from 'superagent-mock'
 
-mock(request, config)
-
-describe('Postgrest', () => {
-  describe('Plugin installation', () => {
-
-    it('registers a global component', () => {
-      const localVue = createLocalVue()
-      expect(localVue.options.components.postgrest).toBe(undefined)
-      localVue.use(PostgrestPlugin)
-      expect(localVue.options.components.postgrest).toBeTruthy()
-    })
-
-    it('uses api root path set in install options', () => {
-      const localVue = createLocalVue()
-      localVue.use(PostgrestPlugin, {
-        apiRoot: 'global-root/'
-      })
-      expect(localVue.options.components.postgrest.options.props.apiRoot.default).toBe('global-root/')
-    })
-
-  })
-
+describe('Module', () => {
   describe('Mounting the component', () => {
     it('fails silently if no slot content is provided', () => {
       expect(() => {
