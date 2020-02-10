@@ -145,8 +145,8 @@ describe('Postgrest', () => {
       })
     })
 
-    it('provides "totalCount" if prop "query" is set and prop "single" is not set', () => {
-      expect.assertions(1)
+    it('provides "pagination" if prop "query" is set and prop "single" is not set', () => {
+      expect.assertions(4)
       const postgrest = shallowMount(Postgrest, {
         propsData: {
           route: '',
@@ -154,13 +154,16 @@ describe('Postgrest', () => {
         },
         scopedSlots: {
           default (props) {
-            expect(typeof props.totalCount).toBe('number')
+            expect(typeof props.pagination).toBe('object')
+            expect(typeof props.pagination.totalCount).toBe('number')
+            expect(typeof props.pagination.from).toBe('number')
+            expect(typeof props.pagination.to).toBe('number')
           }
         }
       })
     })
 
-    it('does not provide "totalCount" if prop "query" is not set', () => {
+    it('does not provide "pagination" if prop "query" is not set', () => {
       expect.assertions(1)
       const postgrest = shallowMount(Postgrest, {
         propsData: {
@@ -168,13 +171,13 @@ describe('Postgrest', () => {
         },
         scopedSlots: {
           default (props) {
-            expect(props.totalCount).toBe(undefined)
+            expect(props.pagination).toBe(undefined)
           }
         }
       })
     })
 
-    it('does not provide "totalCount" if prop "query" is set and prop "single" is true', () => {
+    it('does not provide "pagination" if prop "query" is set and prop "single" is true', () => {
       expect.assertions(1)
       const postgrest = shallowMount(Postgrest, {
         propsData: {
@@ -184,7 +187,7 @@ describe('Postgrest', () => {
         },
         scopedSlots: {
           default (props) {
-            expect(props.totalCount).toBe(undefined)
+            expect(props.pagination).toBe(undefined)
           }
         }
       })

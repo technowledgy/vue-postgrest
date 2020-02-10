@@ -56,10 +56,13 @@ Available component props are:
 
 The api-response and following methods are available via slot-props:
 
-|Slot-prop |Type    |Provided if     |Description                            |
-|----------|--------|----------------|---------------------------------------|
-|items     |Array   |query && !single|An array of existing data entities     |
-|item      |Object  |query && single |A single existing data entity          |
-|newItem   |Object  |create          |The data entity to create              |
-|get       |Function|query           |Utility function for get requests      |
-|totalCount|Number  |query && !single|Total no. of entities in the database (can differ from no. of response entities when pagination is active)|
+|Slot-prop            |Type    |Provided if     |Description                            |
+|---------------------|--------|----------------|---------------------------------------|
+|items                |Array   |query && !single|An array of existing data entities     |
+|item                 |Object  |query && single |A single existing data entity          |
+|newItem              |Object  |create          |The data entity to create              |
+|get                  |Function|query           |Utility function for get requests      |
+|pagination           |Object  |query && !single|Information on server-side pagination of results|
+|pagination.totalCount|Number  |query && !single|Total count of entities in DB|
+|pagination.from      |Number  |query && !single|First retrieved entity|
+|pagination.to        |Number  |query && !single|Last retrieved entity|

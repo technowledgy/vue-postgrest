@@ -29,7 +29,11 @@ export default {
         items: (this.query !== undefined && !this.single) ? [] : undefined,
         item: (this.query !== undefined && this.single) ? {} : undefined,
         newItem: this.create !== undefined ? {} : undefined,
-        totalCount: (this.query !== undefined && !this.single) ? Math.random() : undefined
+        pagination: (this.query !== undefined && !this.single) ? {
+          totalCount: Math.random(),
+          from: Math.random(),
+          to: Math.random()
+        } : undefined
       }
     }
   },
