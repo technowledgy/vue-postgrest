@@ -32,12 +32,17 @@ export default {
     offset: {
       type: Number,
       default: undefined
+    },
+    exactCount: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
     return {
       items: [],
       item: {},
+      range: null,
       get: wrap(this._get)
     }
   },
@@ -48,11 +53,7 @@ export default {
         items: (this.query !== undefined && !this.single) ? this.items : undefined,
         item: (this.query !== undefined && this.single) ? this.item : undefined,
         newItem: this.create !== undefined ? {} : undefined,
-        pagination: (this.query !== undefined && !this.single) ? {
-          totalCount: Math.random(),
-          from: Math.random(),
-          to: Math.random()
-        } : undefined
+        range: this.range
       }
     }
   },
@@ -71,6 +72,10 @@ export default {
           headers.Range = range.join('-')
         }
 
+        if (this.exactCount) {
+          headers.Prefer = 'count=exact'
+        }
+
         resp = await superagent.get(this.apiRoot + url({ [this.route]: this.query }))
           .set(headers)
       } catch (e) {
@@ -80,12 +85,25 @@ export default {
           throw e
         }
       }
+
       if (this.single) {
         this.items = null
-        this.item = resp || {}
+        this.item = resp && resp.body || {}
       } else {
         this.item = null
-        this.items = resp || []
+        this.items = resp && resp.body || []
+      }
+
+      if (resp && resp.headers['Content-Range']) {
+        let contentRange = resp.headers['Content-Range'].split('/')
+        let range = contentRange[0].split('-')
+        this.range = {
+          totalCount: contentRange[1] === '*' ? undefined : parseInt(contentRange[1]),
+          first: parseInt(range[0]),
+          last: parseInt(range[1])
+        }
+      } else {
+        this.range = null
       }
     }
   },
