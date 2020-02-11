@@ -1,4 +1,4 @@
-export default function (fn) {
+export default function (fn, emit) {
   const wrapped = {
     hasError: false,
     isPending: false,
@@ -11,7 +11,8 @@ export default function (fn) {
       return Promise.resolve(fn(...args))
         .catch((e) => {
           wrapped.hasError = true
-          throw e
+          // TODO: this could be handled better
+          emit(String(fn.name).replace('bound _', '') + '-error', e)
         })
         .finally(() => {
           wrapped.isPending = false

@@ -43,7 +43,7 @@ export default {
       items: [],
       item: {},
       range: undefined,
-      get: wrap(this._get)
+      get: wrap(this._get, this.$emit)
     }
   },
   computed: {
@@ -60,31 +60,23 @@ export default {
   methods: {
     async _get () {
       let resp
-      try {
-        const headers = {
-          'Accept': this.single ? 'application/vnd.pgrst.object+json' : 'application/json',
-        }
-
-        if (this.limit || this.offset) {
-          const range = [this.offset || 0, this.limit || null]
-          if (range[1] && this.offset) range[1] += this.offset
-          headers['Range-Unit'] = 'items'
-          headers.Range = range.join('-')
-        }
-
-        if (this.exactCount) {
-          headers.Prefer = 'count=exact'
-        }
-
-        resp = await superagent.get(this.apiRoot + url({ [this.route]: this.query }))
-          .set(headers)
-      } catch (e) {
-        if (e.code === 'ECONNREFUSED') {
-          // TODO: handle connection error
-        } else {
-          throw e
-        }
+      const headers = {
+        'Accept': this.single ? 'application/vnd.pgrst.object+json' : 'application/json',
       }
+
+      if (this.limit || this.offset) {
+        const range = [this.offset || 0, this.limit || null]
+        if (range[1] && this.offset) range[1] += this.offset
+        headers['Range-Unit'] = 'items'
+        headers.Range = range.join('-')
+      }
+
+      if (this.exactCount) {
+        headers.Prefer = 'count=exact'
+      }
+
+      resp = await superagent.get(this.apiRoot + url({ [this.route]: this.query }))
+        .set(headers)
 
       if (this.single) {
         this.items = null

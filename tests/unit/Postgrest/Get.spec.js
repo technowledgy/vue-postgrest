@@ -446,4 +446,51 @@ describe('Get', () => {
       })
     })
   })
+
+  describe('Request errors', () => {
+    it('set hasError to true', async () => {
+      expect.assertions(1)
+      return new Promise(resolve => {
+        const postgrest = shallowMount(Postgrest, {
+          propsData: {
+            apiRoot: '/api/',
+            route: '404',
+            query: {}
+          },
+          scopedSlots: {
+            default (props) {
+              if (!props.get.isPending) {
+                expect(props.get.hasError).toBe(true)
+                resolve()
+              }
+            }
+          }
+        })
+      })
+    })
+
+    it('emit a "get-error" event', () => {
+      expect.assertions(4)
+      return new Promise(resolve => {
+        const postgrest = shallowMount(Postgrest, {
+          propsData: {
+            apiRoot: '/api/',
+            route: '404',
+            query: {}
+          },
+          scopedSlots: {
+            default (props) {
+              if (!props.get.isPending) {
+                expect(props.get.hasError).toBe(true)
+                expect(postgrest.emitted()['get-error']).toBeTruthy()
+                expect(postgrest.emitted()['get-error'].length).toBe(1)
+                expect(postgrest.emitted()['get-error'][0][0].message).toEqual('404')
+                resolve()
+              }
+            }
+          }
+        })
+      })
+    })
+  })
 })

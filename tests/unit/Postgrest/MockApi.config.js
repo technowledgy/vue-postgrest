@@ -21,6 +21,10 @@ module.exports = function (mockData) {
             return resp
           }
         }
+
+        if (match[1] === '/404') {
+          throw new Error(404)
+        }
       },
 
       get: function (match, data) {
