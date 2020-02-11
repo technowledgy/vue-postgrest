@@ -334,22 +334,65 @@ describe('Get', () => {
   })
 
   describe('Pagination response headers', () => {
-    it('set the slot-prop "range" correctly', async () => {
-      expect.assertions(3)
+    describe('set the slot-prop "range" correctly if available', () => {
+      it('with prop "exact-count" false', async () => {
+        expect.assertions(4)
+        const postgrest = shallowMount(Postgrest, {
+          propsData: {
+            apiRoot: '/api/',
+            route: 'clients',
+            query: {},
+            limit: 2
+          },
+          scopedSlots: {
+            default (props) {
+              if (!props.get.isPending) {
+                expect(typeof props.range).toBe('object')
+                expect(typeof props.range.totalCount).toBe('undefined')
+                expect(props.range.first).toBe(0)
+                expect(props.range.last).toBe(2)
+              }
+            }
+          }
+        })
+      })
+
+      it('with prop "exact-count" true', async () => {
+        expect.assertions(4)
+        const postgrest = shallowMount(Postgrest, {
+          propsData: {
+            apiRoot: '/api/',
+            route: 'clients',
+            query: {},
+            limit: 2,
+            exactCount: true
+          },
+          scopedSlots: {
+            default (props) {
+              if (!props.get.isPending) {
+                expect(typeof props.range).toBe('object')
+                expect(props.range.totalCount).toBe(3)
+                expect(props.range.first).toBe(0)
+                expect(props.range.last).toBe(2)
+              }
+            }
+          }
+        })
+      })
+    })
+
+    it('do not set the slot-prop "range" if not available', async () => {
+      expect.assertions(1)
       const postgrest = shallowMount(Postgrest, {
         propsData: {
           apiRoot: '/api/',
           route: 'clients',
-          query: {},
-          limit: 2
+          query: {}
         },
         scopedSlots: {
           default (props) {
             if (!props.get.isPending) {
-              expect(typeof props.range).toBe('object')
-              expect(props.range.totalCount).toBe(3)
-              expect(props.range.first).toBe(0)
-              expect(props.range.last).toBe(2)
+              expect(typeof props.range).toBe(undefined)
             }
           }
         }
