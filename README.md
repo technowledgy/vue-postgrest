@@ -53,6 +53,8 @@ Available component props are:
 |query  |no      |undefined|Object|The postgrest query                |
 |single |no      |false    |Bool  |Request a single entity            |
 |create |no      |undefined|Object|Template for a entity to be created|
+|limit  |no      |-        |Number|Limit the count of response entities|
+|offset |no      |-        |Number|Offset the response entities|
 
 The api-response and following methods are available via slot-props:
 
@@ -69,3 +71,21 @@ The api-response and following methods are available via slot-props:
 |range.totalCount     |Number  |query && !single|Total count of entities in DB|
 |range.first          |Number  |query && !single|First retrieved entity|
 |range.last           |Number  |query && !single|Last retrieved entity|
+
+### Querys
+
+The query prop accepts an object with keys of column conditions and values of query string parameters.
+
+#### Examples
+
+To get all users with age greater than 21 and active true:
+
+```
+<postgrest
+    route="users"
+    :query="{ age: 'gt.21', active: 'is.true'}">
+</postgrest>
+```
+
+For available conditions see [the Postgrest docs](https://postgrest.org/en/v4.1/api.html#horizontal-filtering-rows)
+
