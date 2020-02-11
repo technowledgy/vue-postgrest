@@ -78,7 +78,7 @@ describe('Get', () => {
               default (props) {
                 if (!props.get.isPending) {
                   expect(props.items.length).toBe(mockData.get['/clients'].length)
-                  expect(props.items[0].id).toBe(mockData.get['/clients'][0].id)
+                  expect(props.items[0].data.id).toBe(mockData.get['/clients'][0].id)
                   expect(requestLogger.mock.calls.length).toBe(1)
                   expect(requestLogger.mock.calls[0][0].headers.Accept).toBe('application/json')
                   resolve()
@@ -102,7 +102,7 @@ describe('Get', () => {
             scopedSlots: {
               default (props) {
                 if (!props.get.isPending) {
-                  expect(props.item.id).toBe(mockData.get['/clients'][0].id)
+                  expect(props.item.data.id).toBe(mockData.get['/clients'][0].id)
                   expect(requestLogger.mock.calls.length).toBe(1)
                   expect(requestLogger.mock.calls[0][0].headers.Accept).toBe('application/vnd.pgrst.object+json')
                   resolve()

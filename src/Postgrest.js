@@ -1,6 +1,7 @@
 import superagent from 'superagent'
 import url from '@/utils/url'
 import wrap from '@/utils/wrap'
+import GenericModel from '@/models/GenericModel'
 
 export default {
   name: 'Postgrest',
@@ -80,10 +81,12 @@ export default {
 
       if (this.single) {
         this.items = null
-        this.item = resp && resp.body || {}
+        this.item = resp && resp.body ? new GenericModel(resp.body) : {}
       } else {
         this.item = null
-        this.items = resp && resp.body || []
+        this.items = resp && resp.body ? resp.body.map(item => {
+          return new GenericModel(item)
+        }) : []
       }
 
       if (resp && resp.headers['Content-Range']) {
