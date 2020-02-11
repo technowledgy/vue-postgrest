@@ -1,9 +1,10 @@
 <template>
   <postgrest
-    route="clients"
+    api-root="api/"
+    route="users"
     :query="{}"
     :create="{}">
-      <template v-slot:default="{ get, items, pagination, newItem }">
+      <template v-slot:default="{ get, items, range, newItem }">
       </template>
   </postgrest>
 </template>

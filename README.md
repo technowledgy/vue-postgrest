@@ -34,12 +34,12 @@ Component "postgrest" is registered globally on your Vue instance.
 ### Quick example
 ```
 <postgrest
-  api-root="api/"
-  route="users"
-  :query="{}"
-  :create="{}">
-    <template v-slot:default="{ get, items, totalCount, newItem }">
-    </template>
+    api-root="api/"
+    route="users"
+    :query="{}"
+    :create="{}">
+      <template v-slot:default="{ get, items, range, newItem }">
+      </template>
 </postgrest>
 ```
 
