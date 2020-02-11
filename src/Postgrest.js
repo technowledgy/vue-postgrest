@@ -112,6 +112,14 @@ export default {
       deep: true,
       immediate: true
     })
+    this.$watch('route', this.get.call, {
+      deep: true,
+      immediate: true
+    })
+    this.$watch('apiRoot', this.get.call, {
+      deep: true,
+      immediate: true
+    })
   },
   render (h) {
     try {
