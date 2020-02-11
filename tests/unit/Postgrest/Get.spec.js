@@ -106,7 +106,7 @@ describe('Get', () => {
       })
     })
 
-    fdescribe('set with conditions', () => {
+    describe('set with conditions', () => {
       it('sets the request params correctly', async () => {
         expect.assertions(2)
         const postgrest = shallowMount(Postgrest, {
@@ -246,6 +246,26 @@ describe('Get', () => {
   })
 
   describe('Prop "limit"', () => {
+    it('does not set headers when undefined', async () => {
+      expect.assertions(3)
+      const postgrest = shallowMount(Postgrest, {
+        propsData: {
+          apiRoot: '/api/',
+          route: 'clients',
+          query: {}
+        },
+        scopedSlots: {
+          default (props) {
+            if (!props.get.isPending) {
+              expect(requestLogger.mock.calls.length).toBe(1)
+              expect(requestLogger.mock.calls[0][0].headers['Range-Unit']).toBe(undefined)
+              expect(requestLogger.mock.calls[0][0].headers.Range).toBe(undefined)
+            }
+          }
+        }
+      })
+    })
+
     it('sets the correct request headers', async () => {
       expect.assertions(3)
       const postgrest = shallowMount(Postgrest, {
