@@ -28,8 +28,8 @@ export default {
   },
   data () {
     return {
-      items: null,
-      item: null,
+      items: [],
+      item: {},
       get: wrap(this._get)
     }
   },
@@ -37,8 +37,8 @@ export default {
     scope () {
       return {
         get: this.query !== undefined ? this.get : undefined,
-        items: (this.query !== undefined && !this.single) ? this.items || [] : undefined,
-        item: (this.query !== undefined && this.single) ? this.item || {} : undefined,
+        items: (this.query !== undefined && !this.single) ? this.items : undefined,
+        item: (this.query !== undefined && this.single) ? this.item : undefined,
         newItem: this.create !== undefined ? {} : undefined,
         pagination: (this.query !== undefined && !this.single) ? {
           totalCount: Math.random(),
@@ -54,10 +54,10 @@ export default {
         .set('Accept', this.single ? 'application/vnd.pgrst.object+json' : 'application/json')
       if (this.single) {
         this.items = null
-        this.item = resp
+        this.item = resp || {}
       } else {
         this.item = null
-        this.items = resp
+        this.items = resp || []
       }
     }
   },
