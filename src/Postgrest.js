@@ -50,8 +50,17 @@ export default {
   },
   methods: {
     async _get () {
-      const resp = await superagent.get(this.apiRoot + url({ [this.route]: this.query }))
-        .set('Accept', this.single ? 'application/vnd.pgrst.object+json' : 'application/json')
+      let resp
+      try {
+        resp = await superagent.get(this.apiRoot + url({ [this.route]: this.query }))
+          .set('Accept', this.single ? 'application/vnd.pgrst.object+json' : 'application/json')
+      } catch (e) {
+        if (e.code === 'ECONNREFUSED') {
+          // TODO: handle connection error
+        } else {
+          throw e
+        }
+      }
       if (this.single) {
         this.items = null
         this.item = resp || {}
