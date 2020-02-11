@@ -62,7 +62,7 @@ describe('Get', () => {
       })
     })
 
-    fdescribe('set without conditions', () => {
+    describe('set without conditions', () => {
       it('returns list of entities if prop "single" is false', async () => {
         expect.assertions(4)
         const postgrest = shallowMount(Postgrest, {
@@ -106,29 +106,234 @@ describe('Get', () => {
       })
     })
 
-    // TODO: limit and offset as props, test if range is set when reponse has certain headers
-    describe('set with condition(s)', () => {
-      it('"limit" returns limited list of entities and correctly sets "range"', () => {
-        expect.assertions(1)
+    describe('set with conditions', () => {
+      it('sets the request params correctly', async () => {
+        expect.assertions(4)
+        const postgrest = shallowMount(Postgrest, {
+          propsData: {
+            apiRoot: '/api/',
+            route: 'clients',
+            query: { id: { eq: 1 } }
+          },
+          scopedSlots: {
+            default (props) {
+              if (!props.get.isPending) {
+                expect(requestLogger.mock.calls.length).toBe(1)
+                expect(requestLogger.mock.calls[0][0].url).toBe('/api/clients?id=eq.1')
+              }
+            }
+          }
+        })
       })
+    })
 
-      it('"offset" returns correct range of entities and correctly set "range"', () => {
-        expect.assertions(1)
+    it('reacts to dynamic changes', async () => {
+      expect.assertions(4)
+      let propsChanged = false
+      const postgrest = shallowMount(Postgrest, {
+        propsData: {
+          apiRoot: '/api/',
+          route: 'clients',
+          query: {}
+        },
+        scopedSlots: {
+          default (props) {
+            if (!props.get.isPending && !propsChanged) {
+              expect(requestLogger.mock.calls.length).toBe(1)
+              expect(requestLogger.mock.calls[0][0].url).toBe('/api/clients')
+              postgrest.setProps({ query: { id: { eq: 1 } } })
+              propsChanged = true
+            } else if (!props.get.isPending && propsChanged) {
+              expect(requestLogger.mock.calls.length).toBe(2)
+              expect(requestLogger.mock.calls[1][0].url).toBe('/api/clients?id=eq.1')
+            }
+          }
+        }
       })
     })
   })
 
   describe('Prop "route"', () => {
-    it('queries the specified table/view', () => {
-      expect.assertions(1)
+    it('sets the request url correctly', async () => {
+      expect.assertions(2)
+      const postgrest = shallowMount(Postgrest, {
+        propsData: {
+          apiRoot: '/api/',
+          route: 'clients',
+          query: {}
+        },
+        scopedSlots: {
+          default (props) {
+            if (!props.get.isPending) {
+              expect(requestLogger.mock.calls.length).toBe(1)
+              expect(requestLogger.mock.calls[0][0].url).toBe('/api/clients')
+            }
+          }
+        }
+      })
     })
 
-    it('queries the correct table/view when prop "api-root" is set', () => {
-      expect.assertions(1)
+    it('reacts to dynamic changes', async () => {
+      expect.assertions(4)
+      let propsChanged = false
+      const postgrest = shallowMount(Postgrest, {
+        propsData: {
+          apiRoot: '/api/',
+          route: 'clients',
+          query: {}
+        },
+        scopedSlots: {
+          default (props) {
+            if (!props.get.isPending && !propsChanged) {
+              expect(requestLogger.mock.calls.length).toBe(1)
+              expect(requestLogger.mock.calls[0][0].url).toBe('/api/clients')
+              postgrest.setProps({ route: 'users' })
+              propsChanged = true
+            } else if (!props.get.isPending && propsChanged) {
+              expect(requestLogger.mock.calls.length).toBe(2)
+              expect(requestLogger.mock.calls[1][0].url).toBe('/api/users')
+            }
+          }
+        }
+      })
+    })
+  })
+
+  describe('Prop "api-root"', () => {
+    it('sets the request url correctly', async () => {
+      expect.assertions(2)
+      const postgrest = shallowMount(Postgrest, {
+        propsData: {
+          apiRoot: '/another-api/',
+          route: 'clients',
+          query: {}
+        },
+        scopedSlots: {
+          default (props) {
+            if (!props.get.isPending) {
+              expect(requestLogger.mock.calls.length).toBe(1)
+              expect(requestLogger.mock.calls[0][0].url).toBe('/another-api/clients')
+            }
+          }
+        }
+      })
     })
 
-    it('reacts to "route" and "api-root" changes', () => {
+    it('reacts to dynamic changes', async () => {
+      expect.assertions(4)
+      let propsChanged = false
+      const postgrest = shallowMount(Postgrest, {
+        propsData: {
+          apiRoot: '/api/',
+          route: 'clients',
+          query: {}
+        },
+        scopedSlots: {
+          default (props) {
+            if (!props.get.isPending && !propsChanged) {
+              expect(requestLogger.mock.calls.length).toBe(1)
+              expect(requestLogger.mock.calls[0][0].url).toBe('/api/clients')
+              postgrest.setProps({ apiRoot: '/another-api/' })
+              propsChanged = true
+            } else if (!props.get.isPending && propsChanged) {
+              expect(requestLogger.mock.calls.length).toBe(2)
+              expect(requestLogger.mock.calls[1][0].url).toBe('/another-api/clients')
+            }
+          }
+        }
+      })
+    })
+  })
 
+  describe('Prop "limit"', () => {
+    it('sets the correct request headers', async () => {
+      expect.assertions(3)
+      const postgrest = shallowMount(Postgrest, {
+        propsData: {
+          apiRoot: '/api/',
+          route: 'clients',
+          query: {},
+          limit: 10
+        },
+        scopedSlots: {
+          default (props) {
+            if (!props.get.isPending) {
+              expect(requestLogger.mock.calls.length).toBe(1)
+              expect(requestLogger.mock.calls[0][0].headers['Range-Unit']).toBe('items')
+              expect(requestLogger.mock.calls[0][0].headers.Range).toBe('0-10')
+            }
+          }
+        }
+      })
+    })
+  })
+
+  describe('Prop "offset"', () => {
+    it('sets the correct request headers for open range with offset', async () => {
+      expect.assertions(3)
+      const postgrest = shallowMount(Postgrest, {
+        propsData: {
+          apiRoot: '/api/',
+          route: 'clients',
+          query: {},
+          offset: 5
+        },
+        scopedSlots: {
+          default (props) {
+            if (!props.get.isPending) {
+              expect(requestLogger.mock.calls.length).toBe(1)
+              expect(requestLogger.mock.calls[0][0].headers['Range-Unit']).toBe('items')
+              expect(requestLogger.mock.calls[0][0].headers.Range).toBe('5-')
+            }
+          }
+        }
+      })
+    })
+
+    it('sets the correct request headers for closed range with offset', async () => {
+      expect.assertions(3)
+      const postgrest = shallowMount(Postgrest, {
+        propsData: {
+          apiRoot: '/api/',
+          route: 'clients',
+          query: {},
+          offset: 5,
+          limit: 10
+        },
+        scopedSlots: {
+          default (props) {
+            if (!props.get.isPending) {
+              expect(requestLogger.mock.calls.length).toBe(1)
+              expect(requestLogger.mock.calls[0][0].headers['Range-Unit']).toBe('items')
+              expect(requestLogger.mock.calls[0][0].headers.Range).toBe('5-15')
+            }
+          }
+        }
+      })
+    })
+  })
+
+  describe('Pagination response headers', () => {
+    it('set the slot-prop "range" correctly', async () => {
+      expect.assertions(3)
+      const postgrest = shallowMount(Postgrest, {
+        propsData: {
+          apiRoot: '/api/',
+          route: 'clients',
+          query: {},
+          limit: 2
+        },
+        scopedSlots: {
+          default (props) {
+            if (!props.get.isPending) {
+              expect(typeof props.range).toBe('object')
+              expect(props.range.totalCount).toBe(3)
+              expect(props.range.first).toBe(0)
+              expect(props.range.last).toBe(2)
+            }
+          }
+        }
+      })
     })
   })
 })
