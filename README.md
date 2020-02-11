@@ -28,7 +28,6 @@ available pluginOptions are:
 Include `<script src="https://unpkg.com/vue-postgrest"></script>`
 
 ## Usage
-
 Component "postgrest" is registered globally on your Vue instance.
 
 ### Quick example
@@ -43,10 +42,7 @@ Component "postgrest" is registered globally on your Vue instance.
 </postgrest>
 ```
 
-### In depth
-
-Available component props are:
-
+#### Component props
 |Prop      |Required|Default  |Type  |Description                        |
 |----------|--------|---------|------|-----------------------------------|
 |route     |yes     |-        |String|The table/view that is queried     |
@@ -57,21 +53,37 @@ Available component props are:
 |offset    |no      |-        |Number|Offset the response entities|
 |exactCount|no      |false    |Bool  |Request the total amount of entities in DB (disabled by default due to performance considerations)|
 
+#### Slot-scope
 The api-response and following methods are available via slot-props:
 
-|Slot-prop            |Type    |Provided if                     |Description                            |
-|---------------------|--------|--------------------------------|---------------------------------------|
-|items                |Array   |query && !single                |An array of existing data entities     |
-|item                 |Object  |query && single                 |A single existing data entity          |
-|newItem              |Object  |create                          |The data entity to create              |
-|get                  |Object  |query                           |Utility for get requests      |
-|get.call             |Function|query                           |Resend the get request      |
-|get.isPending        |Function|boolean                         |Request is pending      |
-|get.hasError         |Function|boolean                         |Request failed with error      |
-|range                |Object  |API returns Content-Range header|Information on server-side pagination of results|
-|range.totalCount     |Number  |API returns Content-Range header|Total count of entities in DB (undefined if exactCount is false)|
-|range.first          |Number  |API returns Content-Range header|First retrieved entity|
-|range.last           |Number  |API returns Content-Range header|Last retrieved entity|
+|Slot-prop            |Type/Model    |Provided if                     |Description                            |
+|---------------------|--------------|--------------------------------|---------------------------------------|
+|items                |[Entity]      |query && !single                |An array of existing data entities     |
+|item                 |Entity        |query && single                 |A single existing data entity          |
+|newItem              |Entity        |create                          |The data entity to create              |
+|get                  |Get           |query                           |Utility for get requests      |
+|range                |Range         |API returns Content-Range header|Information on server-side pagination of results|
+
+#### Models
+##### Get
+|Property             |Type          |Description             |
+|---------------------|--------------|------------------------|
+|call                 |Function      |Resend the get request      |
+|isPending            |Bool          |Request is pending      |
+|hasError             |Bool          |Request failed with error      |
+
+##### Range
+|Property       |Type          |Description             |
+|---------------|--------------|------------------------|
+|totalCount     |Number        |Total count of entities in DB (undefined if exactCount is false)|
+|first          |Number        |First retrieved entity|
+|last           |Number        |Last retrieved entity|
+
+##### Entity
+
+|Property             |Type          |Description             |
+|---------------------|--------------|------------------------|
+|Data                 |Object        |The entity's data object|
 
 ### Querys
 
