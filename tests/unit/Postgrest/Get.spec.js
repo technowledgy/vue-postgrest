@@ -437,7 +437,7 @@ describe('Get', () => {
           scopedSlots: {
             default (props) {
               if (!props.get.isPending) {
-                expect(typeof props.range).toBe(undefined)
+                expect(typeof props.range).toBe('undefined')
                 resolve()
               }
             }

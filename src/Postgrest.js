@@ -42,7 +42,7 @@ export default {
     return {
       items: [],
       item: {},
-      range: null,
+      range: undefined,
       get: wrap(this._get)
     }
   },
@@ -103,7 +103,7 @@ export default {
           last: parseInt(range[1])
         }
       } else {
-        this.range = null
+        this.range = undefined
       }
     }
   },
