@@ -24,6 +24,14 @@ export default {
     single: {
       type: Boolean,
       default: false
+    },
+    limit: {
+      type: Number,
+      default: undefined
+    },
+    offset: {
+      type: Number,
+      default: undefined
     }
   },
   data () {
@@ -52,8 +60,19 @@ export default {
     async _get () {
       let resp
       try {
+        const headers = {
+          'Accept': this.single ? 'application/vnd.pgrst.object+json' : 'application/json',
+        }
+
+        if (this.limit || this.offset) {
+          const range = [this.offset || 0, this.limit || null]
+          if (range[1] && this.offset) range[1] += this.offset
+          headers['Range-Unit'] = 'items'
+          headers.Range = range.join('-')
+        }
+
         resp = await superagent.get(this.apiRoot + url({ [this.route]: this.query }))
-          .set('Accept', this.single ? 'application/vnd.pgrst.object+json' : 'application/json')
+          .set(headers)
       } catch (e) {
         if (e.code === 'ECONNREFUSED') {
           // TODO: handle connection error
