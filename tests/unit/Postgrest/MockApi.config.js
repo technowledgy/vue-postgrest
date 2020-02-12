@@ -25,6 +25,14 @@ module.exports = function (mockData) {
         if (match[1] === '/404') {
           throw new Error(404)
         }
+        if (match[1] === '/') {
+          return {
+            body: mockData.docs || undefined,
+            headers: {
+              'content-type': 'application/openapi+json'
+            }
+          }
+        }
       },
 
       get: function (match, data) {
