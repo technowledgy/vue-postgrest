@@ -21,7 +21,14 @@ export default class {
 
   }
 
-  _delete () {
+  async _delete () {
+    try {
+      await superagent
+        .delete(this.url)
+        .query({ [this.primaryKeys[0]]: this.data[this.primaryKeys[0]] })
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   reset () {

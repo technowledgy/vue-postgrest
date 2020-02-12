@@ -73,8 +73,8 @@ describe('GenericModel', () => {
   describe('Patch method', () => {})
 
   describe('Delete method', () => {
-    it('sends a delete request for the specified entity to the relevant endpoint', () => {
-      instance.delete.call()
+    it('sends a delete request for the specified entity to the relevant endpoint', async () => {
+      await instance.delete.call()
       // id is primary key as defined by mockData.docs
       expect(requestLogger.mock.calls.length).toBe(1)
       expect(requestLogger.mock.calls[0][0].url).toBe(url + '?id=' + data.id)

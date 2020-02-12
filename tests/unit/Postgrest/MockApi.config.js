@@ -37,6 +37,10 @@ module.exports = function (mockData) {
 
       get: function (match, data) {
         return data
+      },
+
+      delete: function (match, data) {
+        console.log(match)
       }
     }
   ]
