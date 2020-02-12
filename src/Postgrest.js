@@ -2,6 +2,7 @@ import superagent from 'superagent'
 import url from '@/utils/url'
 import wrap from '@/utils/wrap'
 import GenericModel from '@/models/GenericModel'
+import SchemaManager from '@/SchemaManager'
 
 export default {
   name: 'Postgrest',
@@ -44,7 +45,8 @@ export default {
       items: [],
       item: {},
       range: undefined,
-      get: wrap(this._get, this.$emit)
+      get: wrap(this._get, this.$emit),
+      primaryKeys: undefined
     }
   },
   computed: {
@@ -56,6 +58,9 @@ export default {
         newItem: this.create !== undefined ? {} : undefined,
         range: this.range
       }
+    },
+    url () {
+      return this.apiRoot + this.route
     }
   },
   methods: {
@@ -81,11 +86,11 @@ export default {
 
       if (this.single) {
         this.items = null
-        this.item = resp && resp.body ? new GenericModel(resp.body) : {}
+        this.item = resp && resp.body ? new GenericModel(resp.body, this.url, this.primaryKeys) : {}
       } else {
         this.item = null
         this.items = resp && resp.body ? resp.body.map(item => {
-          return new GenericModel(item)
+          return new GenericModel(item, this.url, this.primaryKeys)
         }) : []
       }
 
@@ -102,7 +107,14 @@ export default {
       }
     }
   },
-  created () {
+  async created () {
+    this.$watch('url', async () => {
+      if (this.apiRoot) {
+        this.primaryKeys = await SchemaManager.getPrimaryKeys(this.apiRoot)
+      }
+    }, {
+      immediate: true
+    })
     this.$watch('query', this.get.call, {
       deep: true,
       immediate: true

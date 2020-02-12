@@ -79,8 +79,8 @@ describe('Get', () => {
                 if (!props.get.isPending) {
                   expect(props.items.length).toBe(mockData.get['/clients'].length)
                   expect(props.items[0].data.id).toBe(mockData.get['/clients'][0].id)
-                  expect(requestLogger.mock.calls.length).toBe(1)
-                  expect(requestLogger.mock.calls[0][0].headers.Accept).toBe('application/json')
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.Accept).toBe('application/json')
                   resolve()
                 }
               }
@@ -103,8 +103,8 @@ describe('Get', () => {
               default (props) {
                 if (!props.get.isPending) {
                   expect(props.item.data.id).toBe(mockData.get['/clients'][0].id)
-                  expect(requestLogger.mock.calls.length).toBe(1)
-                  expect(requestLogger.mock.calls[0][0].headers.Accept).toBe('application/vnd.pgrst.object+json')
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.Accept).toBe('application/vnd.pgrst.object+json')
                   resolve()
                 }
               }
@@ -116,7 +116,7 @@ describe('Get', () => {
 
     describe('set with conditions', () => {
       it('sets the request params correctly', async () => {
-        expect.assertions(2)
+        expect.assertions(1)
         return new Promise(resolve => {
           const postgrest = shallowMount(Postgrest, {
             propsData: {
@@ -127,8 +127,7 @@ describe('Get', () => {
             scopedSlots: {
               default (props) {
                 if (!props.get.isPending) {
-                  expect(requestLogger.mock.calls.length).toBe(1)
-                  expect(requestLogger.mock.calls[0][0].url).toBe('/api/clients?id=eq.1')
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients?id=eq.1').length).toBe(1)
                   resolve()
                 }
               }
@@ -139,7 +138,7 @@ describe('Get', () => {
     })
 
     it('reacts to dynamic changes', async () => {
-      expect.assertions(4)
+      expect.assertions(3)
       return new Promise(resolve => {
         let propsChanged = false
         const postgrest = shallowMount(Postgrest, {
@@ -151,13 +150,12 @@ describe('Get', () => {
           scopedSlots: {
             default (props) {
               if (!props.get.isPending && !propsChanged) {
-                expect(requestLogger.mock.calls.length).toBe(1)
-                expect(requestLogger.mock.calls[0][0].url).toBe('/api/clients')
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
                 postgrest.setProps({ query: { id: 'eq.1' } })
                 propsChanged = true
               } else if (!props.get.isPending && propsChanged) {
-                expect(requestLogger.mock.calls.length).toBe(2)
-                expect(requestLogger.mock.calls[1][0].url).toBe('/api/clients?id=eq.1')
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients?id=eq.1').length).toBe(1)
                 resolve()
               }
             }
@@ -169,7 +167,7 @@ describe('Get', () => {
 
   describe('Prop "route"', () => {
     it('sets the request url correctly', async () => {
-      expect.assertions(2)
+      expect.assertions(1)
       return new Promise(resolve => {
         const postgrest = shallowMount(Postgrest, {
           propsData: {
@@ -180,8 +178,7 @@ describe('Get', () => {
           scopedSlots: {
             default (props) {
               if (!props.get.isPending) {
-                expect(requestLogger.mock.calls.length).toBe(1)
-                expect(requestLogger.mock.calls[0][0].url).toBe('/api/clients')
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
                 resolve()
               }
             }
@@ -191,7 +188,7 @@ describe('Get', () => {
     })
 
     it('reacts to dynamic changes', async () => {
-      expect.assertions(4)
+      expect.assertions(3)
       return new Promise(resolve => {
         let propsChanged = false
         const postgrest = shallowMount(Postgrest, {
@@ -203,13 +200,12 @@ describe('Get', () => {
           scopedSlots: {
             default (props) {
               if (!props.get.isPending && !propsChanged) {
-                expect(requestLogger.mock.calls.length).toBe(1)
-                expect(requestLogger.mock.calls[0][0].url).toBe('/api/clients')
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
                 postgrest.setProps({ route: 'users' })
                 propsChanged = true
               } else if (!props.get.isPending && propsChanged) {
-                expect(requestLogger.mock.calls.length).toBe(2)
-                expect(requestLogger.mock.calls[1][0].url).toBe('/api/users')
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/users').length).toBe(1)
                 resolve()
               }
             }
@@ -221,7 +217,7 @@ describe('Get', () => {
 
   describe('Prop "api-root"', () => {
     it('sets the request url correctly', async () => {
-      expect.assertions(2)
+      expect.assertions(1)
       return new Promise(resolve => {
         const postgrest = shallowMount(Postgrest, {
           propsData: {
@@ -232,8 +228,7 @@ describe('Get', () => {
           scopedSlots: {
             default (props) {
               if (!props.get.isPending) {
-                expect(requestLogger.mock.calls.length).toBe(1)
-                expect(requestLogger.mock.calls[0][0].url).toBe('/another-api/clients')
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/another-api/clients').length).toBe(1)
                 resolve()
               }
             }
@@ -243,7 +238,7 @@ describe('Get', () => {
     })
 
     it('reacts to dynamic changes', async () => {
-      expect.assertions(4)
+      expect.assertions(3)
       return new Promise(resolve => {
         let propsChanged = false
         const postgrest = shallowMount(Postgrest, {
@@ -255,13 +250,12 @@ describe('Get', () => {
           scopedSlots: {
             default (props) {
               if (!props.get.isPending && !propsChanged) {
-                expect(requestLogger.mock.calls.length).toBe(1)
-                expect(requestLogger.mock.calls[0][0].url).toBe('/api/clients')
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
                 postgrest.setProps({ apiRoot: '/another-api/' })
                 propsChanged = true
               } else if (!props.get.isPending && propsChanged) {
-                expect(requestLogger.mock.calls.length).toBe(2)
-                expect(requestLogger.mock.calls[1][0].url).toBe('/another-api/clients')
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/another-api/clients').length).toBe(1)
                 resolve()
               }
             }
@@ -284,9 +278,9 @@ describe('Get', () => {
           scopedSlots: {
             default (props) {
               if (!props.get.isPending) {
-                expect(requestLogger.mock.calls.length).toBe(1)
-                expect(requestLogger.mock.calls[0][0].headers['Range-Unit']).toBe(undefined)
-                expect(requestLogger.mock.calls[0][0].headers.Range).toBe(undefined)
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers['Range-Unit']).toBe(undefined)
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.Range).toBe(undefined)
                 resolve()
               }
             }
@@ -308,9 +302,9 @@ describe('Get', () => {
           scopedSlots: {
             default (props) {
               if (!props.get.isPending) {
-                expect(requestLogger.mock.calls.length).toBe(1)
-                expect(requestLogger.mock.calls[0][0].headers['Range-Unit']).toBe('items')
-                expect(requestLogger.mock.calls[0][0].headers.Range).toBe('0-10')
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers['Range-Unit']).toBe('items')
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.Range).toBe('0-10')
                 resolve()
               }
             }
@@ -334,9 +328,9 @@ describe('Get', () => {
           scopedSlots: {
             default (props) {
               if (!props.get.isPending) {
-                expect(requestLogger.mock.calls.length).toBe(1)
-                expect(requestLogger.mock.calls[0][0].headers['Range-Unit']).toBe('items')
-                expect(requestLogger.mock.calls[0][0].headers.Range).toBe('5-')
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers['Range-Unit']).toBe('items')
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.Range).toBe('5-')
                 resolve()
               }
             }
@@ -359,9 +353,9 @@ describe('Get', () => {
           scopedSlots: {
             default (props) {
               if (!props.get.isPending) {
-                expect(requestLogger.mock.calls.length).toBe(1)
-                expect(requestLogger.mock.calls[0][0].headers['Range-Unit']).toBe('items')
-                expect(requestLogger.mock.calls[0][0].headers.Range).toBe('5-15')
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers['Range-Unit']).toBe('items')
+                expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.Range).toBe('5-15')
                 resolve()
               }
             }

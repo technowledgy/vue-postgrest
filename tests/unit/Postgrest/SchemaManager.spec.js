@@ -31,6 +31,10 @@ describe('SchemaManager', () => {
     superagentMock.unset()
   })
 
+  beforeEach(() => {
+    requestLogger.mockReset()
+  })
+
   describe('"resetCache" method', () => {
     it('empties the cache', () => {
       SchemaManager.cache = { data: true }
