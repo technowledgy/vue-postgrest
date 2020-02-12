@@ -1,26 +1,45 @@
+import request from 'superagent'
+import config from './MockApi.config'
+import mock from 'superagent-mock'
+
+const requestLogger = jest.fn((log) => {})
+const superagentMock = mock(request, config({}), requestLogger)
+
 import GenericModel from '@/models/GenericModel'
 
+const url = '/api/clients'
+
+const data = {
+  id: 123,
+  name: 'client 123'
+}
+
+const primaryKeys = {
+  clients: ['id']
+}
+
 describe('GenericModel', () => {
-  const data = {
-    key1: 'value1'
-  }
+  beforeEach(() => {
+    requestLogger.mockReset()
+  })
 
-  const route = '/clients'
-  const apiRoot = '/api/'
+  afterAll(() => {
+    superagentMock.unset()
+  })
 
-  const instance = new GenericModel(data, route, apiRoot)
+  const instance = new GenericModel(data, url, primaryKeys)
 
   describe('Instance', () => {
     it('sets the first constructor argument to instance property "data"', () => {
       expect(instance.data).toEqual(data)
     })
 
-    it('sets the second constructor argument to instance property "route"', () => {
-      expect(instance.route).toBe(route)
+    it('sets the second constructor argument to instance property "url"', () => {
+      expect(instance.url).toBe(url)
     })
 
-    it('sets the third constructor argument to instance property "apiRoot"', () => {
-      expect(instance.apiRoot).toBe(apiRoot)
+    it('sets the third constructor argument to instance property "primaryKeys"', () => {
+      expect(instance.primaryKeys).toBe(primaryKeys)
     })
 
     it('has instance method "post"', () => {
@@ -55,17 +74,13 @@ describe('GenericModel', () => {
 
   describe('Delete method', () => {
     it('sends a delete request for the specified entity to the relevant endpoint', () => {
-      
+      instance.delete.call()
+      // id is primary key as defined by mockData.docs
+      expect(requestLogger.mock.calls.length).toBe(1)
+      expect(requestLogger.mock.calls[0][0].url).toBe(url + '?id=' + data.id)
+      expect(requestLogger.mock.calls[0][0].method).toBe('delete')
     })
   })
 
   describe('Reset method', () => {})
-
-  describe('"Route" property', () => {
-    it('is reactive', () => {})
-  })
-
-  describe('"ApiRoot" property', () => {
-    it('is reactive', () => {})
-  })
 })

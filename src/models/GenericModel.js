@@ -1,15 +1,17 @@
 import wrap from '@/utils/wrap'
+import superagent from 'superagent'
 
 export default class {
-  constructor (data, route, apiRoot) {
+  constructor (data, url, primaryKeys) {
     this.data = data
-    this.route = route
-    this.apiRoot = apiRoot
+    this.url = url
+    this.primaryKeys = primaryKeys
   }
 
-  post = wrap(this._post)
-  patch = wrap(this._patch)
-  delete = wrap(this._delete)
+  // we have to bind this for wrapped functions
+  post = wrap(this._post.bind(this))
+  patch = wrap(this._patch.bind(this))
+  delete = wrap(this._delete.bind(this))
 
   _post () {
 
@@ -20,7 +22,6 @@ export default class {
   }
 
   _delete () {
-
   }
 
   reset () {
