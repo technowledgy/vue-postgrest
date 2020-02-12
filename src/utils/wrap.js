@@ -12,7 +12,11 @@ export default function (fn, emit) {
         .catch((e) => {
           wrapped.hasError = true
           // TODO: this could be handled better
-          emit(String(fn.name).replace('bound _', '') + '-error', e)
+          if (typeof emit === 'function') {
+            emit(String(fn.name).replace('bound _', '') + '-error', e) 
+          } else {
+            throw e
+          }
         })
         .finally(() => {
           wrapped.isPending = false
