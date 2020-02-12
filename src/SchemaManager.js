@@ -1,7 +1,11 @@
 import superagent from 'superagent'
 
 export default {
+  // TODO: do not cache the whole schema
   cache: {},
+  resetCache () {
+    this.cache = {}
+  },
   async getPrimaryKeys (apiRoot) {
     if (!this.cache[apiRoot]) {
       await this._getSchema(apiRoot) 
@@ -15,21 +19,11 @@ export default {
     return keys
   },
   async _getSchema (apiRoot) {
-    // TODO: error handling
-    let resp
-    try {
-      resp = await superagent.get(apiRoot) 
-    } catch (e) {
-      if (e.errno && e.errno === 'ECONNREFUSED') {
-        // TODO: emit not an api error
-      } else {
-        throw e
-      }
-    }
-    if (resp && resp.headers['content-type'] !== 'application/openapi+json') {
-      resp = undefined
+    const resp = await superagent.get(apiRoot) 
+    if (resp && resp.headers['content-type'] === 'application/openapi+json') {
+      this.cache[apiRoot] = resp.body
+    } else {
       // TODO: emit not an api error
     }
-    this.cache[apiRoot] = resp && resp.body
   }
 }

@@ -16,12 +16,22 @@ const superagentMock = mock(request, config(mockData), requestLogger)
 import SchemaManager from '@/SchemaManager'
 
 describe('SchemaManager', () => {
-  describe('"getPrimaryKeys" method', () => {
-    afterAll(() => {
-      superagentMock.unset()
-    })
+  afterAll(() => {
+    superagentMock.unset()
+  })
 
+  describe('"resetCache" method', () => {
+    it('empties the cache', () => {
+      SchemaManager.cache = { data: true }
+      expect(SchemaManager.cache.data).toBeTruthy()
+      SchemaManager.resetCache()
+      expect(SchemaManager.cache.data).toBe(undefined)
+    })
+  })
+
+  describe('"getPrimaryKeys" method', () => {
     beforeEach(() => {
+      SchemaManager.resetCache()
       requestLogger.mockReset()
     })
 
@@ -34,17 +44,17 @@ describe('SchemaManager', () => {
     })
 
     it('uses existing schema if cached and returns the primary keys for the requested api root if schema exists', async () => {
-      const keys = await SchemaManager.getPrimaryKeys('/api/')
-      expect(requestLogger.mock.calls.length).toBe(0)
+      let keys = await SchemaManager.getPrimaryKeys('/api/')
+      expect(requestLogger.mock.calls.length).toBe(1)
       expect(keys).toEqual({
         table1: mockData.docs.definitions.table1.required
       })
+      keys = await SchemaManager.getPrimaryKeys('/api/')
+      expect(requestLogger.mock.calls.length).toBe(1)
     })
 
-    it('returns empty object for the requested api root if schema does not exist', async () => {
-      const keys = await SchemaManager.getPrimaryKeys('/non-existing/')
-      expect(requestLogger.mock.calls.length).toBe(1)
-      expect(keys).toEqual({})
+    it('throws error if schema does not exist', async () => {
+      await expect(SchemaManager.getPrimaryKeys('/non-existing/')).rejects.toThrow()
     })
   })
 })
