@@ -61,14 +61,14 @@ The api-response and following methods are available via slot-props:
 |items                |[Entity]      |query && !single                |An array of existing data entities     |
 |item                 |Entity        |query && single                 |A single existing data entity          |
 |newItem              |Entity        |create                          |The data entity to create              |
-|get                  |Get           |query                           |Utility for get requests      |
+|get                  |Utility       |query                           |Utility for get requests      |
 |range                |Range         |API returns Content-Range header|Information on server-side pagination of results|
 
 #### Models
-##### Get
+##### Utility
 |Property             |Type          |Description             |
 |---------------------|--------------|------------------------|
-|call                 |Function      |Resend the get request      |
+|call                 |Function      |Call the utility function|
 |isPending            |Bool          |Request is pending      |
 |hasError             |Bool          |Request failed with error      |
 
@@ -83,7 +83,11 @@ The api-response and following methods are available via slot-props:
 
 |Property             |Type          |Description             |
 |---------------------|--------------|------------------------|
-|Data                 |Object        |The entity's data object|
+|data                 |Object        |The entity's data object|
+|post                 |Utility       |Send a post request with the entity's data|
+|patch                |Utility       |Send a patch request with the entity's data|
+|delete               |Utility       |Send request to delete the entity|
+|reset                |Function      |Reset the entity's data object to initial state|
 
 ### Querys
 
@@ -100,5 +104,5 @@ To get all users with age greater than 21 and active true:
 </postgrest>
 ```
 
-For available conditions see [the Postgrest docs](https://postgrest.org/en/v4.1/api.html#horizontal-filtering-rows)
+For available conditions see [the Postgrest docs](https://postgrest.org/en/v4.1/api.html#horizontal-filtering-rows).
 
