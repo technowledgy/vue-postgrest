@@ -20,10 +20,17 @@ export default {
     }
   },
   _extractPrimaryKeys (def) {
-    let keys = {}
+    let pks = {}
     Object.keys(def).map(table => {
-      keys[table] = def[table].required 
+      Object.keys(def[table]).map(key => {
+        if (def[table][key].description && def[table][key].description.includes('<pk/>')) {
+          if (!pks[table]) {
+            pks[table] = []
+          }
+          pks[table].push(key)
+        }
+      })
     })
-    return keys
+    return pks
   }
 }

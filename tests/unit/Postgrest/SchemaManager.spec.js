@@ -6,7 +6,18 @@ const mockData = {
   docs: {
     definitions: {
       table1: {
-        required: ['PK1', 'PK2']
+        name: {
+          type: 'text',
+          description: 'Note:\nThis is a Primary Key.<pk/>'
+        },
+        id: {
+          type: 'integer',
+          description: 'Note:\nThis is a Primary Key.<pk/>'
+        },
+        age: {
+          type: 'integer',
+          description: 'This is not a primary key.'
+        }
       }
     }
   }
@@ -39,7 +50,7 @@ describe('SchemaManager', () => {
       const keys = await SchemaManager.getPrimaryKeys('/api/')
       expect(requestLogger.mock.calls.length).toBe(1)
       expect(keys).toEqual({
-        table1: mockData.docs.definitions.table1.required
+        table1: ['name', 'id']
       })
     })
 
@@ -47,7 +58,7 @@ describe('SchemaManager', () => {
       let keys = await SchemaManager.getPrimaryKeys('/api/')
       expect(requestLogger.mock.calls.length).toBe(1)
       expect(keys).toEqual({
-        table1: mockData.docs.definitions.table1.required
+        table1: ['name', 'id']
       })
       keys = await SchemaManager.getPrimaryKeys('/api/')
       expect(requestLogger.mock.calls.length).toBe(1)
