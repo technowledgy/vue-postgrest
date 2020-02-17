@@ -5,6 +5,7 @@ export default class {
   constructor (data, url, primaryKeys) {
     this.data = data
     this.url = url
+    this.route = url.split('/')[url.split('/').length - 1]
     this.primaryKeys = primaryKeys
   }
 
@@ -23,9 +24,13 @@ export default class {
 
   async _delete () {
     try {
+      let query = {}
+      for (let pk of this.primaryKeys[this.route]) {
+        query[pk] = this.data[pk]
+      }
       await superagent
         .delete(this.url)
-        .query({ [this.primaryKeys[0]]: this.data[this.primaryKeys[0]] })
+        .query(query)
     } catch (e) {
       console.error(e)
     }
