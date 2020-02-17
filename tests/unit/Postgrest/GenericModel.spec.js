@@ -1,3 +1,4 @@
+import PrimaryKeyError from '@/errors/PrimaryKeyError'
 import request from 'superagent'
 import config from './MockApi.config'
 import mock from 'superagent-mock'
@@ -11,12 +12,11 @@ const url = '/api/clients'
 
 const data = {
   id: 123,
-  name: 'client 123'
+  name: 'client123',
+  age: 50
 }
 
-const primaryKeys = {
-  clients: ['id']
-}
+const primaryKeys = ['id']
 
 describe('GenericModel', () => {
   beforeEach(() => {
@@ -74,11 +74,31 @@ describe('GenericModel', () => {
 
   describe('Delete method', () => {
     it('sends a delete request for the specified entity to the relevant endpoint', async () => {
-      await instance.delete.call()
-      // id is primary key as defined above
+      const deleteInstance = new GenericModel(data, url, ['id'])
+      await deleteInstance.delete.call()
       expect(requestLogger.mock.calls.length).toBe(1)
       expect(requestLogger.mock.calls[0][0].url).toBe(url + '?id=' + data.id)
       expect(requestLogger.mock.calls[0][0].method).toBe('DELETE')
+
+      const deleteInstance2 = new GenericModel(data, url, ['name', 'age'])
+      await deleteInstance2.delete.call()
+      expect(requestLogger.mock.calls.length).toBe(2)
+      expect(requestLogger.mock.calls[1][0].url).toBe(url + '?name=' + data.name + '&age=' + data.age)
+      expect(requestLogger.mock.calls[1][0].method).toBe('DELETE')
+    })
+
+    it('throws "PrimaryKeyError" before sending the request if primary key is not valid', async () => {
+      const deleteInstance = new GenericModel(data, url, ['not-existing'])
+      expect(deleteInstance.delete.hasError).toBe(false)
+      await expect(deleteInstance.delete.call()).rejects.toThrow(PrimaryKeyError)
+      expect(deleteInstance.delete.hasError).toBeTruthy()
+
+      const deleteInstance2 = new GenericModel({
+        name: 'client 321',
+        age: 50
+      }, url, ['id'])
+      await expect(deleteInstance2.delete.call()).rejects.toThrow(PrimaryKeyError)
+      expect(requestLogger.mock.calls.length).toBe(0)
     })
   })
 

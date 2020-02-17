@@ -1,3 +1,4 @@
+import PrimaryKeyError from '@/errors/PrimaryKeyError'
 import wrap from '@/utils/wrap'
 import superagent from 'superagent'
 
@@ -5,7 +6,6 @@ export default class {
   constructor (data, url, primaryKeys) {
     this.data = data
     this.url = url
-    this.route = url.split('/')[url.split('/').length - 1]
     this.primaryKeys = primaryKeys
   }
 
@@ -23,17 +23,16 @@ export default class {
   }
 
   async _delete () {
-    try {
-      let query = {}
-      for (let pk of this.primaryKeys[this.route]) {
-        query[pk] = this.data[pk]
+    const query = this.primaryKeys.reduce((q, pk) => {
+      if (this.data[pk] === undefined) {
+        throw new PrimaryKeyError(pk)
       }
-      await superagent
-        .delete(this.url)
-        .query(query)
-    } catch (e) {
-      console.error(e)
-    }
+      q[pk] = this.data[pk]
+      return q
+    }, {})
+    await superagent
+      .delete(this.url)
+      .query(query)
   }
 
   reset () {
