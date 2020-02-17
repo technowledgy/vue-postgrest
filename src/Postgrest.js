@@ -110,7 +110,8 @@ export default {
   async created () {
     this.$watch('url', async () => {
       if (this.apiRoot) {
-        this.primaryKeys = await SchemaManager.getPrimaryKeys(this.apiRoot)
+        const pks = await SchemaManager.getPrimaryKeys(this.apiRoot)
+        this.primaryKeys = pks[this.route]
       }
     }, {
       immediate: true

@@ -1,3 +1,4 @@
+import GenericModel from '@/models/GenericModel'
 import request from 'superagent'
 import config from './MockApi.config'
 import mock from 'superagent-mock'
@@ -17,6 +18,16 @@ const mockData = {
         name: 'Test Client 3'
       }
     ]
+  },
+  docs: {
+    definitions: {
+      clients: {
+        id: {
+          type: 'integer',
+          description: 'Note:\nThis is a Primary Key.<pk/>'
+        }
+      }
+    }
   }
 }
 const requestLogger = jest.fn((log) => {})
@@ -114,6 +125,36 @@ describe('Get', () => {
                     expect(props.item.data.id).toBe(mockData.get['/clients'][0].id)
                     expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
                     expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.Accept).toBe('application/vnd.pgrst.object+json')
+                    resolve()
+                  }
+                } catch (e) {
+                  reject(e)
+                }
+              }
+            }
+          })
+        })
+      })
+
+      it('returns generic models with correct constructor arguments', async () => {
+        expect.assertions(4)
+        return new Promise((resolve, reject) => {
+          const postgrest = shallowMount(Postgrest, {
+            propsData: {
+              apiRoot: '/api/',
+              route: 'clients',
+              query: {},
+              single: true
+            },
+            scopedSlots: {
+              default (props) {
+                try {
+                  if (!props.get.isPending) {
+                    expect(props.item instanceof GenericModel).toBe(true)
+                    expect(props.item.url).toBe('/api/clients')
+                    expect(props.item.data).toBe(mockData.get['/clients'][0])
+                    // primary keys as defined by docs above
+                    expect(props.item.primaryKeys).toEqual(['id'])
                     resolve()
                   }
                 } catch (e) {
