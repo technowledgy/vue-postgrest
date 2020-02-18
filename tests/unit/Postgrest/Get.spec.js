@@ -153,7 +153,7 @@ describe('Get', () => {
                 try {
                   if (!props.get.isPending) {
                     expect(props.item instanceof GenericModel).toBe(true)
-                    expect(props.item.url).toBe('/api/clients')
+                    expect(typeof props.item.request).toBe('function')
                     expect(props.item.data).toEqual(mockData.data['/clients'].get[0])
                     // primary keys as defined by docs above
                     expect(props.item.primaryKeys).toEqual(['id'])

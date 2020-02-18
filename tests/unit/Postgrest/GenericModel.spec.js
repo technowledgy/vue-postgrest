@@ -1,8 +1,6 @@
 import PrimaryKeyError from '@/errors/PrimaryKeyError'
 import FieldNotExistsError from '@/errors/FieldNotExistsError'
-import request from 'superagent'
-import config from './MockApi.config'
-import mock from 'superagent-mock'
+import GenericModel from '@/models/GenericModel'
 
 const data = {
   id: 123,
@@ -11,33 +9,16 @@ const data = {
   level: 10
 }
 
-const requestLogger = jest.fn((log) => {})
-const superagentMock = mock(request, config({
-  data: {
-    '/clients': {
-      patch: [{
-        ...data
-      }]
-    }
-  }
-}), requestLogger)
-
-import GenericModel from '@/models/GenericModel'
-
-const url = '/api/clients'
-
 const primaryKeys = ['id']
+
+const makeRequestCB = jest.fn()
 
 describe('GenericModel', () => {
   beforeEach(() => {
-    requestLogger.mockReset()
+    makeRequestCB.mockReset()
   })
 
-  afterAll(() => {
-    superagentMock.unset()
-  })
-
-  const instance = new GenericModel(data, url, primaryKeys)
+  const instance = new GenericModel(data, primaryKeys, makeRequestCB)
 
   describe('Instance', () => {
     it('sets the data field getters and setters on instance property "data"', () => {
@@ -48,12 +29,12 @@ describe('GenericModel', () => {
       }
     })
 
-    it('sets the second constructor argument to instance property "url"', () => {
-      expect(instance.url).toBe(url)
+    it('sets the second constructor argument to instance property "primaryKeys"', () => {
+      expect(instance.primaryKeys).toBe(primaryKeys)
     })
 
-    it('sets the third constructor argument to instance property "primaryKeys"', () => {
-      expect(instance.primaryKeys).toBe(primaryKeys)
+    it('sets the third constructor argument to instance method "request"', () => {
+      expect(instance.request).toEqual(makeRequestCB)
     })
 
     it('has instance method "post"', () => {
@@ -86,7 +67,7 @@ describe('GenericModel', () => {
 
   describe('Reset method', () => {
     it('resets the changes on the instance data object', () => {
-      const patchInstance = new GenericModel(data, url, ['id'])
+      const patchInstance = new GenericModel(data, ['id'], makeRequestCB)
       patchInstance.data.name = 'client321'
       expect(patchInstance.data.name).toBe('client321')
       patchInstance.reset()
@@ -97,26 +78,26 @@ describe('GenericModel', () => {
   describe('Patch method', () => {
     describe('called without argument', () => {
       it('does not send a patch request if data was not changed', async () => {
-        const patchInstance = new GenericModel(data, url, ['id'])
+        const patchInstance = new GenericModel(data, ['id'], makeRequestCB)
         await patchInstance.patch.call()
-        expect(requestLogger.mock.calls.length).toBe(0)
+        expect(makeRequestCB.mock.calls.length).toBe(0)
 
-        const patchInstance2 = new GenericModel(data, url, ['id'])
+        const patchInstance2 = new GenericModel(data, ['id'], makeRequestCB)
         patchInstance2.name = 'client321'
         patchInstance2.name = 'client123'
         await patchInstance2.patch.call()
-        expect(requestLogger.mock.calls.length).toBe(0)
+        expect(makeRequestCB.mock.calls.length).toBe(0)
       })
 
       describe('sends a patch request for the specified entity to the relevant endpoint for changed', () => {
         it('simple data fields', async () => {
-          const patchInstance = new GenericModel(data, url, ['id'])
+          const patchInstance = new GenericModel(data, ['id'], makeRequestCB)
           patchInstance.data.name = 'client321'
           await patchInstance.patch.call()
-          expect(requestLogger.mock.calls.length).toBe(1)
-          expect(requestLogger.mock.calls[0][0].url).toBe(url + '?id=' + data.id)
-          expect(requestLogger.mock.calls[0][0].method).toBe('PATCH')
-          expect(requestLogger.mock.calls[0][0].data).toEqual({
+          expect(makeRequestCB.mock.calls.length).toBe(1)
+          expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id })
+          expect(makeRequestCB.mock.calls[0][0]).toBe('PATCH')
+          expect(makeRequestCB.mock.calls[0][3]).toEqual({
             name: 'client321'
           })
         })
@@ -133,7 +114,7 @@ describe('GenericModel', () => {
             const patchInstance = new GenericModel({
               ...data,
               nestedField
-            }, url, ['id'])
+            }, ['id'], makeRequestCB)
             const newNestedField = {
               newParent: {
                 newChild: 'new'
@@ -142,19 +123,19 @@ describe('GenericModel', () => {
             }
             patchInstance.data.nestedField = newNestedField
             await patchInstance.patch.call()
-            expect(requestLogger.mock.calls.length).toBe(1)
-            expect(requestLogger.mock.calls[0][0].data).toEqual({ nestedField: newNestedField })
+            expect(makeRequestCB.mock.calls.length).toBe(1)
+            expect(makeRequestCB.mock.calls[0][3]).toEqual({ nestedField: newNestedField })
           })
 
           it('of whom only a subfield is changed', async () => {
             const patchInstance = new GenericModel({
               ...data,
               nestedField
-            }, url, ['id'])
+            }, ['id'], makeRequestCB)
             patchInstance.data.nestedField.parent.set('child', 'new')
             await patchInstance.patch.call()
-            expect(requestLogger.mock.calls.length).toBe(1)
-            expect(requestLogger.mock.calls[0][0].data).toEqual({
+            expect(makeRequestCB.mock.calls.length).toBe(1)
+            expect(makeRequestCB.mock.calls[0][3]).toEqual({
               nestedField: {
                 parent: {
                   child: 'new'
@@ -170,12 +151,12 @@ describe('GenericModel', () => {
             const patchInstance = new GenericModel({
               ...data,
               nestedField: [1, 5, 10]
-            }, url, ['id'])
+            }, ['id'], makeRequestCB)
             patchInstance.data.nestedField.set(0, 2)
             patchInstance.data.nestedField.push(20)
             await patchInstance.patch.call()
-            expect(requestLogger.mock.calls.length).toBe(1)
-            expect(requestLogger.mock.calls[0][0].data).toEqual({ nestedField: [2, 5, 10, 20] })
+            expect(makeRequestCB.mock.calls.length).toBe(1)
+            expect(makeRequestCB.mock.calls[0][3]).toEqual({ nestedField: [2, 5, 10, 20] })
   
           })
 
@@ -185,11 +166,11 @@ describe('GenericModel', () => {
               nestedField: [{
                 child: 'old'
               }, 5, 10]
-            }, url, ['id'])
+            }, ['id'], makeRequestCB)
             patchInstance.data.nestedField[0].set('child', 'new')
             await patchInstance.patch.call()
-            expect(requestLogger.mock.calls.length).toBe(1)
-            expect(requestLogger.mock.calls[0][0].data).toEqual({ nestedField: [{
+            expect(makeRequestCB.mock.calls.length).toBe(1)
+            expect(makeRequestCB.mock.calls[0][3]).toEqual({ nestedField: [{
               child: 'new'
             }, 5, 10] })
           })
@@ -199,24 +180,24 @@ describe('GenericModel', () => {
 
     describe('called with argument', () => {
       it('throws if argument is not an object', async () => {
-        const patchInstance = new GenericModel(data, url, ['id'])
+        const patchInstance = new GenericModel(data, ['id'], makeRequestCB)
         await expect(patchInstance.patch.call(1)).rejects.toThrow()
         await expect(patchInstance.patch.call([])).rejects.toThrow()
       })
 
       describe('sends a patch request for the specified entity to the relevant endpoint for changed', () => {
         it('data fields, merged with argument (takes precedence)', async () => {
-          const patchInstance = new GenericModel(data, url, ['id'])
+          const patchInstance = new GenericModel(data, ['id'], makeRequestCB)
           patchInstance.data.name = 'client321'
           patchInstance.data.age = 66
           await patchInstance.patch.call({
             name: 'client 222',
             newField: true
           })
-          expect(requestLogger.mock.calls.length).toBe(1)
-          expect(requestLogger.mock.calls[0][0].url).toBe(url + '?id=' + data.id)
-          expect(requestLogger.mock.calls[0][0].method).toBe('PATCH')
-          expect(requestLogger.mock.calls[0][0].data).toEqual({
+          expect(makeRequestCB.mock.calls.length).toBe(1)
+          expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id })
+          expect(makeRequestCB.mock.calls[0][0]).toBe('PATCH')
+          expect(makeRequestCB.mock.calls[0][3]).toEqual({
             name: 'client 222',
             age: 66,
             newField: true
@@ -226,10 +207,15 @@ describe('GenericModel', () => {
     })
 
     it('updates the patched instance when arg "sync" is true', async () => {
-      const patchInstance = new GenericModel(data, url, ['id'])
+      const patchInstance = new GenericModel(data, ['id'], makeRequestCB)
       patchInstance.data.name = 'client321'
+      makeRequestCB.mockReturnValueOnce({ body: [{
+          ...data,
+          name: 'client321'
+        }] 
+      })
       await patchInstance.patch.call()
-      expect(requestLogger.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls.length).toBe(1)
       patchInstance.reset()
       expect(patchInstance.data).toEqual({
         ...data,
@@ -238,10 +224,10 @@ describe('GenericModel', () => {
     })
 
     it('resets the patched instance when arg "sync" is false', async () => {
-      const patchInstance = new GenericModel(data, url, ['id'])
+      const patchInstance = new GenericModel(data, ['id'], makeRequestCB)
       patchInstance.data.name = 'client321'
       await patchInstance.patch.call({}, { sync: false })
-      expect(requestLogger.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls.length).toBe(1)
       expect(patchInstance.data).toEqual({
         ...data,
         name: 'client123'
@@ -249,7 +235,7 @@ describe('GenericModel', () => {
     })
 
     it('throws "PrimaryKeyError" before sending the request if primary key is not valid', async () => {
-      const patchInstance = new GenericModel(data, url, ['not-existing'])
+      const patchInstance = new GenericModel(data, ['not-existing'], makeRequestCB)
       patchInstance.data.name = 'client321'
       expect(patchInstance.patch.hasError).toBe(false)
       await expect(patchInstance.patch.call()).rejects.toThrow(PrimaryKeyError)
@@ -259,21 +245,24 @@ describe('GenericModel', () => {
 
   describe('Delete method', () => {
     it('sends a delete request for the specified entity to the relevant endpoint', async () => {
-      const deleteInstance = new GenericModel(data, url, ['id'])
+      const deleteInstance = new GenericModel(data, ['id'], makeRequestCB)
       await deleteInstance.delete.call()
-      expect(requestLogger.mock.calls.length).toBe(1)
-      expect(requestLogger.mock.calls[0][0].url).toBe(url + '?id=eq.' + data.id)
-      expect(requestLogger.mock.calls[0][0].method).toBe('DELETE')
+      expect(makeRequestCB.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id })
+      expect(makeRequestCB.mock.calls[0][0]).toBe('DELETE')
 
-      const deleteInstance2 = new GenericModel(data, url, ['name', 'age'])
+      const deleteInstance2 = new GenericModel(data, ['name', 'age'], makeRequestCB)
       await deleteInstance2.delete.call()
-      expect(requestLogger.mock.calls.length).toBe(2)
-      expect(requestLogger.mock.calls[1][0].url).toBe(url + '?name=eq.' + data.name + '&age=eq.' + data.age)
-      expect(requestLogger.mock.calls[1][0].method).toBe('DELETE')
+      expect(makeRequestCB.mock.calls.length).toBe(2)
+      expect(makeRequestCB.mock.calls[1][1]).toEqual({
+        name: 'eq.' + data.name,
+        age: 'eq.' + data.age
+      })
+      expect(makeRequestCB.mock.calls[1][0]).toBe('DELETE')
     })
 
     it('throws "PrimaryKeyError" before sending the request if primary key is not valid', async () => {
-      const deleteInstance = new GenericModel(data, url, ['not-existing'])
+      const deleteInstance = new GenericModel(data, ['not-existing'], makeRequestCB)
       expect(deleteInstance.delete.hasError).toBe(false)
       await expect(deleteInstance.delete.call()).rejects.toThrow(PrimaryKeyError)
       expect(deleteInstance.delete.hasError).toBeTruthy()
@@ -281,9 +270,9 @@ describe('GenericModel', () => {
       const deleteInstance2 = new GenericModel({
         name: 'client321',
         age: 50
-      }, url, ['id'])
+      }, ['id'], makeRequestCB)
       await expect(deleteInstance2.delete.call()).rejects.toThrow(PrimaryKeyError)
-      expect(requestLogger.mock.calls.length).toBe(0)
+      expect(makeRequestCB.mock.calls.length).toBe(0)
     })
   })
 

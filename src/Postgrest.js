@@ -64,33 +64,40 @@ export default {
     }
   },
   methods: {
-    async _get () {
-      let resp
+    async request (method, query, opts = {}, data) {
       const headers = {
-        'Accept': this.single ? 'application/vnd.pgrst.object+json' : 'application/json',
+        'Accept': opts.single ? 'application/vnd.pgrst.object+json' : 'application/json',
       }
-
-      if (this.limit || this.offset) {
-        const range = [this.offset || 0, this.limit || null]
-        if (range[1] && this.offset) range[1] += this.offset
+      if (opts.limit || opts.offset) {
+        const range = [opts.offset || 0, opts.limit || null]
+        if (range[1] && opts.offset) range[1] += opts.offset
         headers['Range-Unit'] = 'items'
         headers.Range = range.join('-')
       }
-
-      if (this.exactCount) {
-        headers.Prefer = 'count=exact'
+      headers.Prefer = opts.representation ? 'return=representation' : 'return=minimal'
+      if (opts.exactCount) {
+        headers.Prefer = headers.Prefer + ',count=exact'
       }
 
-      resp = await superagent.get(this.apiRoot + url({ [this.route]: this.query }))
+      return superagent(method, this.apiRoot + url({ [this.route]: query }))
         .set(headers)
+        .send(data)
+    },
+    async _get () {
+      const resp = await this.request('GET', this.query, {
+        single: this.single,
+        limit: this.limit,
+        offset: this.offset,
+        exactCount: this.exactCount
+      })
 
       if (this.single) {
         this.items = null
-        this.item = resp && resp.body ? new GenericModel(resp.body, this.url, this.primaryKeys) : {}
+        this.item = resp && resp.body ? new GenericModel(resp.body, this.primaryKeys, this.request) : {}
       } else {
         this.item = null
         this.items = resp && resp.body ? resp.body.map(item => {
-          return new GenericModel(item, this.url, this.primaryKeys)
+          return new GenericModel(item, this.primaryKeys, this.request)
         }) : []
       }
 

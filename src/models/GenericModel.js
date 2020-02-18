@@ -1,14 +1,13 @@
 import PrimaryKeyError from '@/errors/PrimaryKeyError'
 import FieldNotExistsError from '@/errors/FieldNotExistsError'
 import wrap from '@/utils/wrap'
-import superagent from 'superagent'
 import Freezer from 'freezer-js'
 import isObject from '@/utils/isObject'
 
 export default class {
-  constructor (data, url, primaryKeys) {
+  constructor (data, primaryKeys, requestCB) {
     this._parseData(data)
-    this.url = url
+    this.request = requestCB
     this.primaryKeys = primaryKeys
   }
 
@@ -68,7 +67,6 @@ export default class {
   async _patch (data = {}, opt) {
     const defaultOptions = { sync: true }
     const options = Object.assign({}, defaultOptions, opt)
-    // TODO: check what changed and set data, throw on relevant conditions
     if (!isObject(data) || Array.isArray(data)) {
       throw new Error('Patch data must be an object.')
     }
@@ -76,27 +74,15 @@ export default class {
     if (Object.keys(patchData).length === 0) {
       return
     }
-    if (options.sync) {
-      const ret = await superagent
-        .patch(this.url)
-        .query(this.createQuery())
-        .set('Prefer', 'return=representation')
-        .send(patchData)
-      this._parseData(ret.body[0])
-    } else {
-      await superagent
-        .patch(this.url)
-        .query(this.createQuery())
-        .set('Prefer', 'return=minimal')
-        .send(patchData)
+    const ret = await this.request('PATCH', this.createQuery(), { representation: options.sync }, patchData)
+    if (options.sync && ret && ret.body) {
+      this._parseData(ret.body[0]) 
     }
     this.reset()
   }
 
   async _delete () {
-    await superagent
-      .delete(this.url)
-      .query(this.createQuery())
+    await this.request('DELETE', this.createQuery())
   }
 
   reset () {
@@ -108,7 +94,7 @@ export default class {
       if (this.data[pk] === undefined) {
         throw new PrimaryKeyError(pk)
       }
-      q[pk] = this.data[pk]
+      q[pk] = 'eq.' + this.data[pk]
       return q
     }, {})
   }
