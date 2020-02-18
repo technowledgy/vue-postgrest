@@ -74,5 +74,19 @@ describe('Request', () => {
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients')[4][0].method).toBe('PATCH')
   })
 
+  it('merges select part of module query with query argument', async () => {
+    const postgrest = shallowMount(Postgrest, {
+      propsData: {
+        apiRoot: '/api/',
+        route: 'clients',
+        query: {
+          select: ['id', 'name']
+        }
+      }
+    })
+    await postgrest.vm.request('GET', { id: 'eq.123' })
+    expect(requestLogger.mock.calls[1][0].url).toBe('/api/clients?select=id,name&id=eq.123')
+  })
+
   // TODO: add more tests for params, data and headers
 })

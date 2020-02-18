@@ -79,6 +79,21 @@ export default {
         headers.Prefer = headers.Prefer + ',count=exact'
       }
 
+      // TODO: this can be handled more elegant
+      if ((this.query && this.query.select && !Array.isArray(this.query.select)) || (query.select && !Array.isArray(query.select))) {
+        throw new Error('Select filter must be an array.')
+      }
+      if (this.query && this.query.select) {
+        for (const el of this.query.select) {
+          if (!query.select) {
+            query.select = []
+          }
+          if (!query.select.includes(el)) {
+            query.select.push(el)
+          }
+        }
+      }
+
       return superagent(method, this.apiRoot + url({ [this.route]: query }))
         .set(headers)
         .send(data)
