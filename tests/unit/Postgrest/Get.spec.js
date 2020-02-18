@@ -4,20 +4,22 @@ import config from './MockApi.config'
 import mock from 'superagent-mock'
 
 const mockData = {
-  get: {
-    '/clients': [{
-        id: 1,
-        name: 'Test Client 1'
-      },
-      {
-        id: 2,
-        name: 'Test Client 2'
-      },
-      {
-        id: 3,
-        name: 'Test Client 3'
-      }
-    ]
+  data: {
+    '/clients': {
+      get: [{
+          id: 1,
+          name: 'Test Client 1'
+        },
+        {
+          id: 2,
+          name: 'Test Client 2'
+        },
+        {
+          id: 3,
+          name: 'Test Client 3'
+        }
+      ]
+    }
   },
   docs: {
     definitions: {
@@ -93,8 +95,8 @@ describe('Get', () => {
               default (props) {
                 try {
                   if (!props.get.isPending) {
-                    expect(props.items.length).toBe(mockData.get['/clients'].length)
-                    expect(props.items[0].data.id).toBe(mockData.get['/clients'][0].id)
+                    expect(props.items.length).toBe(mockData.data['/clients'].get.length)
+                    expect(props.items[0].data.id).toBe(mockData.data['/clients'].get[0].id)
                     expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
                     expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.Accept).toBe('application/json')
                     resolve()
@@ -122,7 +124,7 @@ describe('Get', () => {
               default (props) {
                 try {
                   if (!props.get.isPending) {
-                    expect(props.item.data.id).toBe(mockData.get['/clients'][0].id)
+                    expect(props.item.data.id).toBe(mockData.data['/clients'].get[0].id)
                     expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
                     expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.Accept).toBe('application/vnd.pgrst.object+json')
                     resolve()
@@ -136,7 +138,7 @@ describe('Get', () => {
         })
       })
 
-      it('returns generic models with correct constructor arguments', async () => {
+      it('returns generic models with correct properties', async () => {
         expect.assertions(4)
         return new Promise((resolve, reject) => {
           const postgrest = shallowMount(Postgrest, {
@@ -152,7 +154,7 @@ describe('Get', () => {
                   if (!props.get.isPending) {
                     expect(props.item instanceof GenericModel).toBe(true)
                     expect(props.item.url).toBe('/api/clients')
-                    expect(props.item.data).toBe(mockData.get['/clients'][0])
+                    expect(props.item.data).toEqual(mockData.data['/clients'].get[0])
                     // primary keys as defined by docs above
                     expect(props.item.primaryKeys).toEqual(['id'])
                     resolve()

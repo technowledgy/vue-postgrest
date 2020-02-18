@@ -3,13 +3,28 @@ module.exports = function (mockData) {
     {
       pattern: 'api(.*)',
       fixtures: function (match, params, headers, context) {
-        for (const endpoint in mockData.get) {
-          if (match[1] === endpoint) {
+        for (const endpoint in mockData.data) {
+          if (match[1].split('?')[0] === endpoint) {
             const resp = {
               body: [],
               headers: {}
             }
-            resp.body = headers['Accept'] === 'application/vnd.pgrst.object+json' ? mockData.get[endpoint][0] : mockData.get[endpoint]
+            if (context.method === 'get') {
+              resp.body = mockData.data[endpoint].get
+            } else if (context.method === 'patch') {
+              // only supports one primary key of type int atm
+              const pk = match[1].replace(endpoint, '').split('?')[1].split('=')
+              const patchedData = mockData.data[endpoint].patch.reduce((agg, item) => {
+                if (item[pk[0]] === parseInt(pk[1])) {
+                  agg.push(Object.assign({}, item, params))
+                }
+                return agg
+              }, [])
+              resp.body = headers['Prefer'] === 'return=representation' ? patchedData : []
+            }
+            if (headers['Accept'] === 'application/vnd.pgrst.object+json') {
+              resp.body = resp.body[0]
+            }
             if (headers.Range && Array.isArray(resp.body)) {
               resp.headers['Range-Unit'] = 'items'
               // setting content range properly to actual returned range not neccessary for the simple test cases
@@ -41,6 +56,10 @@ module.exports = function (mockData) {
 
       delete: function (match, data) {
         return
+      },
+
+      patch: function (match, data) {
+        return data
       }
     }
   ]

@@ -106,3 +106,72 @@ To get all users with age greater than 21 and active true:
 
 For available conditions see [the Postgrest docs](https://postgrest.org/en/v4.1/api.html#horizontal-filtering-rows).
 
+### Patching
+
+You can edit the data fields of an entity directly:
+
+```
+item.data.name = 'John Doe'
+```
+
+Calling the entities' patch function, sends the corresponding patch request. The patch function also accepts an object as first argument with fields that should be patched, properties declared in this object take precedence over fields changed on the data object directly.
+
+E.g.
+
+```
+item.data.name = 'John Doe'
+item.data.age = 70
+item.patch.call({
+  name: 'Jane Doe',
+  newField: true
+})
+```
+
+sends a patch request with the following data:
+
+```
+{
+  name: 'Jane Doe',
+  age: 70,
+  newField: true
+}
+```
+
+#### Nested fields
+
+The data argument to patch () is not merged deep. So, when passing a object with nested fields, the whole nested field will be replaced by the value in the argument object, even if only a sub-field was changed.
+
+Subfields of nested fields on the data object can't be set directly - the nodes of a subfield expose a .set() method for this purpose.
+
+E.g.
+
+```
+item.data = {
+  nestedField: {
+    key1: 'val1',
+    key2: 'val2'
+  }
+}
+
+item.data.nestedField.set('key1', 'newValue')
+
+item.patch.call()
+```
+
+sends a patch request with the following data:
+
+```
+{
+  nestedField: {
+    key1: 'newValue',
+    key2: 'val2'
+  }
+}
+```
+#### Patch options
+
+The (optional) second argument to the patch function is a object with the following options:
+
+|Property             |Type     |Default  |Description    |
+|---------------------|---------|---------|---------------|
+|sync                 |Bool     |True     |Request the server to return the patched entity and update the local state accordingly|
