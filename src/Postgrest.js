@@ -46,7 +46,7 @@ export default {
       item: {},
       newItem: new GenericModel(this.create),
       range: undefined,
-      get: wrap(this._get, this.$emit),
+      get: wrap(this._get),
       primaryKeys: undefined
     }
   },
