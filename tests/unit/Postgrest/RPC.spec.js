@@ -54,7 +54,8 @@ describe('RPC', () => {
         apiRoot: '/api/',
         route: 'clients',
         query: {}
-      }
+      },
+      slots: { default: '<div />' }
     })
     const functionParams = {
       a: 1,
@@ -78,7 +79,8 @@ describe('RPC', () => {
         apiRoot: '/api/',
         route: 'clients',
         query: {}
-      }
+      },
+      slots: { default: '<div />' }
     })
     await expect(postgrest.vm.rpc('rpc-test', 'PATCH', {})).rejects.toThrow()
   })

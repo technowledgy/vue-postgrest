@@ -33,9 +33,7 @@ const superagentMock = mock(request, config({
   }
 }), requestLogger)
 
-import { createLocalVue, shallowMount } from '@vue/test-utils'
-import Vue from 'vue'
-import PostgrestPlugin from '@/index'
+import { shallowMount } from '@vue/test-utils'
 import Postgrest from '@/Postgrest'
 
 describe('Request', () => {
@@ -54,7 +52,8 @@ describe('Request', () => {
         apiRoot: '/api/',
         route: 'clients',
         query: {}
-      }
+      },
+      slots: { default: '<div />' }
     })
     await postgrest.vm.request('GET', {})
     // one call by get in created
@@ -82,11 +81,23 @@ describe('Request', () => {
         query: {
           select: ['id', 'name']
         }
-      }
+      },
+      slots: { default: '<div />' }
     })
     await postgrest.vm.request('GET', { id: 'eq.123' })
     expect(requestLogger.mock.calls[1][0].url).toBe('/api/clients?select=id,name&id=eq.123')
   })
 
-  // TODO: add more tests for params, data and headers
+  it('does not throw if query argument is undefined', async () => {
+    expect.assertions(1)
+    const postgrest = shallowMount(Postgrest, {
+      propsData: {
+        apiRoot: '/api/',
+        route: 'clients',
+        query: {}
+      },
+      slots: { default: '<div />' }
+    })
+    await expect(postgrest.vm.request('GET')).resolves.toBeTruthy()
+  })
 })

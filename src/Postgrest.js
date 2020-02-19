@@ -66,7 +66,7 @@ export default {
     }
   },
   methods: {
-    async request (method, query, opts = {}, data) {
+    async request (method, query = {}, opts = {}, data) {
       const headers = {
         'Accept': opts.single ? 'application/vnd.pgrst.object+json' : 'application/json'
       }
@@ -82,7 +82,7 @@ export default {
       }
 
       // add instance query (for vertical filtering etc.)
-      Object.assign(query, this.query || {})
+      Object.assign(this.query || {}, query)
 
       const reqUrl = opts.root ? (opts.route ? this.apiRoot + opts.route : this.apiRoot) : this.apiRoot + url({ [opts.route || this.route]: query })
       return superagent(method, reqUrl)
