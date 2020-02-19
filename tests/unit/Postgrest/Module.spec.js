@@ -3,8 +3,6 @@ import Postgrest from '@/Postgrest'
 import GenericModel from '@/models/GenericModel'
 
 describe('Module', () => {
-  describe('Mounting the component', () => {
-
   describe('Slot scope', () => {
     it('provides GET function if prop QUERY is set', () => {
       expect.assertions(4)
