@@ -155,6 +155,22 @@ describe('Module', () => {
         }
       })
     })
+
+    it('provides a function "rpc"', () => {
+      expect.assertions(1)
+      const postgrest = shallowMount(Postgrest, {
+        propsData: {
+          route: '',
+          query: {},
+          single: true
+        },
+        scopedSlots: {
+          default (props) {
+            expect(typeof props.rpc).toBe('function')
+          }
+        }
+      })
+    })
   })
 
   describe('newItem', () => {

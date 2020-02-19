@@ -63,6 +63,7 @@ The api-response and following methods are available via slot-props:
 |newItem              |Entity        |create                          |The data entity to create              |
 |get                  |Utility       |query                           |Utility for get requests      |
 |range                |Range         |API returns Content-Range header|Information on server-side pagination of results|
+|rpc                  |Function      |                                |Call a stored procedure.|
 
 #### Models
 ##### Utility
@@ -199,3 +200,13 @@ newItem.post.call()
 ```
 
 All entities provide the post function, so it would be equally possible to alter a entity you requested from the serve, change its data and post it as a new item.
+
+### RPC
+
+The rpc function accepts the following arguments: rpc(function-name, method, args)
+
+|Argument             |Type          |Default |Description             |
+|---------------------|--------------|--------|----------------|
+|function-name        |String        |        |The name of the stored procedure to call|
+|method               |String        |'POST'  |The method wich to request the stored procedure. Postgrest accepts 'POST' and 'GET'|
+|args                 |Object        |{}      |The stored procedure arguments|

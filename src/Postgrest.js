@@ -57,7 +57,8 @@ export default {
         items: (this.query !== undefined && !this.single) ? this.items : undefined,
         item: (this.query !== undefined && this.single) ? this.item : undefined,
         newItem: this.create !== undefined ? this.newItem : undefined,
-        range: this.range
+        range: this.range,
+        rpc: this.rpc
       }
     },
     url () {
@@ -83,7 +84,8 @@ export default {
       // add instance query (for vertical filtering etc.)
       Object.assign(query, this.query || {})
 
-      return superagent(method, this.apiRoot + url({ [this.route]: query }))
+      const reqUrl = opts.root ? (opts.route ? this.apiRoot + opts.route : this.apiRoot) : this.apiRoot + url({ [opts.route || this.route]: query })
+      return superagent(method, reqUrl)
         .set(headers)
         .send(data)
     },
@@ -116,6 +118,12 @@ export default {
       } else {
         this.range = undefined
       }
+    },
+    async rpc (fn, method = 'POST', args = {}) {
+      if (!['POST', 'GET'].includes(method)) {
+        throw new Error('RPC endpoint only supports "POST" and "GET" methods.')
+      }
+      return this.request(method, {}, { root: true, route: 'rpc/' + fn }, args)
     }
   },
   async created () {
