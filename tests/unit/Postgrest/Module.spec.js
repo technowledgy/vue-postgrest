@@ -1,5 +1,6 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils'
 import Postgrest from '@/Postgrest'
+import GenericModel from '@/models/GenericModel'
 
 describe('Module', () => {
   describe('Mounting the component', () => {
@@ -150,6 +151,42 @@ describe('Module', () => {
         scopedSlots: {
           default (props) {
             expect(props.pagination).toBe(undefined)
+          }
+        }
+      })
+    })
+  })
+
+  describe('newItem', () => {
+    it('is a GenericModel', () => {
+      expect.assertions(1)
+      const postgrest = shallowMount(Postgrest, {
+        propsData: {
+          route: '',
+          create: {}
+        },
+        scopedSlots: {
+          default (props) {
+            expect(props.newItem instanceof GenericModel).toBeTruthy()
+          }
+        }
+      })
+    })
+
+    it('has its data set to the template provided by "create" prop', () => {
+      expect.assertions(1)
+      const create = {
+        id: 123,
+        name: 'client 123'
+      }
+      const postgrest = shallowMount(Postgrest, {
+        propsData: {
+          route: '',
+          create
+        },
+        scopedSlots: {
+          default (props) {
+            expect(props.newItem.data).toEqual(create)
           }
         }
       })

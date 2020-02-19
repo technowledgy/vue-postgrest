@@ -44,6 +44,7 @@ export default {
     return {
       items: [],
       item: {},
+      newItem: new GenericModel(this.create),
       range: undefined,
       get: wrap(this._get, this.$emit),
       primaryKeys: undefined
@@ -55,7 +56,7 @@ export default {
         get: this.query !== undefined ? this.get : undefined,
         items: (this.query !== undefined && !this.single) ? this.items : undefined,
         item: (this.query !== undefined && this.single) ? this.item : undefined,
-        newItem: this.create !== undefined ? {} : undefined,
+        newItem: this.create !== undefined ? this.newItem : undefined,
         range: this.range
       }
     },
@@ -137,6 +138,9 @@ export default {
     this.$watch('apiRoot', this.get.call, {
       deep: true,
       immediate: true
+    })
+    this.$watch('create', (newData) => {
+      this.newItem = new GenericModel(newData)
     })
   },
   render (h) {
