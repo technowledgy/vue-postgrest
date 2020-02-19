@@ -18,7 +18,7 @@ describe('GenericModel', () => {
     makeRequestCB.mockReset()
   })
 
-  const instance = new GenericModel(data, primaryKeys, makeRequestCB)
+  const instance = new GenericModel(data, makeRequestCB, primaryKeys)
 
   describe('Instance', () => {
     it('sets the data field getters and setters on instance property "data"', () => {
@@ -29,20 +29,20 @@ describe('GenericModel', () => {
       }
     })
 
-    it('sets the second constructor argument to instance property "primaryKeys"', () => {
+    it('sets the third constructor argument to instance property "primaryKeys"', () => {
       expect(instance.primaryKeys).toBe(primaryKeys)
     })
 
     it('throws "PrimaryKeyError" if primary key is not valid', async () => {
       expect.assertions(1)
       try {
-        new GenericModel(data, ['not-existing'], makeRequestCB)
+        new GenericModel(data, makeRequestCB, ['not-existing'])
       } catch (e) {
         expect(e instanceof PrimaryKeyError).toBeTruthy()
       }
     })
 
-    it('sets the third constructor argument to instance method "request"', () => {
+    it('sets the second constructor argument to instance method "request"', () => {
       expect(instance.request).toEqual(makeRequestCB)
     })
 
@@ -76,7 +76,7 @@ describe('GenericModel', () => {
 
   describe('Reset method', () => {
     it('resets the changes on the instance data object', () => {
-      const patchInstance = new GenericModel(data, ['id'], makeRequestCB)
+      const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
       patchInstance.data.name = 'client321'
       expect(patchInstance.data.name).toBe('client321')
       patchInstance.reset()
@@ -87,11 +87,11 @@ describe('GenericModel', () => {
   describe('Patch method', () => {
     describe('called without argument', () => {
       it('does not send a patch request if data was not changed', async () => {
-        const patchInstance = new GenericModel(data, ['id'], makeRequestCB)
+        const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
         await patchInstance.patch.call()
         expect(makeRequestCB.mock.calls.length).toBe(0)
 
-        const patchInstance2 = new GenericModel(data, ['id'], makeRequestCB)
+        const patchInstance2 = new GenericModel(data, makeRequestCB, ['id'])
         patchInstance2.name = 'client321'
         patchInstance2.name = 'client123'
         await patchInstance2.patch.call()
@@ -100,7 +100,7 @@ describe('GenericModel', () => {
 
       describe('sends a patch request for the specified entity to the relevant endpoint for changed', () => {
         it('simple data fields', async () => {
-          const patchInstance = new GenericModel(data, ['id'], makeRequestCB)
+          const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
           patchInstance.data.name = 'client321'
           await patchInstance.patch.call()
           expect(makeRequestCB.mock.calls.length).toBe(1)
@@ -123,7 +123,7 @@ describe('GenericModel', () => {
             const patchInstance = new GenericModel({
               ...data,
               nestedField
-            }, ['id'], makeRequestCB)
+            }, makeRequestCB, ['id'])
             const newNestedField = {
               newParent: {
                 newChild: 'new'
@@ -140,7 +140,7 @@ describe('GenericModel', () => {
             const patchInstance = new GenericModel({
               ...data,
               nestedField
-            }, ['id'], makeRequestCB)
+            }, makeRequestCB, ['id'])
             patchInstance.data.nestedField.parent.set('child', 'new')
             await patchInstance.patch.call()
             expect(makeRequestCB.mock.calls.length).toBe(1)
@@ -160,7 +160,7 @@ describe('GenericModel', () => {
             const patchInstance = new GenericModel({
               ...data,
               nestedField: [1, 5, 10]
-            }, ['id'], makeRequestCB)
+            }, makeRequestCB, ['id'])
             patchInstance.data.nestedField.set(0, 2)
             patchInstance.data.nestedField.push(20)
             await patchInstance.patch.call()
@@ -175,7 +175,7 @@ describe('GenericModel', () => {
               nestedField: [{
                 child: 'old'
               }, 5, 10]
-            }, ['id'], makeRequestCB)
+            }, makeRequestCB, ['id'])
             patchInstance.data.nestedField[0].set('child', 'new')
             await patchInstance.patch.call()
             expect(makeRequestCB.mock.calls.length).toBe(1)
@@ -189,14 +189,14 @@ describe('GenericModel', () => {
 
     describe('called with argument', () => {
       it('throws if argument is not an object', async () => {
-        const patchInstance = new GenericModel(data, ['id'], makeRequestCB)
+        const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
         await expect(patchInstance.patch.call(1)).rejects.toThrow()
         await expect(patchInstance.patch.call([])).rejects.toThrow()
       })
 
       describe('sends a patch request for the specified entity to the relevant endpoint for changed', () => {
         it('data fields, merged with argument (takes precedence)', async () => {
-          const patchInstance = new GenericModel(data, ['id'], makeRequestCB)
+          const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
           patchInstance.data.name = 'client321'
           patchInstance.data.age = 66
           await patchInstance.patch.call({
@@ -216,7 +216,7 @@ describe('GenericModel', () => {
     })
 
     it('updates the patched instance when arg "sync" is true', async () => {
-      const patchInstance = new GenericModel(data, ['id'], makeRequestCB)
+      const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
       patchInstance.data.name = 'client321'
       makeRequestCB.mockReturnValueOnce({ body: [{
           ...data,
@@ -233,7 +233,7 @@ describe('GenericModel', () => {
     })
 
     it('resets the patched instance when arg "sync" is false', async () => {
-      const patchInstance = new GenericModel(data, ['id'], makeRequestCB)
+      const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
       patchInstance.data.name = 'client321'
       await patchInstance.patch.call({}, { sync: false })
       expect(makeRequestCB.mock.calls.length).toBe(1)
@@ -246,13 +246,13 @@ describe('GenericModel', () => {
 
   describe('Delete method', () => {
     it('sends a delete request for the specified entity to the relevant endpoint', async () => {
-      const deleteInstance = new GenericModel(data, ['id'], makeRequestCB)
+      const deleteInstance = new GenericModel(data, makeRequestCB, ['id'])
       await deleteInstance.delete.call()
       expect(makeRequestCB.mock.calls.length).toBe(1)
       expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id })
       expect(makeRequestCB.mock.calls[0][0]).toBe('DELETE')
 
-      const deleteInstance2 = new GenericModel(data, ['name', 'age'], makeRequestCB)
+      const deleteInstance2 = new GenericModel(data, makeRequestCB, ['name', 'age'])
       await deleteInstance2.delete.call()
       expect(makeRequestCB.mock.calls.length).toBe(2)
       expect(makeRequestCB.mock.calls[1][1]).toEqual({

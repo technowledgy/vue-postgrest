@@ -5,7 +5,7 @@ import Freezer from 'freezer-js'
 import isObject from '@/utils/isObject'
 
 export default class {
-  constructor (data, primaryKeys, requestCB) {
+  constructor (data, requestCB, primaryKeys) {
     this.request = requestCB
     this.primaryKeys = primaryKeys
     this._parseData(data)

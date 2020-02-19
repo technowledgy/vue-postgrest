@@ -96,11 +96,11 @@ export default {
 
       if (this.single) {
         this.items = null
-        this.item = resp && resp.body ? new GenericModel(resp.body, this.primaryKeys, this.request) : {}
+        this.item = resp && resp.body ? new GenericModel(resp.body, this.request, this.primaryKeys) : {}
       } else {
         this.item = null
         this.items = resp && resp.body ? resp.body.map(item => {
-          return new GenericModel(item, this.primaryKeys, this.request)
+          return new GenericModel(item, this.request, this.primaryKeys)
         }) : []
       }
 
