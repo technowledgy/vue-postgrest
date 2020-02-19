@@ -33,12 +33,12 @@ Component "postgrest" is registered globally on your Vue instance.
 ### Quick example
 ```
 <postgrest
-    api-root="api/"
-    route="users"
-    :query="{}"
-    :create="{}">
-      <template v-slot:default="{ get, items, range, newItem }">
-      </template>
+  api-root="api/"
+  route="users"
+  :query="{}"
+  :create="{}">
+    <template v-slot:default="{ get, items, range, newItem }">
+    </template>
 </postgrest>
 ```
 
@@ -99,8 +99,8 @@ To get all users with age greater than 21 and active true:
 
 ```
 <postgrest
-    route="users"
-    :query="{ age: 'gt.21', active: 'is.true'}">
+  route="users"
+  :query="{ age: 'gt.21', active: 'is.true'}">
 </postgrest>
 ```
 
@@ -175,3 +175,27 @@ The (optional) second argument to the patch function is a object with the follow
 |Property             |Type     |Default  |Description    |
 |---------------------|---------|---------|---------------|
 |sync                 |Bool     |True     |Request the server to return the patched entity and update the local state accordingly|
+
+### Posting
+
+```
+<postgrest
+  route="users"
+  :query="{}"
+  :create="{
+    name: 'Johne Doe',
+    age: 50
+  }">
+</postgrest>
+```
+
+When passing a template object to "create" prop, slot scope provides "newItem", on which you can call the post function. To change entity data afterwards you have to alter entity data as shown above - the create prop is not reactive.
+
+Example:
+
+```
+newItem.data.name = 'Jane Doe'
+newItem.post.call()
+```
+
+All entities provide the post function, so it would be equally possible to alter a entity you requested from the serve, change its data and post it as a new item.
