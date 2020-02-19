@@ -48,7 +48,7 @@ export default class {
     Object.seal(this.data)
 
     // update the query
-    this.query = this.primaryKeys.reduce((q, pk) => {
+    this.query = this.primaryKeys && this.primaryKeys.reduce((q, pk) => {
       if (this._data[pk] === undefined) {
         throw new PrimaryKeyError(pk)
       }
