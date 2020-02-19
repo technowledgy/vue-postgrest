@@ -3,6 +3,7 @@ import url from '@/utils/url'
 import wrap from '@/utils/wrap'
 import GenericModel from '@/models/GenericModel'
 import SchemaManager from '@/SchemaManager'
+import EmittedError from '@/errors/EmittedError'
 
 export default {
   name: 'Postgrest',
@@ -90,33 +91,41 @@ export default {
         .send(data)
     },
     async _get () {
-      const resp = await this.request('GET', this.query, {
-        single: this.single,
-        limit: this.limit,
-        offset: this.offset,
-        exactCount: this.exactCount
-      })
-
-      if (this.single) {
-        this.items = null
-        this.item = resp && resp.body ? new GenericModel(resp.body, this.request, this.primaryKeys) : {}
-      } else {
-        this.item = null
-        this.items = resp && resp.body ? resp.body.map(item => {
-          return new GenericModel(item, this.request, this.primaryKeys)
-        }) : []
-      }
-
-      if (resp && resp.headers['Content-Range']) {
-        let contentRange = resp.headers['Content-Range'].split('/')
-        let range = contentRange[0].split('-')
-        this.range = {
-          totalCount: contentRange[1] === '*' ? undefined : parseInt(contentRange[1]),
-          first: parseInt(range[0]),
-          last: parseInt(range[1])
+      try {
+        if (!this.query) {
+          return
         }
-      } else {
-        this.range = undefined
+        const resp = await this.request('GET', this.query, {
+          single: this.single,
+          limit: this.limit,
+          offset: this.offset,
+          exactCount: this.exactCount
+        })
+
+        if (this.single) {
+          this.items = null
+          this.item = resp && resp.body ? new GenericModel(resp.body, this.request, this.primaryKeys) : {}
+        } else {
+          this.item = null
+          this.items = resp && resp.body ? resp.body.map(item => {
+            return new GenericModel(item, this.request, this.primaryKeys)
+          }) : []
+        }
+
+        if (resp && resp.headers['Content-Range']) {
+          let contentRange = resp.headers['Content-Range'].split('/')
+          let range = contentRange[0].split('-')
+          this.range = {
+            totalCount: contentRange[1] === '*' ? undefined : parseInt(contentRange[1]),
+            first: parseInt(range[0]),
+            last: parseInt(range[1])
+          }
+        } else {
+          this.range = undefined
+        }
+      } catch (e) {
+        this.$emit('get-error', e)
+        throw new EmittedError(e)
       }
     },
     async rpc (fn, method = 'POST', args = {}) {

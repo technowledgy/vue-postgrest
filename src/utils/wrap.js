@@ -1,3 +1,5 @@
+import EmittedError from '@/errors/EmittedError'
+
 export default function (fn) {
   const wrapped = {
     hasError: false,
@@ -11,7 +13,9 @@ export default function (fn) {
       return Promise.resolve(fn(...args))
         .catch((e) => {
           wrapped.hasError = true
-          throw e
+          if (e instanceof EmittedError === false) {
+            throw e
+          }
         })
         .finally(() => {
           wrapped.isPending = false
