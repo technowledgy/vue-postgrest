@@ -6,12 +6,13 @@ import isObject from '@/utils/isObject'
 
 export default class {
   constructor (data, primaryKeys, requestCB) {
-    this._parseData(data)
     this.request = requestCB
     this.primaryKeys = primaryKeys
+    this._parseData(data)
   }
 
   _parseData(data) {
+    // parse the instance data
     this._data = data || {}
     this._diff = {}
     this.data = {}
@@ -45,6 +46,15 @@ export default class {
       })
     }
     Object.seal(this.data)
+
+    // update the query
+    this.query = this.primaryKeys.reduce((q, pk) => {
+      if (this._data[pk] === undefined) {
+        throw new PrimaryKeyError(pk)
+      }
+      q[pk] = 'eq.' + this._data[pk]
+      return q
+    }, {})
   }
 
   _createFreezer (prop, data) {
@@ -74,7 +84,7 @@ export default class {
     if (Object.keys(patchData).length === 0) {
       return
     }
-    const ret = await this.request('PATCH', this.createQuery(), { representation: options.sync }, patchData)
+    const ret = await this.request('PATCH', this.query, { representation: options.sync }, patchData)
     if (options.sync && ret && ret.body) {
       this._parseData(ret.body[0]) 
     }
@@ -82,20 +92,10 @@ export default class {
   }
 
   async _delete () {
-    await this.request('DELETE', this.createQuery())
+    await this.request('DELETE', this.query)
   }
 
   reset () {
     this._diff = {}
-  }
-
-  createQuery () {
-    return this.primaryKeys.reduce((q, pk) => {
-      if (this.data[pk] === undefined) {
-        throw new PrimaryKeyError(pk)
-      }
-      q[pk] = 'eq.' + this.data[pk]
-      return q
-    }, {})
   }
 }

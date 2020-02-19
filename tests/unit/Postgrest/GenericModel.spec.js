@@ -33,6 +33,15 @@ describe('GenericModel', () => {
       expect(instance.primaryKeys).toBe(primaryKeys)
     })
 
+    it('throws "PrimaryKeyError" if primary key is not valid', async () => {
+      expect.assertions(1)
+      try {
+        new GenericModel(data, ['not-existing'], makeRequestCB)
+      } catch (e) {
+        expect(e instanceof PrimaryKeyError).toBeTruthy()
+      }
+    })
+
     it('sets the third constructor argument to instance method "request"', () => {
       expect(instance.request).toEqual(makeRequestCB)
     })
@@ -233,14 +242,6 @@ describe('GenericModel', () => {
         name: 'client123'
       })
     })
-
-    it('throws "PrimaryKeyError" before sending the request if primary key is not valid', async () => {
-      const patchInstance = new GenericModel(data, ['not-existing'], makeRequestCB)
-      patchInstance.data.name = 'client321'
-      expect(patchInstance.patch.hasError).toBe(false)
-      await expect(patchInstance.patch.call()).rejects.toThrow(PrimaryKeyError)
-      expect(patchInstance.patch.hasError).toBeTruthy()
-    })
   })
 
   describe('Delete method', () => {
@@ -259,20 +260,6 @@ describe('GenericModel', () => {
         age: 'eq.' + data.age
       })
       expect(makeRequestCB.mock.calls[1][0]).toBe('DELETE')
-    })
-
-    it('throws "PrimaryKeyError" before sending the request if primary key is not valid', async () => {
-      const deleteInstance = new GenericModel(data, ['not-existing'], makeRequestCB)
-      expect(deleteInstance.delete.hasError).toBe(false)
-      await expect(deleteInstance.delete.call()).rejects.toThrow(PrimaryKeyError)
-      expect(deleteInstance.delete.hasError).toBeTruthy()
-
-      const deleteInstance2 = new GenericModel({
-        name: 'client321',
-        age: 50
-      }, ['id'], makeRequestCB)
-      await expect(deleteInstance2.delete.call()).rejects.toThrow(PrimaryKeyError)
-      expect(makeRequestCB.mock.calls.length).toBe(0)
     })
   })
 
