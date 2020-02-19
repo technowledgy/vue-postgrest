@@ -6,7 +6,7 @@ import Example from './Example'
 Vue.config.productionTip = false
 
 Vue.use(Postgrest, {
-  apiRoot: 'api/'
+  apiRoot: '/api/'
 })
 
 new Vue({

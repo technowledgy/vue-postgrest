@@ -10,7 +10,7 @@
     "url": "https://github.com/technowledgy/vue-postgrest/issues"
   },
   "scripts": {
-    "demo": "vue-cli-service serve demo/main.js",
+    "example": "vue-cli-service serve example/main.js",
     "build": "vue-cli-service build --target lib --name vue-postgrest src/index.js",
     "test": "vue-cli-service test:unit",
     "test:watch": "vue-cli-service test:unit --watchAll",
