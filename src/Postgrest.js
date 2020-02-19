@@ -68,7 +68,7 @@ export default {
   methods: {
     async request (method, query, opts = {}, data) {
       const headers = {
-        'Accept': opts.single ? 'application/vnd.pgrst.object+json' : 'application/json',
+        'Accept': opts.single ? 'application/vnd.pgrst.object+json' : 'application/json'
       }
       if (opts.limit || opts.offset) {
         const range = [opts.offset || 0, opts.limit || null]
