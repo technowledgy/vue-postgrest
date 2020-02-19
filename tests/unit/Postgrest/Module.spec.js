@@ -4,17 +4,6 @@ import GenericModel from '@/models/GenericModel'
 
 describe('Module', () => {
   describe('Mounting the component', () => {
-    it('fails silently if no slot content is provided', () => {
-      expect(() => {
-        shallowMount(Postgrest, {
-          propsData: {
-            route: '',
-            query: {}
-          }
-        })
-      }).not.toThrow()
-    })
-  })
 
   describe('Slot scope', () => {
     it('provides GET function if prop QUERY is set', () => {
