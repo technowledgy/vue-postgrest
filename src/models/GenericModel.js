@@ -1,5 +1,4 @@
 import PrimaryKeyError from '@/errors/PrimaryKeyError'
-import FieldNotExistsError from '@/errors/FieldNotExistsError'
 import wrap from '@/utils/wrap'
 import Freezer from 'freezer-js'
 import isObject from '@/utils/isObject'
@@ -11,7 +10,7 @@ export default class {
     this._parseData(data)
   }
 
-  _parseData(data) {
+  _parseData (data) {
     // parse the instance data
     this._data = data || {}
     this._diff = {}
@@ -92,7 +91,7 @@ export default class {
     }
     const ret = await this.request('PATCH', this.query, { representation: options.sync }, patchData)
     if (options.sync && ret && ret.body) {
-      this._parseData(ret.body[0]) 
+      this._parseData(ret.body[0])
     }
     this.reset()
   }

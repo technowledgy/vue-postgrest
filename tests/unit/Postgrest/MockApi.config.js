@@ -45,7 +45,7 @@ module.exports = function (mockData) {
       },
 
       delete: function (match, data) {
-        return
+
       },
 
       patch: function (match, data) {

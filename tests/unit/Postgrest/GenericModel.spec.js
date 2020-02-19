@@ -113,10 +113,10 @@ describe('GenericModel', () => {
       const postInstance = new GenericModel(data, makeRequestCB)
       postInstance.data.name = 'client321'
       makeRequestCB.mockReturnValueOnce({ body: [{
-          ...data,
-          name: 'client321',
-          id: 321
-        }] 
+        ...data,
+        name: 'client321',
+        id: 321
+      }]
       })
       await postInstance.post.call()
       expect(makeRequestCB.mock.calls.length).toBe(1)
@@ -226,7 +226,6 @@ describe('GenericModel', () => {
             await patchInstance.patch.call()
             expect(makeRequestCB.mock.calls.length).toBe(1)
             expect(makeRequestCB.mock.calls[0][3]).toEqual({ nestedField: [2, 5, 10, 20] })
-  
           })
 
           it('with nested values', async () => {
@@ -279,9 +278,9 @@ describe('GenericModel', () => {
       const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
       patchInstance.data.name = 'client321'
       makeRequestCB.mockReturnValueOnce({ body: [{
-          ...data,
-          name: 'client321'
-        }] 
+        ...data,
+        name: 'client321'
+      }]
       })
       await patchInstance.patch.call()
       expect(makeRequestCB.mock.calls.length).toBe(1)

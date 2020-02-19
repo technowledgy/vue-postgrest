@@ -24,4 +24,4 @@ export default function (fn, emit) {
     }
   }
   return wrapped
-}
+}}

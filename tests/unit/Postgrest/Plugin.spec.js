@@ -3,7 +3,6 @@ import PostgrestPlugin from '@/index'
 
 describe('Plugin', () => {
   describe('Plugin installation', () => {
-
     it('registers a global component', () => {
       const localVue = createLocalVue()
       expect(localVue.options.components.postgrest).toBe(undefined)
@@ -18,6 +17,5 @@ describe('Plugin', () => {
       })
       expect(localVue.options.components.postgrest.options.props.apiRoot.default).toBe('global-root/')
     })
-
   })
 })
