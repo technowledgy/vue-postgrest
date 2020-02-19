@@ -72,7 +72,67 @@ describe('GenericModel', () => {
     })
   })
 
-  describe('Post method', () => {})
+  describe('Post method', () => {
+    it('sends a post request with instance data to the specified endpoint', async () => {
+      const postInstance = new GenericModel(data, makeRequestCB)
+      postInstance.post.call()
+      expect(makeRequestCB.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({})
+      expect(makeRequestCB.mock.calls[0][3]).toEqual(data)
+      expect(makeRequestCB.mock.calls[0][0]).toBe('POST')
+    })
+
+    it('sends a post request with changed instance data to the specified endpoint', async () => {
+      const postInstance = new GenericModel(data, makeRequestCB)
+      postInstance.data.name = 'client321'
+      postInstance.post.call()
+      expect(makeRequestCB.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({})
+      expect(makeRequestCB.mock.calls[0][3]).toEqual({
+        ...data,
+        name: 'client321'
+      })
+      expect(makeRequestCB.mock.calls[0][0]).toBe('POST')
+    })
+
+    it('resets the instance data after the request if sync is false', async () => {
+      const postInstance = new GenericModel(data, makeRequestCB)
+      postInstance.data.name = 'client321'
+      await postInstance.post.call({ sync: false })
+      expect(makeRequestCB.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({})
+      expect(makeRequestCB.mock.calls[0][3]).toEqual({
+        ...data,
+        name: 'client321'
+      })
+      expect(makeRequestCB.mock.calls[0][0]).toBe('POST')
+      expect(postInstance.data).toEqual(data)
+    })
+
+    it('updates the instance data after the request if sync is true', async () => {
+      const postInstance = new GenericModel(data, makeRequestCB)
+      postInstance.data.name = 'client321'
+      makeRequestCB.mockReturnValueOnce({ body: [{
+          ...data,
+          name: 'client321',
+          id: 321
+        }] 
+      })
+      await postInstance.post.call()
+      expect(makeRequestCB.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({})
+      expect(makeRequestCB.mock.calls[0][3]).toEqual({
+        ...data,
+        name: 'client321'
+      })
+      expect(makeRequestCB.mock.calls[0][0]).toBe('POST')
+      expect(postInstance.data).toEqual({
+        ...data,
+        name: 'client321',
+        id: 321
+      })
+    })
+  })
 
   describe('Reset method', () => {
     it('resets the changes on the instance data object', () => {

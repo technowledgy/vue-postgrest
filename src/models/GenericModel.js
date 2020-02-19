@@ -70,8 +70,14 @@ export default class {
   patch = wrap(this._patch.bind(this))
   delete = wrap(this._delete.bind(this))
 
-  _post () {
-
+  async _post (opt) {
+    const defaultOptions = { sync: true }
+    const options = Object.assign({}, defaultOptions, opt)
+    const ret = await this.request('POST', {}, { representation: options.sync }, Object.assign({}, this._diff, this.data))
+    if (options.sync && ret && ret.body) {
+      this._parseData(ret.body[0])
+    }
+    this.reset()
   }
 
   async _patch (data = {}, opt) {
