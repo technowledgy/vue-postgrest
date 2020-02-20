@@ -83,8 +83,7 @@ export default {
       }
 
       // add instance query (for vertical filtering etc.)
-      let q = {}
-      Object.assign(q, this.query || {}, query)
+      const q = Object.assign({}, this.query || {}, query)
       const reqUrl = opts.root ? (opts.route ? this.apiRoot + opts.route : this.apiRoot) : this.apiRoot + url({ [opts.route || this.route]: q })
       return superagent(method, reqUrl)
         .set(headers)
