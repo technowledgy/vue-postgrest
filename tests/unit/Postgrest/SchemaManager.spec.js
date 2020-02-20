@@ -1,6 +1,7 @@
 import request from 'superagent'
 import config from './MockApi.config'
 import mock from 'superagent-mock'
+import SchemaManager from '@/SchemaManager'
 
 const mockData = {
   docs: {
@@ -24,7 +25,6 @@ const mockData = {
 }
 const requestLogger = jest.fn((log) => {})
 const superagentMock = mock(request, config(mockData), requestLogger)
-import SchemaManager from '@/SchemaManager'
 
 describe('SchemaManager', () => {
   afterAll(() => {

@@ -1,5 +1,4 @@
 import PrimaryKeyError from '@/errors/PrimaryKeyError'
-import FieldNotExistsError from '@/errors/FieldNotExistsError'
 import GenericModel from '@/models/GenericModel'
 
 const data = {
@@ -36,6 +35,7 @@ describe('GenericModel', () => {
     it('throws "PrimaryKeyError" if primary key is not valid', async () => {
       expect.assertions(1)
       try {
+        // eslint-disable-next-line
         new GenericModel(data, makeRequestCB, ['not-existing'])
       } catch (e) {
         expect(e instanceof PrimaryKeyError).toBeTruthy()
@@ -112,11 +112,12 @@ describe('GenericModel', () => {
     it('updates the instance data after the request if sync is true', async () => {
       const postInstance = new GenericModel(data, makeRequestCB)
       postInstance.data.name = 'client321'
-      makeRequestCB.mockReturnValueOnce({ body: [{
-        ...data,
-        name: 'client321',
-        id: 321
-      }]
+      makeRequestCB.mockReturnValueOnce({
+        body: [{
+          ...data,
+          name: 'client321',
+          id: 321
+        }]
       })
       await postInstance.post.call()
       expect(makeRequestCB.mock.calls.length).toBe(1)
@@ -238,9 +239,11 @@ describe('GenericModel', () => {
             patchInstance.data.nestedField[0].set('child', 'new')
             await patchInstance.patch.call()
             expect(makeRequestCB.mock.calls.length).toBe(1)
-            expect(makeRequestCB.mock.calls[0][3]).toEqual({ nestedField: [{
-              child: 'new'
-            }, 5, 10] })
+            expect(makeRequestCB.mock.calls[0][3]).toEqual({
+              nestedField: [{
+                child: 'new'
+              }, 5, 10]
+            })
           })
         })
       })
@@ -277,10 +280,11 @@ describe('GenericModel', () => {
     it('updates the patched instance when arg "sync" is true', async () => {
       const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
       patchInstance.data.name = 'client321'
-      makeRequestCB.mockReturnValueOnce({ body: [{
-        ...data,
-        name: 'client321'
-      }]
+      makeRequestCB.mockReturnValueOnce({
+        body: [{
+          ...data,
+          name: 'client321'
+        }]
       })
       await patchInstance.patch.call()
       expect(makeRequestCB.mock.calls.length).toBe(1)

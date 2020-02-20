@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils'
+import { shallowMount } from '@vue/test-utils'
 import Postgrest from '@/Postgrest'
 import GenericModel from '@/models/GenericModel'
 
@@ -6,7 +6,7 @@ describe('Module', () => {
   describe('Slot scope', () => {
     it('provides GET function if prop QUERY is set', () => {
       expect.assertions(4)
-      const postgrest = shallowMount(Postgrest, {
+      shallowMount(Postgrest, {
         propsData: {
           route: '',
           query: {}
@@ -24,7 +24,7 @@ describe('Module', () => {
 
     it('does not provide GET function if prop QUERY is not set', () => {
       expect.assertions(1)
-      const postgrest = shallowMount(Postgrest, {
+      shallowMount(Postgrest, {
         propsData: {
           route: ''
         },
@@ -38,7 +38,7 @@ describe('Module', () => {
 
     it('provides "items" if prop "query" is set and prop "single" is not set', () => {
       expect.assertions(1)
-      const postgrest = shallowMount(Postgrest, {
+      shallowMount(Postgrest, {
         propsData: {
           route: '',
           query: {}
@@ -53,7 +53,7 @@ describe('Module', () => {
 
     it('provides "item" if prop "query" is set and prop "single" is true', () => {
       expect.assertions(1)
-      const postgrest = shallowMount(Postgrest, {
+      shallowMount(Postgrest, {
         propsData: {
           route: '',
           query: {},
@@ -69,7 +69,7 @@ describe('Module', () => {
 
     it('does not provide "item" or "items" if prop "query" is not set', () => {
       expect.assertions(2)
-      const postgrest = shallowMount(Postgrest, {
+      shallowMount(Postgrest, {
         propsData: {
           route: ''
         },
@@ -84,7 +84,7 @@ describe('Module', () => {
 
     it('provides "newItem" if prop "create" is set', () => {
       expect.assertions(1)
-      const postgrest = shallowMount(Postgrest, {
+      shallowMount(Postgrest, {
         propsData: {
           route: '',
           create: {}
@@ -99,7 +99,7 @@ describe('Module', () => {
 
     it('does not provide "newItem" if prop "create" is not set', () => {
       expect.assertions(1)
-      const postgrest = shallowMount(Postgrest, {
+      shallowMount(Postgrest, {
         propsData: {
           route: ''
         },
@@ -115,7 +115,7 @@ describe('Module', () => {
 
     it('does not provide "pagination" if prop "query" is not set', () => {
       expect.assertions(1)
-      const postgrest = shallowMount(Postgrest, {
+      shallowMount(Postgrest, {
         propsData: {
           route: ''
         },
@@ -129,7 +129,7 @@ describe('Module', () => {
 
     it('does not provide "pagination" if prop "query" is set and prop "single" is true', () => {
       expect.assertions(1)
-      const postgrest = shallowMount(Postgrest, {
+      shallowMount(Postgrest, {
         propsData: {
           route: '',
           query: {},
@@ -145,7 +145,7 @@ describe('Module', () => {
 
     it('provides a function "rpc"', () => {
       expect.assertions(1)
-      const postgrest = shallowMount(Postgrest, {
+      shallowMount(Postgrest, {
         propsData: {
           route: '',
           query: {},
@@ -163,7 +163,7 @@ describe('Module', () => {
   describe('newItem', () => {
     it('is a GenericModel', () => {
       expect.assertions(1)
-      const postgrest = shallowMount(Postgrest, {
+      shallowMount(Postgrest, {
         propsData: {
           route: '',
           create: {}
@@ -182,7 +182,7 @@ describe('Module', () => {
         id: 123,
         name: 'client 123'
       }
-      const postgrest = shallowMount(Postgrest, {
+      shallowMount(Postgrest, {
         propsData: {
           route: '',
           create

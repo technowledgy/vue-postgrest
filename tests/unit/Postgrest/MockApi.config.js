@@ -59,7 +59,6 @@ module.exports = function (mockData) {
     {
       pattern: 'other-server(.*)',
       fixtures: function (match, params, headers, context) {
-
         if (match[1] === '/') {
           return {
             body: {},

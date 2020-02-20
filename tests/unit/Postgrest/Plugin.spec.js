@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils'
+import { createLocalVue } from '@vue/test-utils'
 import PostgrestPlugin from '@/index'
 
 describe('Plugin', () => {

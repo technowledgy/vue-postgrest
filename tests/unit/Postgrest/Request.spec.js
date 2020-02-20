@@ -2,22 +2,25 @@ import request from 'superagent'
 import config from './MockApi.config'
 import mock from 'superagent-mock'
 
+import { shallowMount } from '@vue/test-utils'
+import Postgrest from '@/Postgrest'
+
 const requestLogger = jest.fn((log) => {})
 const superagentMock = mock(request, config({
   data: {
     '/clients': {
       get: [{
-          id: 1,
-          name: 'Test Client 1'
-        },
-        {
-          id: 2,
-          name: 'Test Client 2'
-        },
-        {
-          id: 3,
-          name: 'Test Client 3'
-        }
+        id: 1,
+        name: 'Test Client 1'
+      },
+      {
+        id: 2,
+        name: 'Test Client 2'
+      },
+      {
+        id: 3,
+        name: 'Test Client 3'
+      }
       ]
     }
   },
@@ -32,9 +35,6 @@ const superagentMock = mock(request, config({
     }
   }
 }), requestLogger)
-
-import { shallowMount } from '@vue/test-utils'
-import Postgrest from '@/Postgrest'
 
 describe('Request', () => {
   afterAll(() => {

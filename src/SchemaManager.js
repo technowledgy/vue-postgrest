@@ -7,7 +7,7 @@ export default {
   },
   async getPrimaryKeys (apiRoot) {
     if (!this.cache[apiRoot]) {
-      await this._getSchema(apiRoot) 
+      await this._getSchema(apiRoot)
     }
     return this.cache[apiRoot]
   },

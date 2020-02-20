@@ -3,21 +3,24 @@ import request from 'superagent'
 import config from './MockApi.config'
 import mock from 'superagent-mock'
 
+import { shallowMount } from '@vue/test-utils'
+import Postgrest from '@/Postgrest'
+
 const mockData = {
   data: {
     '/clients': {
       get: [{
-          id: 1,
-          name: 'Test Client 1'
-        },
-        {
-          id: 2,
-          name: 'Test Client 2'
-        },
-        {
-          id: 3,
-          name: 'Test Client 3'
-        }
+        id: 1,
+        name: 'Test Client 1'
+      },
+      {
+        id: 2,
+        name: 'Test Client 2'
+      },
+      {
+        id: 3,
+        name: 'Test Client 3'
+      }
       ]
     }
   },
@@ -35,11 +38,6 @@ const mockData = {
 const requestLogger = jest.fn((log) => {})
 const superagentMock = mock(request, config(mockData), requestLogger)
 
-import { createLocalVue, shallowMount } from '@vue/test-utils'
-import Vue from 'vue'
-import PostgrestPlugin from '@/index'
-import Postgrest from '@/Postgrest'
-
 describe('Get', () => {
   afterAll(() => {
     superagentMock.unset()
@@ -55,7 +53,7 @@ describe('Get', () => {
       return new Promise((resolve, reject) => {
         let renders = 0
         let finished = false
-        const postgrest = shallowMount(Postgrest, {
+        shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: 'clients',
@@ -85,7 +83,7 @@ describe('Get', () => {
       it('returns list of entities if prop "single" is false', async () => {
         expect.assertions(4)
         return new Promise((resolve, reject) => {
-          const postgrest = shallowMount(Postgrest, {
+          shallowMount(Postgrest, {
             propsData: {
               apiRoot: '/api/',
               route: 'clients',
@@ -113,7 +111,7 @@ describe('Get', () => {
       it('returns single entity if prop "single" is true', async () => {
         expect.assertions(3)
         return new Promise((resolve, reject) => {
-          const postgrest = shallowMount(Postgrest, {
+          shallowMount(Postgrest, {
             propsData: {
               apiRoot: '/api/',
               route: 'clients',
@@ -141,7 +139,7 @@ describe('Get', () => {
       it('returns generic models with correct properties', async () => {
         expect.assertions(4)
         return new Promise((resolve, reject) => {
-          const postgrest = shallowMount(Postgrest, {
+          shallowMount(Postgrest, {
             propsData: {
               apiRoot: '/api/',
               route: 'clients',
@@ -173,7 +171,7 @@ describe('Get', () => {
       it('sets the request params correctly', async () => {
         expect.assertions(1)
         return new Promise((resolve, reject) => {
-          const postgrest = shallowMount(Postgrest, {
+          shallowMount(Postgrest, {
             propsData: {
               apiRoot: '/api/',
               route: 'clients',
@@ -232,7 +230,7 @@ describe('Get', () => {
     it('sets the request url correctly', async () => {
       expect.assertions(1)
       return new Promise((resolve, reject) => {
-        const postgrest = shallowMount(Postgrest, {
+        shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: 'clients',
@@ -290,7 +288,7 @@ describe('Get', () => {
     it('sets the request url correctly', async () => {
       expect.assertions(1)
       return new Promise((resolve, reject) => {
-        const postgrest = shallowMount(Postgrest, {
+        shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/another-api/',
             route: 'clients',
@@ -348,7 +346,7 @@ describe('Get', () => {
     it('does not set headers when undefined', async () => {
       expect.assertions(3)
       return new Promise((resolve, reject) => {
-        const postgrest = shallowMount(Postgrest, {
+        shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: 'clients',
@@ -375,7 +373,7 @@ describe('Get', () => {
     it('sets the correct request headers', async () => {
       expect.assertions(3)
       return new Promise((resolve, reject) => {
-        const postgrest = shallowMount(Postgrest, {
+        shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: 'clients',
@@ -405,7 +403,7 @@ describe('Get', () => {
     it('sets the correct request headers for open range with offset', async () => {
       expect.assertions(3)
       return new Promise((resolve, reject) => {
-        const postgrest = shallowMount(Postgrest, {
+        shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: 'clients',
@@ -433,7 +431,7 @@ describe('Get', () => {
     it('sets the correct request headers for closed range with offset', async () => {
       expect.assertions(3)
       return new Promise((resolve, reject) => {
-        const postgrest = shallowMount(Postgrest, {
+        shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: 'clients',
@@ -465,7 +463,7 @@ describe('Get', () => {
       it('with prop "exact-count" false', async () => {
         expect.assertions(4)
         return new Promise((resolve, reject) => {
-          const postgrest = shallowMount(Postgrest, {
+          shallowMount(Postgrest, {
             propsData: {
               apiRoot: '/api/',
               route: 'clients',
@@ -494,7 +492,7 @@ describe('Get', () => {
       it('with prop "exact-count" true', async () => {
         expect.assertions(4)
         return new Promise((resolve, reject) => {
-          const postgrest = shallowMount(Postgrest, {
+          shallowMount(Postgrest, {
             propsData: {
               apiRoot: '/api/',
               route: 'clients',
@@ -525,7 +523,7 @@ describe('Get', () => {
     it('do not set the slot-prop "range" if not available', async () => {
       expect.assertions(1)
       return new Promise((resolve, reject) => {
-        const postgrest = shallowMount(Postgrest, {
+        shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: 'clients',
@@ -552,7 +550,7 @@ describe('Get', () => {
     it('set hasError to true', async () => {
       expect.assertions(1)
       return new Promise((resolve, reject) => {
-        const postgrest = shallowMount(Postgrest, {
+        shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: '404',
