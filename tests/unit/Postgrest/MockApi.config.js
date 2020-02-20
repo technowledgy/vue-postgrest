@@ -55,6 +55,24 @@ module.exports = function (mockData) {
       post: function (match, data) {
         return data
       }
+    },
+    {
+      pattern: 'other-server(.*)',
+      fixtures: function (match, params, headers, context) {
+
+        if (match[1] === '/') {
+          return {
+            body: {},
+            headers: {
+              'content-type': 'application/json'
+            }
+          }
+        }
+      },
+
+      get: function (match, data) {
+        return data
+      }
     }
   ]
 }

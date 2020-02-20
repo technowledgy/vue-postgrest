@@ -12,11 +12,11 @@ export default {
     return this.cache[apiRoot]
   },
   async _getSchema (apiRoot) {
-    const resp = await superagent.get(apiRoot) 
-    if (resp && resp.headers['content-type'] === 'application/openapi+json' && resp.body) {
+    const resp = await superagent.get(apiRoot)
+    if (resp && resp.headers['content-type'].startsWith('application/openapi+json') && resp.body) {
       this.cache[apiRoot] = resp.body.definitions ? this._extractPrimaryKeys(resp.body.definitions) : {}
     } else {
-      // TODO: emit not an api error
+      throw new Error('Not an api.')
     }
   },
   _extractPrimaryKeys (def) {

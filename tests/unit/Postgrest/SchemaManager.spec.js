@@ -68,8 +68,12 @@ describe('SchemaManager', () => {
       expect(requestLogger.mock.calls.length).toBe(1)
     })
 
-    it('throws error if schema does not exist', async () => {
+    it('throws error if api does not exist', async () => {
       await expect(SchemaManager.getPrimaryKeys('/non-existing/')).rejects.toThrow()
+    })
+
+    it('throws error if exists but is not an api', async () => {
+      await expect(SchemaManager.getPrimaryKeys('/other-server/')).rejects.toThrow('Not an api.')
     })
   })
 })
