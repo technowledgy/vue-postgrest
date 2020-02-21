@@ -1,115 +1,114 @@
 import PrimaryKeyError from '@/errors/PrimaryKeyError'
 import wrap from '@/utils/wrap'
-import Freezer from 'freezer-js'
 import isObject from '@/utils/isObject'
+import Vue from 'vue'
+import cloneDeep from 'lodash.clonedeep'
+import isEqual from 'lodash.isequal'
+import syncObjects from '@/utils/syncObjects'
 
-export default class extends EventTarget {
+const GenericModelTemplate = Vue.extend({
+  data () {
+    return {
+      data: {},
+      diff: {},
+      resetCache: {},
+      post: {},
+      patch: {},
+      delete: {},
+      request: null,
+      primaryKeys: []
+    }
+  },
+  created () {
+    this.watchers = {}
+    this.post = wrap(this._post)
+    this.patch = wrap(this._patch)
+    this.delete = wrap(this._delete)
+  },
+  computed: {
+    query () {
+      return this.primaryKeys && this.primaryKeys.reduce((q, pk) => {
+        if (this.resetCache[pk] === undefined) {
+          throw new PrimaryKeyError(pk)
+        }
+        q[pk] = 'eq.' + this.resetCache[pk]
+        return q
+      }, {})
+    },
+    isDirty () {
+      return Object.keys(this.diff).length > 0
+    }
+  },
+  methods: {
+    async _post (opt) {
+      const defaultOptions = { sync: true }
+      const options = Object.assign({}, defaultOptions, opt)
+      const ret = await this.request('POST', {}, { representation: options.sync }, cloneDeep(this.data))
+      if (options.sync && ret && ret.body) {
+        this.setData(ret.body[0])
+      } else {
+        this.reset()
+      }
+    },
+    async _patch (data = {}, opt) {
+      const defaultOptions = { sync: true }
+      const options = Object.assign({}, defaultOptions, opt)
+      if (!isObject(data) || Array.isArray(data)) {
+        throw new Error('Patch data must be an object.')
+      }
+      const patchData = Object.assign({}, this.diff, data)
+      if (Object.keys(patchData).length === 0) {
+        return
+      }
+      const ret = await this.request('PATCH', this.query, { representation: options.sync }, cloneDeep(patchData))
+      if (options.sync && ret && ret.body) {
+        this.setData(ret.body[0])
+      } else {
+        this.reset()
+      }
+    },
+    async _delete () {
+      await this.request('DELETE', this.query)
+    },
+    setData (data) {
+      this.diff = {}
+      this.resetCache = cloneDeep(data)
+      syncObjects(this.data, data)
+    },
+    reset () {
+      this.setData(this.resetCache)
+    }
+  }
+})
+
+class GenericModel extends GenericModelTemplate {
   constructor (data, requestCB, primaryKeys) {
     super()
-    this.isDirty = false
+    this.setData(cloneDeep(data))
     this.request = requestCB
     this.primaryKeys = primaryKeys
-    this._parseData(data)
-  }
-
-  _parseData (data) {
-    // parse the instance data
-    this._data = data || {}
-    this._diff = {}
-    this.data = {}
-    this._frozenData = {}
-    for (let prop in this._data) {
-      if (isObject(this._data[prop])) {
-        this._frozenData[prop] = this._createFreezer(prop, this._data[prop])
+    this.$watch('data', {
+      deep: false,
+      immediate: true,
+      handler (newData) {
+        for (const prop in newData) {
+          if (!this.watchers[prop]) {
+            this.$watch('data.' + prop, {
+              deep: true,
+              handler (newVal) {
+                if (isEqual(newVal, this.resetCache[prop])) {
+                  this.$delete(this.diff, prop)
+                } else {
+                  this.$set(this.diff, prop, newVal)
+                }
+              }
+            })
+            this.watchers[prop] = true
+          }
+        }
       }
-      Object.defineProperty(this.data, prop, {
-        get: () => {
-          const ret = this._diff[prop] !== undefined ? this._diff[prop] : this._data[prop]
-          if (isObject(ret)) {
-            return this._frozenData[prop].get()
-          }
-          return ret
-        },
-        set: (val) => {
-          if (isObject(val)) {
-            if (this._frozenData[prop]) {
-              this._frozenData[prop].set(val)
-            } else {
-              this._frozenData[prop] = this._createFreezer(prop, val)
-            }
-          } else if (val !== this._data[prop]) {
-            this._diff[prop] = val
-          } else {
-            delete this._diff[prop]
-          }
-
-          if (Object.keys(this._diff).length > 0) {
-            this.isDirty = true
-          } else {
-            this.isDirty = false
-          }
-          this.dispatchEvent(new Event('update'))
-        },
-        enumerable: true
-      })
-    }
-    Object.seal(this.data)
-
-    // update the query
-    this.query = this.primaryKeys && this.primaryKeys.reduce((q, pk) => {
-      if (this._data[pk] === undefined) {
-        throw new PrimaryKeyError(pk)
-      }
-      q[pk] = 'eq.' + this._data[pk]
-      return q
-    }, {})
-  }
-
-  _createFreezer (prop, data) {
-    const freezer = new Freezer(data, { live: true })
-    freezer.on('update', (cur) => {
-      this._diff[prop] = cur
     })
-    return freezer
-  }
-
-  // we have to bind this for wrapped functions
-  post = wrap(this._post.bind(this))
-  patch = wrap(this._patch.bind(this))
-  delete = wrap(this._delete.bind(this))
-
-  async _post (opt) {
-    const defaultOptions = { sync: true }
-    const options = Object.assign({}, defaultOptions, opt)
-    const ret = await this.request('POST', {}, { representation: options.sync }, Object.assign({}, this._diff, this.data))
-    if (options.sync && ret && ret.body) {
-      this._parseData(ret.body[0])
-    }
-    this.reset()
-  }
-
-  async _patch (data = {}, opt) {
-    const defaultOptions = { sync: true }
-    const options = Object.assign({}, defaultOptions, opt)
-    if (!isObject(data) || Array.isArray(data)) {
-      throw new Error('Patch data must be an object.')
-    }
-    const patchData = Object.assign({}, this._diff, data)
-    if (Object.keys(patchData).length === 0) {
-      return
-    }
-    const ret = await this.request('PATCH', this.query, { representation: options.sync }, patchData)
-    if (options.sync && ret && ret.body) {
-      this._parseData(ret.body[0])
-    }
-    this.reset()
-  }
-
-  async _delete () {
-    await this.request('DELETE', this.query)
-  }
-
-  reset () {
-    this._diff = {}
   }
 }
+
+export default GenericModel

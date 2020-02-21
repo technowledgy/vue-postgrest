@@ -1,5 +1,6 @@
 import PrimaryKeyError from '@/errors/PrimaryKeyError'
 import GenericModel from '@/models/GenericModel'
+import cloneDeep from 'lodash.clonedeep'
 
 const data = {
   id: 123,
@@ -34,9 +35,10 @@ describe('GenericModel', () => {
 
     it('throws "PrimaryKeyError" if primary key is not valid', async () => {
       expect.assertions(1)
+      const instance = new GenericModel(data, makeRequestCB, ['not-existing'])
       try {
         // eslint-disable-next-line
-        new GenericModel(data, makeRequestCB, ['not-existing'])
+        const q = instance.query
       } catch (e) {
         expect(e instanceof PrimaryKeyError).toBeTruthy()
       }
@@ -146,9 +148,10 @@ describe('GenericModel', () => {
   })
 
   describe('Reset method', () => {
-    it('resets the changes on the instance data object', () => {
+    it('resets the changes on the instance data object', async () => {
       const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
       patchInstance.data.name = 'client321'
+      await patchInstance.$nextTick()
       expect(patchInstance.data.name).toBe('client321')
       patchInstance.reset()
       expect(patchInstance.data.name).toBe('client123')
@@ -156,26 +159,14 @@ describe('GenericModel', () => {
   })
 
   describe('reacts to data changes', () => {
-    it('by emitting "update" event when instance data is changed', async () => {
-      expect.assertions(2)
-      return new Promise(resolve => {
-        const updateCallback = jest.fn((evt) => {
-          expect(updateCallback.mock.calls.length).toBe(1)
-          resolve()
-        })
-        const updateInstance = new GenericModel(data, makeRequestCB, ['id'])
-        expect(typeof updateInstance.addEventListener).toBe('function')
-        updateInstance.addEventListener('update', updateCallback)
-        updateInstance.data.name = 'client321'
-      })
-    })
-
-    it('by setting the instance prop "isDirty" correctly', () => {
+    it('by setting the instance prop "isDirty" correctly', async () => {
       const updateInstance = new GenericModel(data, makeRequestCB, ['id'])
       expect(updateInstance.isDirty).toBe(false)
       updateInstance.data.name = 'client321'
+      await updateInstance.$nextTick()
       expect(updateInstance.isDirty).toBe(true)
       updateInstance.data.name = data.name
+      await updateInstance.$nextTick()
       expect(updateInstance.isDirty).toBe(false)
     })
   })
@@ -190,6 +181,7 @@ describe('GenericModel', () => {
         const patchInstance2 = new GenericModel(data, makeRequestCB, ['id'])
         patchInstance2.name = 'client321'
         patchInstance2.name = 'client123'
+        await patchInstance.$nextTick()
         await patchInstance2.patch.call()
         expect(makeRequestCB.mock.calls.length).toBe(0)
       })
@@ -198,6 +190,7 @@ describe('GenericModel', () => {
         it('simple data fields', async () => {
           const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
           patchInstance.data.name = 'client321'
+          await patchInstance.$nextTick()
           await patchInstance.patch.call()
           expect(makeRequestCB.mock.calls.length).toBe(1)
           expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id })
@@ -218,7 +211,7 @@ describe('GenericModel', () => {
           it('that are changed as a whole', async () => {
             const patchInstance = new GenericModel({
               ...data,
-              nestedField
+              nestedField: cloneDeep(nestedField)
             }, makeRequestCB, ['id'])
             const newNestedField = {
               newParent: {
@@ -226,18 +219,22 @@ describe('GenericModel', () => {
               },
               newSibling: 'new'
             }
-            patchInstance.data.nestedField = newNestedField
+            patchInstance.data.nestedField = cloneDeep(newNestedField)
+            await patchInstance.$nextTick()
             await patchInstance.patch.call()
             expect(makeRequestCB.mock.calls.length).toBe(1)
-            expect(makeRequestCB.mock.calls[0][3]).toEqual({ nestedField: newNestedField })
+            expect(makeRequestCB.mock.calls[0][3]).toEqual({
+              nestedField: newNestedField
+            })
           })
 
           it('of whom only a subfield is changed', async () => {
             const patchInstance = new GenericModel({
               ...data,
-              nestedField
+              nestedField: cloneDeep(nestedField)
             }, makeRequestCB, ['id'])
-            patchInstance.data.nestedField.parent.set('child', 'new')
+            patchInstance.data.nestedField.parent.child = 'new'
+            await patchInstance.$nextTick()
             await patchInstance.patch.call()
             expect(makeRequestCB.mock.calls.length).toBe(1)
             expect(makeRequestCB.mock.calls[0][3]).toEqual({
@@ -257,8 +254,9 @@ describe('GenericModel', () => {
               ...data,
               nestedField: [1, 5, 10]
             }, makeRequestCB, ['id'])
-            patchInstance.data.nestedField.set(0, 2)
+            patchInstance.data.nestedField[0] = 2
             patchInstance.data.nestedField.push(20)
+            await patchInstance.$nextTick()
             await patchInstance.patch.call()
             expect(makeRequestCB.mock.calls.length).toBe(1)
             expect(makeRequestCB.mock.calls[0][3]).toEqual({ nestedField: [2, 5, 10, 20] })
@@ -271,7 +269,8 @@ describe('GenericModel', () => {
                 child: 'old'
               }, 5, 10]
             }, makeRequestCB, ['id'])
-            patchInstance.data.nestedField[0].set('child', 'new')
+            patchInstance.data.nestedField[0].child = 'new'
+            await patchInstance.$nextTick()
             await patchInstance.patch.call()
             expect(makeRequestCB.mock.calls.length).toBe(1)
             expect(makeRequestCB.mock.calls[0][3]).toEqual({
@@ -296,6 +295,7 @@ describe('GenericModel', () => {
           const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
           patchInstance.data.name = 'client321'
           patchInstance.data.age = 66
+          await patchInstance.$nextTick()
           await patchInstance.patch.call({
             name: 'client 222',
             newField: true
@@ -315,6 +315,7 @@ describe('GenericModel', () => {
     it('updates the patched instance when arg "sync" is true', async () => {
       const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
       patchInstance.data.name = 'client321'
+      await patchInstance.$nextTick()
       makeRequestCB.mockReturnValueOnce({
         body: [{
           ...data,
@@ -333,6 +334,7 @@ describe('GenericModel', () => {
     it('resets the patched instance when arg "sync" is false', async () => {
       const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
       patchInstance.data.name = 'client321'
+      await patchInstance.$nextTick()
       await patchInstance.patch.call({}, { sync: false })
       expect(makeRequestCB.mock.calls.length).toBe(1)
       expect(patchInstance.data).toEqual({

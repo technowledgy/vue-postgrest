@@ -27,9 +27,11 @@ const mockData = {
   docs: {
     definitions: {
       clients: {
-        id: {
-          type: 'integer',
-          description: 'Note:\nThis is a Primary Key.<pk/>'
+        properties: {
+          id: {
+            type: 'integer',
+            description: 'Note:\nThis is a Primary Key.<pk/>'
+          }
         }
       }
     }
@@ -53,6 +55,7 @@ describe('Get', () => {
       return new Promise((resolve, reject) => {
         let renders = 0
         let finished = false
+        let started = false
         shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
@@ -62,9 +65,10 @@ describe('Get', () => {
           scopedSlots: {
             default (props) {
               try {
-                if (renders === 0) {
-                  expect(props.get.isPending).toBe(true)
-                } else if (!props.get.isPending && !finished) {
+                if (props.get.isPending && !finished && !started) {
+                  started = true
+                  expect(true).toBe(true)
+                } else if (!props.get.isPending && !finished && started) {
                   expect(true).toBe(true)
                   finished = true
                   resolve()

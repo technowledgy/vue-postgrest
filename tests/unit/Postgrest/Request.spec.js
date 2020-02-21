@@ -27,9 +27,11 @@ const superagentMock = mock(request, config({
   docs: {
     definitions: {
       clients: {
-        id: {
-          type: 'integer',
-          description: 'Note:\nThis is a Primary Key.<pk/>'
+        properties: {
+          id: {
+            type: 'integer',
+            description: 'Note:\nThis is a Primary Key.<pk/>'
+          }
         }
       }
     }
@@ -50,27 +52,25 @@ describe('Request', () => {
     const postgrest = shallowMount(Postgrest, {
       propsData: {
         apiRoot: '/api/',
-        route: 'clients',
-        query: {}
+        route: 'clients'
       },
       slots: { default: '<div />' }
     })
     await postgrest.vm.request('GET', {})
-    // one call by get in created
-    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients').length).toBe(2)
-    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients')[1][0].method).toBe('GET')
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients').length).toBe(1)
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients')[0][0].method).toBe('GET')
 
     await postgrest.vm.request('POST', {})
-    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients').length).toBe(3)
-    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients')[2][0].method).toBe('POST')
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients').length).toBe(2)
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients')[1][0].method).toBe('POST')
 
     await postgrest.vm.request('DELETE', {})
-    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients').length).toBe(4)
-    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients')[3][0].method).toBe('DELETE')
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients').length).toBe(3)
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients')[2][0].method).toBe('DELETE')
 
     await postgrest.vm.request('PATCH', {})
-    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients').length).toBe(5)
-    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients')[4][0].method).toBe('PATCH')
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients').length).toBe(4)
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients')[3][0].method).toBe('PATCH')
   })
 
   it('merges select part of module query with query argument', async () => {
@@ -84,6 +84,7 @@ describe('Request', () => {
       },
       slots: { default: '<div />' }
     })
+    await postgrest.vm.$nextTick()
     await postgrest.vm.request('GET', { id: 'eq.123' })
     expect(requestLogger.mock.calls[1][0].url).toBe('/api/clients?select=id,name&id=eq.123')
   })

@@ -7,17 +7,19 @@ const mockData = {
   docs: {
     definitions: {
       table1: {
-        name: {
-          type: 'text',
-          description: 'Note:\nThis is a Primary Key.<pk/>'
-        },
-        id: {
-          type: 'integer',
-          description: 'Note:\nThis is a Primary Key.<pk/>'
-        },
-        age: {
-          type: 'integer',
-          description: 'This is not a primary key.'
+        properties: {
+          name: {
+            type: 'text',
+            description: 'Note:\nThis is a Primary Key.<pk/>'
+          },
+          id: {
+            type: 'integer',
+            description: 'Note:\nThis is a Primary Key.<pk/>'
+          },
+          age: {
+            type: 'integer',
+            description: 'This is not a primary key.'
+          }
         }
       }
     }

@@ -1,11 +1,25 @@
 import { shallowMount } from '@vue/test-utils'
+
+import request from 'superagent'
+import config from './MockApi.config'
+import mock from 'superagent-mock'
+
 import Postgrest from '@/Postgrest'
 import GenericModel from '@/models/GenericModel'
 
+const mockData = {}
+const superagentMock = mock(request, config(mockData))
+
+Postgrest.props.apiRoot.default = '/api/'
+
 describe('Module', () => {
+  afterAll(() => {
+    superagentMock.unset()
+  })
+
   describe('Slot scope', () => {
     it('provides GET function if prop QUERY is set', () => {
-      expect.assertions(4)
+      expect.hasAssertions()
       shallowMount(Postgrest, {
         propsData: {
           route: '',
@@ -23,7 +37,7 @@ describe('Module', () => {
     })
 
     it('does not provide GET function if prop QUERY is not set', () => {
-      expect.assertions(1)
+      expect.hasAssertions()
       shallowMount(Postgrest, {
         propsData: {
           route: ''
@@ -37,7 +51,7 @@ describe('Module', () => {
     })
 
     it('provides "items" if prop "query" is set and prop "single" is not set', () => {
-      expect.assertions(1)
+      expect.hasAssertions()
       shallowMount(Postgrest, {
         propsData: {
           route: '',
@@ -52,7 +66,7 @@ describe('Module', () => {
     })
 
     it('provides "item" if prop "query" is set and prop "single" is true', () => {
-      expect.assertions(1)
+      expect.hasAssertions()
       shallowMount(Postgrest, {
         propsData: {
           route: '',
@@ -68,7 +82,7 @@ describe('Module', () => {
     })
 
     it('does not provide "item" or "items" if prop "query" is not set', () => {
-      expect.assertions(2)
+      expect.hasAssertions()
       shallowMount(Postgrest, {
         propsData: {
           route: ''
@@ -83,7 +97,7 @@ describe('Module', () => {
     })
 
     it('provides "newItem" if prop "create" is set', () => {
-      expect.assertions(1)
+      expect.hasAssertions()
       shallowMount(Postgrest, {
         propsData: {
           route: '',
@@ -98,7 +112,7 @@ describe('Module', () => {
     })
 
     it('does not provide "newItem" if prop "create" is not set', () => {
-      expect.assertions(1)
+      expect.hasAssertions()
       shallowMount(Postgrest, {
         propsData: {
           route: ''
@@ -114,7 +128,7 @@ describe('Module', () => {
     // slot-prop "range" is tested in Get.spec, since setting it should be invoked by api response headers
 
     it('does not provide "pagination" if prop "query" is not set', () => {
-      expect.assertions(1)
+      expect.hasAssertions()
       shallowMount(Postgrest, {
         propsData: {
           route: ''
@@ -128,7 +142,7 @@ describe('Module', () => {
     })
 
     it('does not provide "pagination" if prop "query" is set and prop "single" is true', () => {
-      expect.assertions(1)
+      expect.hasAssertions()
       shallowMount(Postgrest, {
         propsData: {
           route: '',
@@ -144,7 +158,7 @@ describe('Module', () => {
     })
 
     it('provides a function "rpc"', () => {
-      expect.assertions(1)
+      expect.hasAssertions()
       shallowMount(Postgrest, {
         propsData: {
           route: '',
@@ -162,7 +176,7 @@ describe('Module', () => {
 
   describe('newItem', () => {
     it('is a GenericModel', () => {
-      expect.assertions(1)
+      expect.hasAssertions()
       shallowMount(Postgrest, {
         propsData: {
           route: '',
@@ -177,7 +191,7 @@ describe('Module', () => {
     })
 
     it('has its data set to the template provided by "create" prop', () => {
-      expect.assertions(1)
+      expect.hasAssertions()
       const create = {
         id: 123,
         name: 'client 123'

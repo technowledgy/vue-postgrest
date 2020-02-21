@@ -4,6 +4,7 @@ import wrap from '@/utils/wrap'
 import GenericModel from '@/models/GenericModel'
 import SchemaManager from '@/SchemaManager'
 import EmittedError from '@/errors/EmittedError'
+import syncObjects from '@/utils/syncObjects'
 
 export default {
   name: 'Postgrest',
@@ -14,7 +15,7 @@ export default {
     },
     apiRoot: {
       type: String,
-      default: ''
+      default: '/'
     },
     query: {
       type: Object,
@@ -48,7 +49,7 @@ export default {
       newItem: new GenericModel(this.create),
       range: undefined,
       get: wrap(this._get),
-      primaryKeys: undefined
+      primaryKeys: []
     }
   },
   computed: {
@@ -106,8 +107,8 @@ export default {
           this.item = resp && resp.body ? new GenericModel(resp.body, this.request, this.primaryKeys) : {}
         } else {
           this.item = null
-          this.items = resp && resp.body ? resp.body.map(item => {
-            return new GenericModel(item, this.request, this.primaryKeys)
+          this.items = resp && resp.body ? resp.body.map(data => {
+            return new GenericModel(data, this.request, this.primaryKeys)
           }) : []
         }
 
@@ -132,32 +133,32 @@ export default {
         throw new Error('RPC endpoint only supports "POST" and "GET" methods.')
       }
       return this.request(method, {}, { root: true, route: 'rpc/' + fn }, args)
+    },
+    async getPrimaryKeys () {
+      const pks = await SchemaManager.getPrimaryKeys(this.apiRoot)
+      syncObjects(this.primaryKeys, pks[this.route] || [])
     }
   },
-  async created () {
-    this.$watch('url', async () => {
-      if (this.apiRoot) {
-        const pks = await SchemaManager.getPrimaryKeys(this.apiRoot)
-        this.primaryKeys = pks[this.route]
-      }
+  created () {
+    this.getPrimaryKeys()
+
+    this.$watch('url', this.getPrimaryKeys)
+    this.$watch('query', this.get.call, {
+      deep: true
+    })
+    this.$watch('route', this.get.call, {
+      deep: true
+    })
+    this.$watch('apiRoot', this.get.call, {
+      deep: true
+    })
+    this.$watch('create', (newData) => {
+      this.newItem = new GenericModel(newData, this.request, this.primaryKeys)
     }, {
       immediate: true
     })
-    this.$watch('query', this.get.call, {
-      deep: true,
-      immediate: true
-    })
-    this.$watch('route', this.get.call, {
-      deep: true,
-      immediate: true
-    })
-    this.$watch('apiRoot', this.get.call, {
-      deep: true,
-      immediate: true
-    })
-    this.$watch('create', (newData) => {
-      this.newItem = new GenericModel(newData)
-    })
+
+    this.get.call()
   },
   render (h) {
     return this.$scopedSlots.default(this.scope)

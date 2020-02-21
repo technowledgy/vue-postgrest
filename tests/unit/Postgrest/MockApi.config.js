@@ -32,7 +32,7 @@ module.exports = function (mockData) {
         }
         if (match[1] === '/') {
           return {
-            body: mockData.docs || undefined,
+            body: mockData.docs || { definitions: {} },
             headers: {
               'content-type': 'application/openapi+json'
             }

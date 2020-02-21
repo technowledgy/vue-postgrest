@@ -27,9 +27,11 @@ const superagentMock = mock(request, config({
   docs: {
     definitions: {
       clients: {
-        id: {
-          type: 'integer',
-          description: 'Note:\nThis is a Primary Key.<pk/>'
+        properties: {
+          id: {
+            type: 'integer',
+            description: 'Note:\nThis is a Primary Key.<pk/>'
+          }
         }
       }
     }
