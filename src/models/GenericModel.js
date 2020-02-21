@@ -5,6 +5,7 @@ import isObject from '@/utils/isObject'
 
 export default class {
   constructor (data, requestCB, primaryKeys) {
+    this.isDirty = false
     this.request = requestCB
     this.primaryKeys = primaryKeys
     this._parseData(data)
@@ -39,6 +40,12 @@ export default class {
             this._diff[prop] = val
           } else {
             delete this._diff[prop]
+          }
+
+          if (Object.keys(this._diff).length > 0) {
+            this.isDirty = true
+          } else {
+            this.isDirty = false
           }
         },
         enumerable: true

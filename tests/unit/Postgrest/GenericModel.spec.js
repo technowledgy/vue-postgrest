@@ -17,10 +17,10 @@ describe('GenericModel', () => {
     makeRequestCB.mockReset()
   })
 
-  const instance = new GenericModel(data, makeRequestCB, primaryKeys)
 
   describe('Instance', () => {
     it('sets the data field getters and setters on instance property "data"', () => {
+      const instance = new GenericModel(data, makeRequestCB, primaryKeys)
       for (let prop in data) {
         expect(instance.data[prop]).toBe(data[prop])
         instance.data[prop] = 'test'
@@ -29,10 +29,12 @@ describe('GenericModel', () => {
     })
 
     it('sets the third constructor argument to instance property "primaryKeys"', () => {
+      const instance = new GenericModel(data, makeRequestCB, primaryKeys)
       expect(instance.primaryKeys).toBe(primaryKeys)
     })
 
     it('throws "PrimaryKeyError" if primary key is not valid', async () => {
+      const instance = new GenericModel(data, makeRequestCB, primaryKeys)
       expect.assertions(1)
       try {
         // eslint-disable-next-line
@@ -42,11 +44,18 @@ describe('GenericModel', () => {
       }
     })
 
+    it('has instance property "isDirty" which defaults to false', () => {
+      const instance = new GenericModel(data, makeRequestCB, primaryKeys)
+      expect(instance.isDirty).toBe(false)
+    })
+
     it('sets the second constructor argument to instance method "request"', () => {
+      const instance = new GenericModel(data, makeRequestCB, primaryKeys)
       expect(instance.request).toEqual(makeRequestCB)
     })
 
     it('has instance method "post"', () => {
+      const instance = new GenericModel(data, makeRequestCB, primaryKeys)
       expect(typeof instance.post).toBe('object')
       expect(typeof instance.post.call).toBe('function')
       expect(typeof instance.post.hasError).toBe('boolean')
@@ -54,6 +63,7 @@ describe('GenericModel', () => {
     })
 
     it('has instance method "patch"', () => {
+      const instance = new GenericModel(data, makeRequestCB, primaryKeys)
       expect(typeof instance.patch).toBe('object')
       expect(typeof instance.patch.call).toBe('function')
       expect(typeof instance.patch.hasError).toBe('boolean')
@@ -61,6 +71,7 @@ describe('GenericModel', () => {
     })
 
     it('has instance method "delete"', () => {
+      const instance = new GenericModel(data, makeRequestCB, primaryKeys)
       expect(typeof instance.delete).toBe('object')
       expect(typeof instance.delete.call).toBe('function')
       expect(typeof instance.delete.hasError).toBe('boolean')
@@ -68,6 +79,7 @@ describe('GenericModel', () => {
     })
 
     it('has instance method "reset"', () => {
+      const instance = new GenericModel(data, makeRequestCB, primaryKeys)
       expect(typeof instance.reset).toBe('function')
     })
   })
@@ -325,6 +337,4 @@ describe('GenericModel', () => {
       expect(makeRequestCB.mock.calls[1][0]).toBe('DELETE')
     })
   })
-
-  describe('Reset method', () => {})
 })
