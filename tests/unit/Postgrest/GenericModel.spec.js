@@ -17,7 +17,6 @@ describe('GenericModel', () => {
     makeRequestCB.mockReset()
   })
 
-
   describe('Instance', () => {
     it('sets the data field getters and setters on instance property "data"', () => {
       const instance = new GenericModel(data, makeRequestCB, primaryKeys)
@@ -34,7 +33,6 @@ describe('GenericModel', () => {
     })
 
     it('throws "PrimaryKeyError" if primary key is not valid', async () => {
-      const instance = new GenericModel(data, makeRequestCB, primaryKeys)
       expect.assertions(1)
       try {
         // eslint-disable-next-line
@@ -154,6 +152,31 @@ describe('GenericModel', () => {
       expect(patchInstance.data.name).toBe('client321')
       patchInstance.reset()
       expect(patchInstance.data.name).toBe('client123')
+    })
+  })
+
+  describe('reacts to data changes', () => {
+    it('by emitting "update" event when instance data is changed', async () => {
+      expect.assertions(2)
+      return new Promise(resolve => {
+        const updateCallback = jest.fn((evt) => {
+          expect(updateCallback.mock.calls.length).toBe(1)
+          resolve()
+        })
+        const updateInstance = new GenericModel(data, makeRequestCB, ['id'])
+        expect(typeof updateInstance.addEventListener).toBe('function')
+        updateInstance.addEventListener('update', updateCallback)
+        updateInstance.data.name = 'client321'
+      })
+    })
+
+    it('by setting the instance prop "isDirty" correctly', () => {
+      const updateInstance = new GenericModel(data, makeRequestCB, ['id'])
+      expect(updateInstance.isDirty).toBe(false)
+      updateInstance.data.name = 'client321'
+      expect(updateInstance.isDirty).toBe(true)
+      updateInstance.data.name = data.name
+      expect(updateInstance.isDirty).toBe(false)
     })
   })
 

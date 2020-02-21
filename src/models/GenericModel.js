@@ -3,8 +3,9 @@ import wrap from '@/utils/wrap'
 import Freezer from 'freezer-js'
 import isObject from '@/utils/isObject'
 
-export default class {
+export default class extends EventTarget {
   constructor (data, requestCB, primaryKeys) {
+    super()
     this.isDirty = false
     this.request = requestCB
     this.primaryKeys = primaryKeys
@@ -47,6 +48,7 @@ export default class {
           } else {
             this.isDirty = false
           }
+          this.dispatchEvent(new Event('update'))
         },
         enumerable: true
       })
