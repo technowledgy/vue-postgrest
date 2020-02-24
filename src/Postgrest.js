@@ -74,7 +74,7 @@ export default {
         'accept': opts.single ? 'application/vnd.pgrst.object+json' : 'application/json'
       }
       if (opts.limit || opts.offset) {
-        const range = [opts.offset || 0, opts.limit || null]
+        const range = [opts.offset || 0, opts.limit - 1 || null]
         if (range[1] && opts.offset) range[1] += opts.offset
         headers['range-unit'] = 'items'
         headers.range = range.join('-')

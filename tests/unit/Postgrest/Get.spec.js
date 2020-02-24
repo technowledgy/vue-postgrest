@@ -390,7 +390,7 @@ describe('Get', () => {
                 if (!props.get.isPending) {
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers['range-unit']).toBe('items')
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.range).toBe('0-10')
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.range).toBe('0-9')
                   resolve()
                 }
               } catch (e) {
@@ -449,7 +449,7 @@ describe('Get', () => {
                 if (!props.get.isPending) {
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers['range-unit']).toBe('items')
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.range).toBe('5-15')
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.range).toBe('5-14')
                   resolve()
                 }
               } catch (e) {
@@ -481,7 +481,7 @@ describe('Get', () => {
                     expect(typeof props.range).toBe('object')
                     expect(typeof props.range.totalCount).toBe('undefined')
                     expect(props.range.first).toBe(0)
-                    expect(props.range.last).toBe(2)
+                    expect(props.range.last).toBe(1)
                     resolve()
                   }
                 } catch (e) {
@@ -511,7 +511,7 @@ describe('Get', () => {
                     expect(typeof props.range).toBe('object')
                     expect(props.range.totalCount).toBe(3)
                     expect(props.range.first).toBe(0)
-                    expect(props.range.last).toBe(2)
+                    expect(props.range.last).toBe(1)
                     resolve()
                   }
                 } catch (e) {
