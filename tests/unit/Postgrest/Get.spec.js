@@ -100,7 +100,7 @@ describe('Get', () => {
                     expect(props.items.length).toBe(mockData.data['/clients'].get.length)
                     expect(props.items[0].data.id).toBe(mockData.data['/clients'].get[0].id)
                     expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
-                    expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.Accept).toBe('application/json')
+                    expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.accept).toBe('application/json')
                     resolve()
                   }
                 } catch (e) {
@@ -128,7 +128,7 @@ describe('Get', () => {
                   if (!props.get.isPending) {
                     expect(props.item.data.id).toBe(mockData.data['/clients'].get[0].id)
                     expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
-                    expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.Accept).toBe('application/vnd.pgrst.object+json')
+                    expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.accept).toBe('application/vnd.pgrst.object+json')
                     resolve()
                   }
                 } catch (e) {
@@ -361,8 +361,8 @@ describe('Get', () => {
               try {
                 if (!props.get.isPending) {
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers['Range-Unit']).toBe(undefined)
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.Range).toBe(undefined)
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers['range-unit']).toBe(undefined)
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.range).toBe(undefined)
                   resolve()
                 }
               } catch (e) {
@@ -389,8 +389,8 @@ describe('Get', () => {
               try {
                 if (!props.get.isPending) {
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers['Range-Unit']).toBe('items')
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.Range).toBe('0-10')
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers['range-unit']).toBe('items')
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.range).toBe('0-10')
                   resolve()
                 }
               } catch (e) {
@@ -419,8 +419,8 @@ describe('Get', () => {
               try {
                 if (!props.get.isPending) {
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers['Range-Unit']).toBe('items')
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.Range).toBe('5-')
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers['range-unit']).toBe('items')
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.range).toBe('5-')
                   resolve()
                 }
               } catch (e) {
@@ -448,8 +448,8 @@ describe('Get', () => {
               try {
                 if (!props.get.isPending) {
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers['Range-Unit']).toBe('items')
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.Range).toBe('5-15')
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers['range-unit']).toBe('items')
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.range).toBe('5-15')
                   resolve()
                 }
               } catch (e) {

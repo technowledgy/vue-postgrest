@@ -12,15 +12,15 @@ module.exports = function (mockData) {
             if (context.method === 'get') {
               resp.body = mockData.data[endpoint].get
             }
-            if (headers['Accept'] === 'application/vnd.pgrst.object+json') {
+            if (headers['accept'] === 'application/vnd.pgrst.object+json') {
               resp.body = resp.body[0]
             }
-            if (headers.Range && Array.isArray(resp.body)) {
-              resp.headers['Range-Unit'] = 'items'
+            if (headers.range && Array.isArray(resp.body)) {
+              resp.headers['range-unit'] = 'items'
               // setting content range properly to actual returned range not neccessary for the simple test cases
-              const range = headers.Range.split('-')
+              const range = headers.range.split('-')
               const retRange = range[1] ? range.join('-') : [range[0], resp.body.length].join('-')
-              resp.headers['Content-Range'] = headers.Prefer.split(',').includes('count=exact') ? retRange + '/' + resp.body.length : retRange + '/*'
+              resp.headers['content-range'] = headers.prefer.split(',').includes('count=exact') ? retRange + '/' + resp.body.length : retRange + '/*'
               resp.body = resp.body.slice(...range)
             }
             return resp

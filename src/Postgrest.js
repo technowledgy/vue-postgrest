@@ -71,17 +71,17 @@ export default {
   methods: {
     async request (method, query = {}, opts = {}, data) {
       const headers = {
-        'Accept': opts.single ? 'application/vnd.pgrst.object+json' : 'application/json'
+        'accept': opts.single ? 'application/vnd.pgrst.object+json' : 'application/json'
       }
       if (opts.limit || opts.offset) {
         const range = [opts.offset || 0, opts.limit || null]
         if (range[1] && opts.offset) range[1] += opts.offset
-        headers['Range-Unit'] = 'items'
-        headers.Range = range.join('-')
+        headers['range-unit'] = 'items'
+        headers.range = range.join('-')
       }
-      headers.Prefer = opts.representation ? 'return=representation' : 'return=minimal'
+      headers.prefer = opts.representation ? 'return=representation' : 'return=minimal'
       if (opts.exactCount) {
-        headers.Prefer = headers.Prefer + ',count=exact'
+        headers.prefer = headers.prefer + ',count=exact'
       }
 
       // add instance query (for vertical filtering etc.)
@@ -113,8 +113,8 @@ export default {
           }) : []
         }
 
-        if (resp && resp.headers['Content-Range']) {
-          let contentRange = resp.headers['Content-Range'].split('/')
+        if (resp && resp.headers['content-range']) {
+          let contentRange = resp.headers['content-range'].split('/')
           let range = contentRange[0].split('-')
           this.range = {
             totalCount: contentRange[1] === '*' ? undefined : parseInt(contentRange[1]),
