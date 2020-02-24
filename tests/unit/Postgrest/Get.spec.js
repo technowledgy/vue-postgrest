@@ -401,6 +401,41 @@ describe('Get', () => {
         })
       })
     })
+
+    it('reacts to dynamic changes', async () => {
+      expect.assertions(6)
+      let propsChanged = false
+      return new Promise((resolve, reject) => {
+        const postgrest = shallowMount(Postgrest, {
+          propsData: {
+            apiRoot: '/api/',
+            route: 'clients',
+            query: {},
+            limit: 10
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                if (!props.get.isPending && !propsChanged) {
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers['range-unit']).toBe('items')
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.range).toBe('0-9')
+                  postgrest.setProps({ limit: 20 })
+                  propsChanged = true
+                } else if (!props.get.isPending && propsChanged) {
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(2)
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[1][0].headers['range-unit']).toBe('items')
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[1][0].headers.range).toBe('0-19')
+                  resolve()
+                }
+              } catch (e) {
+                reject(e)
+              }
+            }
+          }
+        })
+      })
+    })
   })
 
   describe('Prop "offset"', () => {
@@ -450,6 +485,41 @@ describe('Get', () => {
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers['range-unit']).toBe('items')
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.range).toBe('5-14')
+                  resolve()
+                }
+              } catch (e) {
+                reject(e)
+              }
+            }
+          }
+        })
+      })
+    })
+
+    it('reacts to dynamic changes', async () => {
+      expect.assertions(6)
+      let propsChanged = false
+      return new Promise((resolve, reject) => {
+        const postgrest = shallowMount(Postgrest, {
+          propsData: {
+            apiRoot: '/api/',
+            route: 'clients',
+            query: {},
+            offset: 5
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                if (!props.get.isPending && !propsChanged) {
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers['range-unit']).toBe('items')
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.range).toBe('5-')
+                  postgrest.setProps({ offset: 10 })
+                  propsChanged = true
+                } else if (!props.get.isPending && propsChanged) {
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(2)
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[1][0].headers['range-unit']).toBe('items')
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[1][0].headers.range).toBe('10-')
                   resolve()
                 }
               } catch (e) {

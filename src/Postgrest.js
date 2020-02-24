@@ -156,6 +156,8 @@ export default {
     })
     this.$watch('route', this.get.call)
     this.$watch('apiRoot', this.get.call)
+    this.$watch('offset', this.get.call)
+    this.$watch('limit', this.get.call)
     this.$watch('create', (newData) => {
       this.newItem = new GenericModel(newData, this.request, this.primaryKeys)
     }, {
