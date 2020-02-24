@@ -154,12 +154,8 @@ export default {
     this.$watch('query', this.get.call, {
       deep: true
     })
-    this.$watch('route', this.get.call, {
-      deep: true
-    })
-    this.$watch('apiRoot', this.get.call, {
-      deep: true
-    })
+    this.$watch('route', this.get.call)
+    this.$watch('apiRoot', this.get.call)
     this.$watch('create', (newData) => {
       this.newItem = new GenericModel(newData, this.request, this.primaryKeys)
     }, {
