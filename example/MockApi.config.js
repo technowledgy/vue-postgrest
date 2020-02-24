@@ -11,6 +11,8 @@ module.exports = function (mockData) {
             }
             if (context.method === 'get') {
               resp.body = mockData.data[endpoint].get
+            } else if (context.method === 'patch') {
+              throw new Error('Patching not allowed on mock api.', { test: 'test' })
             }
             if (headers['Accept'] === 'application/vnd.pgrst.object+json') {
               resp.body = resp.body[0]
@@ -27,9 +29,6 @@ module.exports = function (mockData) {
           }
         }
 
-        if (match[1] === '/404') {
-          throw new Error(404)
-        }
         if (match[1] === '/') {
           return {
             body: mockData.docs || { definitions: {} },

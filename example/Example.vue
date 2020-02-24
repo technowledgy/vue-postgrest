@@ -10,7 +10,11 @@
           <div
             v-for="item of items"
             :key="item.id">
-            {{ item.data }}
+            {{ item.data.id }}
+            <input
+              v-model="item.data.name"
+              @change="item.patch.call()"
+              type="text">
           </div>
         </div>
       </template>
