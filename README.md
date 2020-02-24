@@ -61,6 +61,7 @@ The api-response and following methods are available via slot-props:
 |items                |[Entity]      |query && !single                |An array of existing data entities     |
 |item                 |Entity        |query && single                 |A single existing data entity          |
 |newItem              |Entity        |create                          |The data entity to create              |
+|resetNewItem         |Function      |create                          |Reset newItem to provided create template.|
 |get                  |Utility       |query                           |Utility for get requests      |
 |range                |Range         |API returns Content-Range header|Information on server-side pagination of results|
 |rpc                  |Function      |                                |Call a stored procedure.|

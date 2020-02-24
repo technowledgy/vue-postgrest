@@ -11,8 +11,8 @@ module.exports = function (mockData) {
             }
             if (context.method === 'get') {
               resp.body = mockData.data[endpoint].get
-            } else if (context.method === 'patch') {
-              throw new Error('Patching not allowed on mock api.', { test: 'test' })
+            } else {
+              throw new Error('Method not supported on mock api.')
             }
             if (headers['Accept'] === 'application/vnd.pgrst.object+json') {
               resp.body = resp.body[0]
@@ -48,28 +48,9 @@ module.exports = function (mockData) {
       },
 
       patch: function (match, data) {
-        return data
       },
 
       post: function (match, data) {
-        return data
-      }
-    },
-    {
-      pattern: 'other-server(.*)',
-      fixtures: function (match, params, headers, context) {
-        if (match[1] === '/') {
-          return {
-            body: {},
-            headers: {
-              'content-type': 'application/json'
-            }
-          }
-        }
-      },
-
-      get: function (match, data) {
-        return data
       }
     }
   ]

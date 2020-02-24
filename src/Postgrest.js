@@ -46,7 +46,7 @@ export default {
     return {
       items: [],
       item: {},
-      newItem: new GenericModel(this.create),
+      newItem: null,
       range: undefined,
       get: wrap(this._get),
       primaryKeys: []
@@ -60,7 +60,8 @@ export default {
         item: (this.query !== undefined && this.single) ? this.item : undefined,
         newItem: this.create !== undefined ? this.newItem : undefined,
         range: this.range,
-        rpc: this.rpc
+        rpc: this.rpc,
+        resetNewItem: this.create !== undefined ? this.resetNewItem : undefined
       }
     },
     url () {
@@ -137,6 +138,13 @@ export default {
     async getPrimaryKeys () {
       const pks = await SchemaManager.getPrimaryKeys(this.apiRoot)
       syncObjects(this.primaryKeys, pks[this.route] || [])
+    },
+    resetNewItem () {
+      if (!this.create) {
+        throw new Error('Create template not provided.')
+      } else {
+        this.newItem = new GenericModel(this.create, this.request, this.primaryKeys)
+      }
     }
   },
   created () {
