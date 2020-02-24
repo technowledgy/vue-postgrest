@@ -2,7 +2,7 @@ import Vue from 'vue'
 
 // configure the mock api for the example
 import request from 'superagent'
-import config from '../tests/unit/Postgrest/MockApi.config'
+import config from './MockApi.config'
 import mock from 'superagent-mock'
 
 const mockData = {
@@ -26,9 +26,11 @@ const mockData = {
   docs: {
     definitions: {
       clients: {
-        id: {
-          type: 'integer',
-          description: 'Note:\nThis is a Primary Key.<pk/>'
+        properties: {
+          id: {
+            type: 'integer',
+            description: 'Note:\nThis is a Primary Key.<pk/>'
+          }
         }
       }
     }
