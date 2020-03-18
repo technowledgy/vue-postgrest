@@ -101,4 +101,34 @@ describe('Request', () => {
     })
     await expect(postgrest.vm.request('GET')).resolves.toBeTruthy()
   })
+
+  it('does not send authentication header if prop "token" is not set', async () => {
+    expect.assertions(1)
+    const postgrest = shallowMount(Postgrest, {
+      propsData: {
+        apiRoot: '/api/',
+        route: 'clients',
+        query: {}
+      },
+      slots: { default: '<div />' }
+    })
+    await postgrest.vm.request('GET', {})
+    expect(requestLogger.mock.calls[1][0].headers.authorization).toBe(undefined)
+  })
+
+  it('sends authentication header if prop "token" is set', async () => {
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiamRvZSIsImV4cCI6MTQ3NTUxNjI1MH0.GYDZV3yM0gqvuEtJmfpplLBXSGYnke_Pvnl0tbKAjB'
+    expect.assertions(1)
+    const postgrest = shallowMount(Postgrest, {
+      propsData: {
+        apiRoot: '/api/',
+        route: 'clients',
+        query: {},
+        token
+      },
+      slots: { default: '<div />' }
+    })
+    await postgrest.vm.request('GET', {})
+    expect(requestLogger.mock.calls[1][0].headers.authorization).toBe(`Bearer ${token}`)
+  })
 })

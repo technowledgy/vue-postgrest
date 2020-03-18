@@ -52,6 +52,7 @@ Component "postgrest" is registered globally on your Vue instance.
 |limit     |no      |-        |Number|Limit the count of response entities|
 |offset    |no      |-        |Number|Offset the response entities|
 |exactCount|no      |false    |Bool  |Request the total amount of entities in DB (disabled by default due to performance considerations)|
+|token     |no      |undefined|String|JWT token that is sent as authentication bearer with DB requests.|
 
 #### Slot-scope
 The api-response and following methods are available via slot-props:

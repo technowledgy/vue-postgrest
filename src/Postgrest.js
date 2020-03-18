@@ -40,6 +40,10 @@ export default {
     exactCount: {
       type: Boolean,
       default: false
+    },
+    token: {
+      type: String,
+      default: undefined
     }
   },
   data () {
@@ -82,6 +86,10 @@ export default {
       headers.prefer = opts.representation ? 'return=representation' : 'return=minimal'
       if (opts.exactCount) {
         headers.prefer = headers.prefer + ',count=exact'
+      }
+
+      if (this.token) {
+        headers.authorization = `Bearer ${this.token}`
       }
 
       // add instance query (for vertical filtering etc.)
