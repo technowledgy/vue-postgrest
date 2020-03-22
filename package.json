@@ -15,7 +15,7 @@
     "test": "vue-cli-service test:unit",
     "test:watch": "vue-cli-service test:unit --watchAll",
     "lint": "vue-cli-service lint",
-    "release": "standard-version"
+    "pre-version": "yarn test && yarn lint && yarn build"
   },
   "files": [
     "dist/*"
