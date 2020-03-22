@@ -52,6 +52,40 @@ describe('SchemaManager', () => {
       requestLogger.mockReset()
     })
 
+    describe('when provided a token', () => {
+      it('uses api token in request', async () => {
+        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiamRvZSIsImV4cCI6MTQ3NTUxNjI1MH0.GYDZV3yM0gqvuEtJmfpplLBXSGYnke_Pvnl0tbKAjB'
+        const keys = await SchemaManager.getPrimaryKeys('/api/', token)
+        expect(requestLogger.mock.calls.length).toBe(1)
+        expect(requestLogger.mock.calls[0][0].headers.authorization).toBe(`Bearer ${token}`)
+      })
+
+      it('caches schema under token level and returns the cached schema', async () => {
+        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiamRvZSIsImV4cCI6MTQ3NTUxNjI1MH0.GYDZV3yM0gqvuEtJmfpplLBXSGYnke_Pvnl0tbKAjB'
+        const keys = await SchemaManager.getPrimaryKeys('/api/', token)
+        expect(SchemaManager.cache['/api/'][token]).toEqual({
+          table1: ['name', 'id']
+        })
+        expect(SchemaManager.cache['/api/'][token]).toBe(keys)
+      })
+    })
+
+    describe('when not provided a token', () => {
+      it('does not send auth header in request', async () => {
+        const keys = await SchemaManager.getPrimaryKeys('/api/')
+        expect(requestLogger.mock.calls.length).toBe(1)
+        expect(requestLogger.mock.calls[0][0].headers.authorization).toBe(undefined)
+      })
+
+      it('caches schema under "anonymous" and returns the cached schema', async () => {
+        const keys = await SchemaManager.getPrimaryKeys('/api/')
+        expect(SchemaManager.cache['/api/'].anonymous).toEqual({
+          table1: ['name', 'id']
+        })
+        expect(SchemaManager.cache['/api/'].anonymous).toBe(keys)
+      })
+    })
+
     it('requests schema if not cached and returns the primary keys for the requested api root if schema exists', async () => {
       const keys = await SchemaManager.getPrimaryKeys('/api/')
       expect(requestLogger.mock.calls.length).toBe(1)

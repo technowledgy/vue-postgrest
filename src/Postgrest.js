@@ -144,7 +144,7 @@ export default {
       return this.request(method, {}, { root: true, route: 'rpc/' + fn }, args)
     },
     async getPrimaryKeys () {
-      const pks = await SchemaManager.getPrimaryKeys(this.apiRoot)
+      const pks = await SchemaManager.getPrimaryKeys(this.apiRoot, this.token)
       syncObjects(this.primaryKeys, pks[this.route] || [])
     },
     resetNewItem () {
