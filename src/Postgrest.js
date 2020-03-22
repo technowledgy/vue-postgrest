@@ -5,6 +5,7 @@ import GenericModel from '@/models/GenericModel'
 import SchemaManager from '@/SchemaManager'
 import EmittedError from '@/errors/EmittedError'
 import syncObjects from '@/utils/syncObjects'
+import headerStringToObject from '@/utils/headerStringToObject'
 
 export default {
   name: 'Postgrest',
@@ -95,9 +96,15 @@ export default {
       // add instance query (for vertical filtering etc.)
       const q = Object.assign({}, this.query || {}, query)
       const reqUrl = opts.root ? (opts.route ? this.apiRoot + opts.route : this.apiRoot) : this.apiRoot + url({ [opts.route || this.route]: q })
-      return superagent(method, reqUrl)
+      const resp = await superagent(method, reqUrl)
         .set(headers)
         .send(data)
+      if (resp && resp.headers['www-authenticate']) {
+        const authError = headerStringToObject(resp.headers['www-authenticate'].replace('Bearer ', ''))
+        this.$emit('token-error', authError)
+        throw new EmittedError(e)
+      }
+      return resp
     },
     async _get () {
       try {

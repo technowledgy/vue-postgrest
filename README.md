@@ -67,6 +67,13 @@ The api-response and following methods are available via slot-props:
 |range                |Range         |API returns Content-Range header|Information on server-side pagination of results|
 |rpc                  |Function      |                                |Call a stored procedure.|
 
+#### Events
+
+|Event                |Description             |
+|---------------------|------------------------|
+|get-error            |fires on error from get-requests|
+|token-error          |fires on token errors from requests|
+
 #### Models
 ##### Utility
 |Property             |Type          |Description             |

@@ -23,6 +23,13 @@ module.exports = function (mockData) {
               resp.headers['content-range'] = headers.prefer.split(',').includes('count=exact') ? retRange + '/' + resp.body.length : retRange + '/*'
               resp.body = resp.body.slice(...range)
             }
+            if (headers.authorization) {
+              const token = headers.authorization.replace('Bearer ', '')
+              if (token === 'expired') {
+                resp.body = {}
+                resp.headers['www-authenticate'] = 'Bearer error="invalid_token", error_description="JWT expired"'
+              }
+            }
             return resp
           }
         }

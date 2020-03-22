@@ -131,4 +131,32 @@ describe('Request', () => {
     await postgrest.vm.request('GET', {})
     expect(requestLogger.mock.calls[1][0].headers.authorization).toBe(`Bearer ${token}`)
   })
+
+  it('emits "token-error" when server sets appropriate header', async () => {
+    expect.assertions(3)
+    return new Promise((resolve, reject) => {
+      const postgrest = shallowMount(Postgrest, {
+        propsData: {
+          apiRoot: '/api/',
+          route: 'clients',
+          query: {},
+          token: 'expired'
+        },
+        scopedSlots: {
+          default (props) {
+            try {
+              if (!props.get.isPending) {
+                expect(postgrest.emitted()['token-error']).toBeTruthy()
+                expect(postgrest.emitted()['token-error'].length).toBe(1)
+                expect(postgrest.emitted()['token-error'][0][0]).toEqual({ error: 'invalid_token', error_description: 'JWT expired' })
+                resolve()
+              }
+            } catch (e) {
+              reject(e)
+            }
+          }
+        }
+      })
+    })
+  })
 })
