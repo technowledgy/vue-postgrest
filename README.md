@@ -93,12 +93,6 @@ The api-response and following methods are available via slot-props:
 |reset                |Function      |Reset the entity's data object to initial state|
 |isDirty              |Bool          |Indicates wether data differs from initial state|
 
-Note: You can subscribe to the 'update'-event on an entity to get notified when the entities data is changed:
-
-```
-item.on('update', () => {
-  // do something
-})
 ```
 
 ### Querys
