@@ -100,8 +100,6 @@ The api-response and following methods are available via slot-props:
 |reset                |Function      |Reset the entity's data object to initial state|
 |isDirty              |Bool          |Indicates wether data differs from initial state|
 
-```
-
 ### Querys
 
 The query prop accepts an object with keys of column conditions and values of query string parameters.
