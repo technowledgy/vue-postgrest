@@ -55,7 +55,7 @@ describe('SchemaManager', () => {
     describe('when provided a token', () => {
       it('uses api token in request', async () => {
         const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiamRvZSIsImV4cCI6MTQ3NTUxNjI1MH0.GYDZV3yM0gqvuEtJmfpplLBXSGYnke_Pvnl0tbKAjB'
-        const keys = await SchemaManager.getPrimaryKeys('/api/', token)
+        await SchemaManager.getPrimaryKeys('/api/', token)
         expect(requestLogger.mock.calls.length).toBe(1)
         expect(requestLogger.mock.calls[0][0].headers.authorization).toBe(`Bearer ${token}`)
       })
@@ -72,7 +72,7 @@ describe('SchemaManager', () => {
 
     describe('when not provided a token', () => {
       it('does not send auth header in request', async () => {
-        const keys = await SchemaManager.getPrimaryKeys('/api/')
+        await SchemaManager.getPrimaryKeys('/api/')
         expect(requestLogger.mock.calls.length).toBe(1)
         expect(requestLogger.mock.calls[0][0].headers.authorization).toBe(undefined)
       })

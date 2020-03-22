@@ -102,7 +102,7 @@ export default {
       if (resp && resp.headers['www-authenticate']) {
         const authError = headerStringToObject(resp.headers['www-authenticate'].replace('Bearer ', ''))
         this.$emit('token-error', authError)
-        throw new EmittedError(e)
+        throw new EmittedError(authError)
       }
       return resp
     },

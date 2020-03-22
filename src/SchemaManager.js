@@ -5,7 +5,7 @@ export default {
   resetCache () {
     this.cache = {}
   },
-  async getPrimaryKeys (apiRoot, token='anonymous') {
+  async getPrimaryKeys (apiRoot, token = 'anonymous') {
     if (!this.cache[apiRoot] || !this.cache[apiRoot][token]) {
       await this._getSchema(apiRoot, token)
     }
