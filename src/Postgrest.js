@@ -96,15 +96,22 @@ export default {
       // add instance query (for vertical filtering etc.)
       const q = Object.assign({}, this.query || {}, query)
       const reqUrl = opts.root ? (opts.route ? this.apiRoot + opts.route : this.apiRoot) : this.apiRoot + url({ [opts.route || this.route]: q })
-      const resp = await superagent(method, reqUrl)
-        .set(headers)
-        .send(data)
-      if (resp && resp.headers['www-authenticate']) {
-        const authError = headerStringToObject(resp.headers['www-authenticate'].replace('Bearer ', ''))
-        this.$emit('token-error', authError)
-        throw new EmittedError(authError)
+      let resp
+      try {
+        resp = await superagent(method, reqUrl)
+          .set(headers)
+          .send(data)
+        return resp
+      } catch (e) {
+        resp = e.response
+        if (resp && resp.headers['www-authenticate']) {
+          const authError = headerStringToObject(resp.headers['www-authenticate'].replace('Bearer ', ''))
+          this.$emit('token-error', authError)
+          throw new EmittedError(authError)
+        } else {
+          throw e
+        }
       }
-      return resp
     },
     async _get () {
       try {

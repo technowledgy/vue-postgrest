@@ -28,6 +28,9 @@ module.exports = function (mockData) {
               if (token === 'expired') {
                 resp.body = {}
                 resp.headers['www-authenticate'] = 'Bearer error="invalid_token", error_description="JWT expired"'
+                const newErr = new Error(401)
+                newErr.response = resp
+                throw newErr
               }
             }
             return resp
