@@ -1,6 +1,6 @@
 {
   "name": "vue-postgrest",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Vue.js Component providing PostgREST integration",
   "author": {
     "name": "julian walther",
