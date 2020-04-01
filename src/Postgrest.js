@@ -78,6 +78,9 @@ export default {
       const headers = {
         'accept': opts.single ? 'application/vnd.pgrst.object+json' : 'application/json'
       }
+      if (opts.binary) {
+        headers.accept = 'application/octet-stream'
+      }
       if (opts.limit || opts.offset) {
         const range = [opts.offset || 0, opts.limit - 1 || null]
         if (range[1] && opts.offset) range[1] += opts.offset
@@ -151,11 +154,14 @@ export default {
         throw new EmittedError(e)
       }
     },
-    async rpc (fn, method = 'POST', args = {}) {
-      if (!['POST', 'GET'].includes(method)) {
+    async rpc (fn, opts = {}) {
+      if (!opts.method) {
+        opts.method = 'POST'
+      }
+      if (!['POST', 'GET'].includes(opts.method)) {
         throw new Error('RPC endpoint only supports "POST" and "GET" methods.')
       }
-      return this.request(method, {}, { root: true, route: 'rpc/' + fn }, args)
+      return this.request(opts.method, {}, { root: true, route: 'rpc/' + fn, binary: opts.binary }, opts.params)
     },
     async getPrimaryKeys () {
       const pks = await SchemaManager.getPrimaryKeys(this.apiRoot, this.token)

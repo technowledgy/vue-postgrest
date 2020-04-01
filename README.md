@@ -211,12 +211,19 @@ newItem.post.call()
 
 All entities provide the post function, so it would be equally possible to alter a entity you requested from the serve, change its data and post it as a new item.
 
-### RPC (function-name, method, args)
+### RPC (function-name, options)
 
 The rpc function accepts the following arguments:
 
 |Argument             |Type          |Default |Description             |
 |---------------------|--------------|--------|----------------|
 |function-name        |String        |        |The name of the stored procedure to call|
+|options              |Object        |{}      |Options (see below)|
+
+Options: 
+
+|Property             |Type          |Default |Description             |
+|---------------------|--------------|--------|-------------------------|
 |method               |String        |'POST'  |The method with which to request the stored procedure. Postgrest accepts 'POST' and 'GET'|
-|args                 |Object        |{}      |The stored procedure arguments|
+|params                 |Object        |{}      |The stored procedure arguments|
+|binary               |Boolean       |false   |Sets the accept header to 'application/octet-stream', useful if you expect binary response from the server|
