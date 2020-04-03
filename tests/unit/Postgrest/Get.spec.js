@@ -52,11 +52,12 @@ describe('Get', () => {
   describe('Prop "query"', () => {
     it('sets "get.isPending" correctly', async () => {
       expect.assertions(2)
-      return new Promise((resolve, reject) => {
+      let wrapper
+      await new Promise((resolve, reject) => {
         let renders = 0
         let finished = false
         let started = false
-        shallowMount(Postgrest, {
+        wrapper = shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: 'clients',
@@ -81,13 +82,15 @@ describe('Get', () => {
           }
         })
       })
+      wrapper.destroy()
     })
 
     describe('set without conditions', () => {
       it('returns list of entities if prop "single" is false', async () => {
         expect.assertions(4)
-        return new Promise((resolve, reject) => {
-          shallowMount(Postgrest, {
+        let wrapper
+        await new Promise((resolve, reject) => {
+          wrapper = shallowMount(Postgrest, {
             propsData: {
               apiRoot: '/api/',
               route: 'clients',
@@ -110,12 +113,14 @@ describe('Get', () => {
             }
           })
         })
+        wrapper.destroy()
       })
 
       it('returns single entity if prop "single" is true', async () => {
         expect.assertions(3)
-        return new Promise((resolve, reject) => {
-          shallowMount(Postgrest, {
+        let wrapper
+        await new Promise((resolve, reject) => {
+          wrapper = shallowMount(Postgrest, {
             propsData: {
               apiRoot: '/api/',
               route: 'clients',
@@ -138,12 +143,14 @@ describe('Get', () => {
             }
           })
         })
+        wrapper.destroy()
       })
 
       it('returns generic models with correct properties', async () => {
         expect.assertions(4)
-        return new Promise((resolve, reject) => {
-          shallowMount(Postgrest, {
+        let wrapper
+        await new Promise((resolve, reject) => {
+          wrapper = shallowMount(Postgrest, {
             propsData: {
               apiRoot: '/api/',
               route: 'clients',
@@ -168,14 +175,16 @@ describe('Get', () => {
             }
           })
         })
+        wrapper.destroy()
       })
     })
 
     describe('set with conditions', () => {
       it('sets the request params correctly', async () => {
         expect.assertions(1)
-        return new Promise((resolve, reject) => {
-          shallowMount(Postgrest, {
+        let wrapper
+        await new Promise((resolve, reject) => {
+          wrapper = shallowMount(Postgrest, {
             propsData: {
               apiRoot: '/api/',
               route: 'clients',
@@ -195,14 +204,16 @@ describe('Get', () => {
             }
           })
         })
+        wrapper.destroy()
       })
     })
 
     it('reacts to dynamic changes', async () => {
       expect.assertions(3)
-      return new Promise((resolve, reject) => {
+      let wrapper
+      await new Promise((resolve, reject) => {
         let propsChanged = false
-        const postgrest = shallowMount(Postgrest, {
+        wrapper = shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: 'clients',
@@ -213,7 +224,7 @@ describe('Get', () => {
               try {
                 if (!props.get.isPending && !propsChanged) {
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
-                  postgrest.setProps({ query: { id: 'eq.1' } })
+                  wrapper.setProps({ query: { id: 'eq.1' } })
                   propsChanged = true
                 } else if (!props.get.isPending && propsChanged) {
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
@@ -227,14 +238,16 @@ describe('Get', () => {
           }
         })
       })
+      wrapper.destroy()
     })
   })
 
   describe('Prop "route"', () => {
     it('sets the request url correctly', async () => {
       expect.assertions(1)
-      return new Promise((resolve, reject) => {
-        shallowMount(Postgrest, {
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: 'clients',
@@ -254,13 +267,15 @@ describe('Get', () => {
           }
         })
       })
+      wrapper.destroy()
     })
 
     it('reacts to dynamic changes', async () => {
       expect.assertions(3)
-      return new Promise((resolve, reject) => {
+      let wrapper
+      await new Promise((resolve, reject) => {
         let propsChanged = false
-        const postgrest = shallowMount(Postgrest, {
+        wrapper = shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: 'clients',
@@ -271,7 +286,7 @@ describe('Get', () => {
               try {
                 if (!props.get.isPending && !propsChanged) {
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
-                  postgrest.setProps({ route: 'users' })
+                  wrapper.setProps({ route: 'users' })
                   propsChanged = true
                 } else if (!props.get.isPending && propsChanged) {
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
@@ -285,14 +300,16 @@ describe('Get', () => {
           }
         })
       })
+      wrapper.destroy()
     })
   })
 
   describe('Prop "api-root"', () => {
     it('sets the request url correctly', async () => {
       expect.assertions(1)
-      return new Promise((resolve, reject) => {
-        shallowMount(Postgrest, {
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/another-api/',
             route: 'clients',
@@ -312,13 +329,15 @@ describe('Get', () => {
           }
         })
       })
+      wrapper.destroy()
     })
 
     it('reacts to dynamic changes', async () => {
       expect.assertions(3)
-      return new Promise((resolve, reject) => {
+      let wrapper
+      await new Promise((resolve, reject) => {
         let propsChanged = false
-        const postgrest = shallowMount(Postgrest, {
+        wrapper = shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: 'clients',
@@ -329,7 +348,7 @@ describe('Get', () => {
               try {
                 if (!props.get.isPending && !propsChanged) {
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
-                  postgrest.setProps({ apiRoot: '/another-api/' })
+                  wrapper.setProps({ apiRoot: '/another-api/' })
                   propsChanged = true
                 } else if (!props.get.isPending && propsChanged) {
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
@@ -343,14 +362,16 @@ describe('Get', () => {
           }
         })
       })
+      wrapper.destroy()
     })
   })
 
   describe('Prop "limit"', () => {
     it('does not set headers when undefined', async () => {
       expect.assertions(3)
-      return new Promise((resolve, reject) => {
-        shallowMount(Postgrest, {
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: 'clients',
@@ -372,12 +393,14 @@ describe('Get', () => {
           }
         })
       })
+      wrapper.destroy()
     })
 
     it('sets the correct request headers', async () => {
       expect.assertions(3)
-      return new Promise((resolve, reject) => {
-        shallowMount(Postgrest, {
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: 'clients',
@@ -400,13 +423,15 @@ describe('Get', () => {
           }
         })
       })
+      wrapper.destroy()
     })
 
     it('reacts to dynamic changes', async () => {
       expect.assertions(6)
-      let propsChanged = false
-      return new Promise((resolve, reject) => {
-        const postgrest = shallowMount(Postgrest, {
+      let wrapper
+      await new Promise((resolve, reject) => {
+        let propsChanged = false
+        wrapper = shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: 'clients',
@@ -420,7 +445,7 @@ describe('Get', () => {
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers['range-unit']).toBe('items')
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.range).toBe('0-9')
-                  postgrest.setProps({ limit: 20 })
+                  wrapper.setProps({ limit: 20 })
                   propsChanged = true
                 } else if (!props.get.isPending && propsChanged) {
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(2)
@@ -435,14 +460,16 @@ describe('Get', () => {
           }
         })
       })
+      wrapper.destroy()
     })
   })
 
   describe('Prop "offset"', () => {
     it('sets the correct request headers for open range with offset', async () => {
       expect.assertions(3)
-      return new Promise((resolve, reject) => {
-        shallowMount(Postgrest, {
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: 'clients',
@@ -465,12 +492,14 @@ describe('Get', () => {
           }
         })
       })
+      wrapper.destroy()
     })
 
     it('sets the correct request headers for closed range with offset', async () => {
       expect.assertions(3)
-      return new Promise((resolve, reject) => {
-        shallowMount(Postgrest, {
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: 'clients',
@@ -494,13 +523,15 @@ describe('Get', () => {
           }
         })
       })
+      wrapper.destroy()
     })
 
     it('reacts to dynamic changes', async () => {
       expect.assertions(6)
-      let propsChanged = false
-      return new Promise((resolve, reject) => {
-        const postgrest = shallowMount(Postgrest, {
+      let wrapper
+      await new Promise((resolve, reject) => {
+        let propsChanged = false
+        wrapper = shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: 'clients',
@@ -514,7 +545,7 @@ describe('Get', () => {
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers['range-unit']).toBe('items')
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.range).toBe('5-')
-                  postgrest.setProps({ offset: 10 })
+                  wrapper.setProps({ offset: 10 })
                   propsChanged = true
                 } else if (!props.get.isPending && propsChanged) {
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(2)
@@ -529,6 +560,7 @@ describe('Get', () => {
           }
         })
       })
+      wrapper.destroy()
     })
   })
 
@@ -536,8 +568,9 @@ describe('Get', () => {
     describe('set the slot-prop "range" correctly if available', () => {
       it('with prop "exact-count" false', async () => {
         expect.assertions(4)
-        return new Promise((resolve, reject) => {
-          shallowMount(Postgrest, {
+        let wrapper
+        await new Promise((resolve, reject) => {
+          wrapper = shallowMount(Postgrest, {
             propsData: {
               apiRoot: '/api/',
               route: 'clients',
@@ -561,12 +594,14 @@ describe('Get', () => {
             }
           })
         })
+        wrapper.destroy()
       })
 
       it('with prop "exact-count" true', async () => {
         expect.assertions(4)
-        return new Promise((resolve, reject) => {
-          shallowMount(Postgrest, {
+        let wrapper
+        await new Promise((resolve, reject) => {
+          wrapper = shallowMount(Postgrest, {
             propsData: {
               apiRoot: '/api/',
               route: 'clients',
@@ -591,13 +626,15 @@ describe('Get', () => {
             }
           })
         })
+        wrapper.destroy()
       })
     })
 
     it('do not set the slot-prop "range" if not available', async () => {
       expect.assertions(1)
-      return new Promise((resolve, reject) => {
-        shallowMount(Postgrest, {
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: 'clients',
@@ -617,14 +654,16 @@ describe('Get', () => {
           }
         })
       })
+      wrapper.destroy()
     })
   })
 
   describe('Request errors', () => {
     it('set hasError to true', async () => {
       expect.assertions(1)
-      return new Promise((resolve, reject) => {
-        shallowMount(Postgrest, {
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: '404',
@@ -644,12 +683,14 @@ describe('Get', () => {
           }
         })
       })
+      wrapper.destroy()
     })
 
-    it('emit a "get-error" event', () => {
+    it('emit a "get-error" event', async () => {
       expect.assertions(4)
-      return new Promise((resolve, reject) => {
-        const postgrest = shallowMount(Postgrest, {
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
           propsData: {
             apiRoot: '/api/',
             route: '404',
@@ -660,9 +701,9 @@ describe('Get', () => {
               try {
                 if (!props.get.isPending) {
                   expect(props.get.hasError).toBe(true)
-                  expect(postgrest.emitted()['get-error']).toBeTruthy()
-                  expect(postgrest.emitted()['get-error'].length).toBe(1)
-                  expect(postgrest.emitted()['get-error'][0][0].message).toEqual('404')
+                  expect(wrapper.emitted()['get-error']).toBeTruthy()
+                  expect(wrapper.emitted()['get-error'].length).toBe(1)
+                  expect(wrapper.emitted()['get-error'][0][0].message).toEqual('404')
                   resolve()
                 }
               } catch (e) {
@@ -672,6 +713,7 @@ describe('Get', () => {
           }
         })
       })
+      wrapper.destroy()
     })
   })
 })

@@ -18,192 +18,300 @@ describe('Module', () => {
   })
 
   describe('Slot scope', () => {
-    it('provides GET function if prop QUERY is set', () => {
-      expect.hasAssertions()
-      shallowMount(Postgrest, {
-        propsData: {
-          route: '',
-          query: {}
-        },
-        scopedSlots: {
-          default (props) {
-            expect(typeof props.get).toBe('object')
-            expect(typeof props.get.call).toBe('function')
-            expect(typeof props.get.isPending).toBe('boolean')
-            expect(typeof props.get.hasError).toBe('boolean')
+    it('provides GET function if prop QUERY is set', async () => {
+      expect.assertions(4)
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
+          propsData: {
+            route: '',
+            query: {}
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                expect(typeof props.get).toBe('object')
+                expect(typeof props.get.call).toBe('function')
+                expect(typeof props.get.isPending).toBe('boolean')
+                expect(typeof props.get.hasError).toBe('boolean')
+                resolve()
+              } catch (e) {
+                reject(e)
+              }
+            }
           }
-        }
+        })
       })
+      wrapper.destroy()
     })
 
-    it('does not provide GET function if prop QUERY is not set', () => {
-      expect.hasAssertions()
-      shallowMount(Postgrest, {
-        propsData: {
-          route: ''
-        },
-        scopedSlots: {
-          default (props) {
-            expect(props.get).toBe(undefined)
+    it('does not provide GET function if prop QUERY is not set', async () => {
+      expect.assertions(1)
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
+          propsData: {
+            route: ''
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                expect(props.get).toBe(undefined)
+                resolve()
+              } catch (e) {
+                reject(e)
+              }
+            }
           }
-        }
+        })
       })
+      wrapper.destroy()
     })
 
-    it('provides "items" if prop "query" is set and prop "single" is not set', () => {
-      expect.hasAssertions()
-      shallowMount(Postgrest, {
-        propsData: {
-          route: '',
-          query: {}
-        },
-        scopedSlots: {
-          default (props) {
-            expect(Array.isArray(props.items)).toBe(true)
+    it('provides "items" if prop "query" is set and prop "single" is not set', async () => {
+      expect.assertions(1)
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
+          propsData: {
+            route: '',
+            query: {}
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                expect(Array.isArray(props.items)).toBe(true)
+                resolve()
+              } catch (e) {
+                reject(e)
+              }
+            }
           }
-        }
+        })
       })
+      wrapper.destroy()
     })
 
-    it('provides "item" if prop "query" is set and prop "single" is true', () => {
-      expect.hasAssertions()
-      shallowMount(Postgrest, {
-        propsData: {
-          route: '',
-          query: {},
-          single: true
-        },
-        scopedSlots: {
-          default (props) {
-            expect(typeof props.item).toBe('object')
+    it('provides "item" if prop "query" is set and prop "single" is true', async () => {
+      expect.assertions(1)
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
+          propsData: {
+            route: '',
+            query: {},
+            single: true
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                expect(typeof props.item).toBe('object')
+                resolve()
+              } catch (e) {
+                reject(e)
+              }
+            }
           }
-        }
+        })
       })
+      wrapper.destroy()
     })
 
-    it('does not provide "item" or "items" if prop "query" is not set', () => {
-      expect.hasAssertions()
-      shallowMount(Postgrest, {
-        propsData: {
-          route: ''
-        },
-        scopedSlots: {
-          default (props) {
-            expect(props.items).toBe(undefined)
-            expect(props.item).toBe(undefined)
+    it('does not provide "item" or "items" if prop "query" is not set', async () => {
+      expect.assertions(2)
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
+          propsData: {
+            route: ''
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                expect(props.items).toBe(undefined)
+                expect(props.item).toBe(undefined)
+                resolve()
+              } catch (e) {
+                reject(e)
+              }
+            }
           }
-        }
+        })
       })
+      wrapper.destroy()
     })
 
-    it('provides "newItem" if prop "create" is set', () => {
-      expect.hasAssertions()
-      shallowMount(Postgrest, {
-        propsData: {
-          route: '',
-          create: {}
-        },
-        scopedSlots: {
-          default (props) {
-            expect(typeof props.newItem).toBe('object')
+    it('provides "newItem" if prop "create" is set', async () => {
+      expect.assertions(1)
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
+          propsData: {
+            route: '',
+            create: {}
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                expect(typeof props.newItem).toBe('object')
+                resolve()
+              } catch (e) {
+                reject(e)
+              }
+            }
           }
-        }
+        })
       })
+      wrapper.destroy()
     })
 
-    it('does not provide "newItem" if prop "create" is not set', () => {
-      expect.hasAssertions()
-      shallowMount(Postgrest, {
-        propsData: {
-          route: ''
-        },
-        scopedSlots: {
-          default (props) {
-            expect(props.newItem).toBe(undefined)
+    it('does not provide "newItem" if prop "create" is not set', async () => {
+      expect.assertions(1)
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
+          propsData: {
+            route: ''
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                expect(props.newItem).toBe(undefined)
+                resolve()
+              } catch (e) {
+                reject(e)
+              }
+            }
           }
-        }
+        })
       })
+      wrapper.destroy()
     })
 
     // slot-prop "range" is tested in Get.spec, since setting it should be invoked by api response headers
 
-    it('does not provide "pagination" if prop "query" is not set', () => {
-      expect.hasAssertions()
-      shallowMount(Postgrest, {
-        propsData: {
-          route: ''
-        },
-        scopedSlots: {
-          default (props) {
-            expect(props.pagination).toBe(undefined)
+    it('does not provide "pagination" if prop "query" is not set', async () => {
+      expect.assertions(1)
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
+          propsData: {
+            route: ''
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                expect(props.pagination).toBe(undefined)
+                resolve()
+              } catch (e) {
+                reject(e)
+              }
+            }
           }
-        }
+        })
       })
+      wrapper.destroy()
     })
 
-    it('does not provide "pagination" if prop "query" is set and prop "single" is true', () => {
-      expect.hasAssertions()
-      shallowMount(Postgrest, {
-        propsData: {
-          route: '',
-          query: {},
-          single: true
-        },
-        scopedSlots: {
-          default (props) {
-            expect(props.pagination).toBe(undefined)
+    it('does not provide "pagination" if prop "query" is set and prop "single" is true', async () => {
+      expect.assertions(1)
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
+          propsData: {
+            route: '',
+            query: {},
+            single: true
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                expect(props.pagination).toBe(undefined)
+                resolve()
+              } catch (e) {
+                reject(e)
+              }
+            }
           }
-        }
+        })
       })
+      wrapper.destroy()
     })
 
-    it('provides a function "rpc"', () => {
-      expect.hasAssertions()
-      shallowMount(Postgrest, {
-        propsData: {
-          route: '',
-          query: {},
-          single: true
-        },
-        scopedSlots: {
-          default (props) {
-            expect(typeof props.rpc).toBe('function')
+    it('provides a function "rpc"', async () => {
+      expect.assertions(1)
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
+          propsData: {
+            route: '',
+            query: {},
+            single: true
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                expect(typeof props.rpc).toBe('function')
+                resolve()
+              } catch (e) {
+                reject(e)
+              }
+            }
           }
-        }
+        })
       })
+      wrapper.destroy()
     })
 
-    it('does not provide "resetNewItem" if "create" is not set', () => {
-      expect.hasAssertions()
-      shallowMount(Postgrest, {
-        propsData: {
-          route: '',
-          query: {},
-          single: true
-        },
-        scopedSlots: {
-          default (props) {
-            expect(typeof props.resetNewItem).toBe('undefined')
+    it('does not provide "resetNewItem" if "create" is not set', async () => {
+      expect.assertions(1)
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
+          propsData: {
+            route: '',
+            query: {},
+            single: true
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                expect(typeof props.resetNewItem).toBe('undefined')
+                resolve()
+              } catch (e) {
+                reject(e)
+              }
+            }
           }
-        }
+        })
       })
+      wrapper.destroy()
     })
 
-    it('provides a function "resetNewItem" if "create" is set', () => {
-      expect.hasAssertions()
-      shallowMount(Postgrest, {
-        propsData: {
-          route: '',
-          query: {},
-          single: true,
-          create: {}
-        },
-        scopedSlots: {
-          default (props) {
-            expect(typeof props.resetNewItem).toBe('function')
+    it('provides a function "resetNewItem" if "create" is set', async () => {
+      expect.assertions(1)
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
+          propsData: {
+            route: '',
+            query: {},
+            single: true,
+            create: {}
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                expect(typeof props.resetNewItem).toBe('function')
+                resolve()
+              } catch (e) {
+                reject(e)
+              }
+            }
           }
-        }
+        })
       })
+      wrapper.destroy()
     })
   })
 
@@ -214,7 +322,7 @@ describe('Module', () => {
         id: 123,
         name: 'client123'
       }
-      const instance = shallowMount(Postgrest, {
+      const wrapper = shallowMount(Postgrest, {
         propsData: {
           route: '',
           create
@@ -223,49 +331,68 @@ describe('Module', () => {
           default (props) {}
         }
       })
-      expect(instance.vm.newItem.data.name).toBe(create.name)
-      instance.vm.newItem.data.name = 'client321'
-      await instance.vm.$nextTick()
-      expect(instance.vm.newItem.data.name).toBe('client321')
-      instance.vm.resetNewItem()
-      await instance.vm.$nextTick()
-      expect(instance.vm.newItem.data).toEqual(create)
+      expect(wrapper.vm.newItem.data.name).toBe(create.name)
+      wrapper.vm.newItem.data.name = 'client321'
+      await wrapper.vm.$nextTick()
+      expect(wrapper.vm.newItem.data.name).toBe('client321')
+      wrapper.vm.resetNewItem()
+      await wrapper.vm.$nextTick()
+      expect(wrapper.vm.newItem.data).toEqual(create)
+      wrapper.destroy()
     })
   })
 
   describe('newItem', () => {
-    it('is a GenericModel', () => {
-      expect.hasAssertions()
-      shallowMount(Postgrest, {
-        propsData: {
-          route: '',
-          create: {}
-        },
-        scopedSlots: {
-          default (props) {
-            expect(props.newItem instanceof GenericModel).toBeTruthy()
+    it('is a GenericModel', async () => {
+      expect.assertions(1)
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
+          propsData: {
+            route: '',
+            create: {}
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                expect(props.newItem instanceof GenericModel).toBeTruthy()
+                resolve()
+              } catch (e) {
+                reject(e)
+              }
+            }
           }
-        }
+        })
       })
+      wrapper.destroy()
     })
 
-    it('has its data set to the template provided by "create" prop', () => {
-      expect.hasAssertions()
+    it('has its data set to the template provided by "create" prop', async () => {
+      expect.assertions(1)
       const create = {
         id: 123,
         name: 'client 123'
       }
-      shallowMount(Postgrest, {
-        propsData: {
-          route: '',
-          create
-        },
-        scopedSlots: {
-          default (props) {
-            expect(props.newItem.data).toEqual(create)
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
+          propsData: {
+            route: '',
+            create
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                expect(props.newItem.data).toEqual(create)
+                resolve()
+              } catch (e) {
+                reject(e)
+              }
+            }
           }
-        }
+        })
       })
+      wrapper.destroy()
     })
   })
 })

@@ -49,32 +49,33 @@ describe('Request', () => {
 
   it('sends a request with the specified method', async () => {
     expect.assertions(8)
-    const postgrest = shallowMount(Postgrest, {
+    const wrapper = shallowMount(Postgrest, {
       propsData: {
         apiRoot: '/api/',
         route: 'clients'
       },
       slots: { default: '<div />' }
     })
-    await postgrest.vm.request('GET', {})
+    await wrapper.vm.request('GET', {})
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients').length).toBe(1)
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients')[0][0].method).toBe('GET')
 
-    await postgrest.vm.request('POST', {})
+    await wrapper.vm.request('POST', {})
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients').length).toBe(2)
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients')[1][0].method).toBe('POST')
 
-    await postgrest.vm.request('DELETE', {})
+    await wrapper.vm.request('DELETE', {})
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients').length).toBe(3)
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients')[2][0].method).toBe('DELETE')
 
-    await postgrest.vm.request('PATCH', {})
+    await wrapper.vm.request('PATCH', {})
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients').length).toBe(4)
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients')[3][0].method).toBe('PATCH')
+    wrapper.destroy()
   })
 
   it('merges select part of module query with query argument', async () => {
-    const postgrest = shallowMount(Postgrest, {
+    const wrapper = shallowMount(Postgrest, {
       propsData: {
         apiRoot: '/api/',
         route: 'clients',
@@ -84,14 +85,15 @@ describe('Request', () => {
       },
       slots: { default: '<div />' }
     })
-    await postgrest.vm.$nextTick()
-    await postgrest.vm.request('GET', { id: 'eq.123' })
+    await wrapper.vm.$nextTick()
+    await wrapper.vm.request('GET', { id: 'eq.123' })
     expect(requestLogger.mock.calls[1][0].url).toBe('/api/clients?select=id,name&id=eq.123')
+    wrapper.destroy()
   })
 
   it('does not throw if query argument is undefined', async () => {
     expect.assertions(1)
-    const postgrest = shallowMount(Postgrest, {
+    const wrapper = shallowMount(Postgrest, {
       propsData: {
         apiRoot: '/api/',
         route: 'clients',
@@ -99,12 +101,13 @@ describe('Request', () => {
       },
       slots: { default: '<div />' }
     })
-    await expect(postgrest.vm.request('GET')).resolves.toBeTruthy()
+    await expect(wrapper.vm.request('GET')).resolves.toBeTruthy()
+    wrapper.destroy()
   })
 
   it('does not send authentication header if prop "token" is not set', async () => {
     expect.assertions(1)
-    const postgrest = shallowMount(Postgrest, {
+    const wrapper = shallowMount(Postgrest, {
       propsData: {
         apiRoot: '/api/',
         route: 'clients',
@@ -112,14 +115,15 @@ describe('Request', () => {
       },
       slots: { default: '<div />' }
     })
-    await postgrest.vm.request('GET', {})
+    await wrapper.vm.request('GET', {})
     expect(requestLogger.mock.calls[1][0].headers.authorization).toBe(undefined)
+    wrapper.destroy()
   })
 
   it('sends authentication header if prop "token" is set', async () => {
     const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiamRvZSIsImV4cCI6MTQ3NTUxNjI1MH0.GYDZV3yM0gqvuEtJmfpplLBXSGYnke_Pvnl0tbKAjB'
     expect.assertions(1)
-    const postgrest = shallowMount(Postgrest, {
+    const wrapper = shallowMount(Postgrest, {
       propsData: {
         apiRoot: '/api/',
         route: 'clients',
@@ -128,14 +132,16 @@ describe('Request', () => {
       },
       slots: { default: '<div />' }
     })
-    await postgrest.vm.request('GET', {})
+    await wrapper.vm.request('GET', {})
     expect(requestLogger.mock.calls[1][0].headers.authorization).toBe(`Bearer ${token}`)
+    wrapper.destroy()
   })
 
   it('emits "token-error" when server sets appropriate header', async () => {
     expect.assertions(3)
-    return new Promise((resolve, reject) => {
-      const postgrest = shallowMount(Postgrest, {
+    let wrapper
+    await new Promise((resolve, reject) => {
+      wrapper = shallowMount(Postgrest, {
         propsData: {
           apiRoot: '/api/',
           route: 'clients',
@@ -146,9 +152,9 @@ describe('Request', () => {
           default (props) {
             try {
               if (!props.get.isPending) {
-                expect(postgrest.emitted()['token-error']).toBeTruthy()
-                expect(postgrest.emitted()['token-error'].length).toBe(1)
-                expect(postgrest.emitted()['token-error'][0][0]).toEqual({ error: 'invalid_token', error_description: 'JWT expired' })
+                expect(wrapper.emitted()['token-error']).toBeTruthy()
+                expect(wrapper.emitted()['token-error'].length).toBe(1)
+                expect(wrapper.emitted()['token-error'][0][0]).toEqual({ error: 'invalid_token', error_description: 'JWT expired' })
                 resolve()
               }
             } catch (e) {
@@ -158,5 +164,6 @@ describe('Request', () => {
         }
       })
     })
+    wrapper.destroy()
   })
 })
