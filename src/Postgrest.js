@@ -73,7 +73,7 @@ export default {
   methods: {
     async request (method, query = {}, opts = {}, data) {
       const headers = {
-        'accept': opts.single ? 'application/vnd.pgrst.object+json' : 'application/json'
+        accept: opts.single ? 'application/vnd.pgrst.object+json' : 'application/json'
       }
       if (opts.binary) {
         headers.accept = 'application/octet-stream'
@@ -143,8 +143,8 @@ export default {
         }
 
         if (resp && resp.headers['content-range']) {
-          let contentRange = resp.headers['content-range'].split('/')
-          let range = contentRange[0].split('-')
+          const contentRange = resp.headers['content-range'].split('/')
+          const range = contentRange[0].split('-')
           this.range = {
             totalCount: contentRange[1] === '*' ? undefined : parseInt(contentRange[1]),
             first: parseInt(range[0]),

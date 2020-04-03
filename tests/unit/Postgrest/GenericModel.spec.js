@@ -21,7 +21,7 @@ describe('GenericModel', () => {
   describe('Instance', () => {
     it('sets the data field getters and setters on instance property "data"', () => {
       const instance = new GenericModel(data, makeRequestCB, primaryKeys)
-      for (let prop in data) {
+      for (const prop in data) {
         expect(instance.data[prop]).toBe(data[prop])
         instance.data[prop] = 'test'
         expect(instance.data[prop]).toBe('test')

@@ -12,7 +12,7 @@ module.exports = function (mockData) {
             if (context.method === 'get') {
               resp.body = mockData.data[endpoint].get
             }
-            if (headers['accept'] === 'application/vnd.pgrst.object+json') {
+            if (headers.accept === 'application/vnd.pgrst.object+json') {
               resp.body = resp.body[0]
             }
             if (headers.range && Array.isArray(resp.body)) {

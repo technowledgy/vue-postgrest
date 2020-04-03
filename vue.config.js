@@ -1,4 +1,4 @@
-const nodeExternals = require('webpack-node-externals');
+const nodeExternals = require('webpack-node-externals')
 
 module.exports = {
   configureWebpack: {
@@ -6,6 +6,6 @@ module.exports = {
       libraryExport: 'default'
     },
     target: 'node',
-    externals: [ nodeExternals() ]
+    externals: [nodeExternals()]
   }
 }

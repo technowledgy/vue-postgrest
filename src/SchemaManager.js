@@ -28,7 +28,7 @@ export default {
     }
   },
   _extractPrimaryKeys (def) {
-    let pks = {}
+    const pks = {}
     Object.keys(def).map(table => {
       Object.keys(def[table].properties).map(key => {
         if (def[table].properties[key].description && def[table].properties[key].description.includes('<pk/>')) {
