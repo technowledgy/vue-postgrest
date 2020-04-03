@@ -39,7 +39,8 @@
     "standard-version": "^7.1.0",
     "superagent-mock": "^3.7.0",
     "vue": "^2.6.10",
-    "vue-template-compiler": "^2.6.10"
+    "vue-template-compiler": "^2.6.10",
+    "webpack-node-externals": "^1.7.2"
   },
   "homepage": "https://github.com/technowledgy/vue-postgrest#readme",
   "keywords": [
