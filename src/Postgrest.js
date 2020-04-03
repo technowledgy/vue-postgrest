@@ -98,9 +98,16 @@ export default {
       const reqUrl = opts.root ? (opts.route ? this.apiRoot + opts.route : this.apiRoot) : this.apiRoot + url({ [opts.route || this.route]: q })
       let resp
       try {
-        resp = await superagent(method, reqUrl)
-          .set(headers)
-          .send(data)
+        if (opts.binary) {
+          resp = await superagent(method, reqUrl)
+            .responseType('blob')
+            .set(headers)
+            .send(data)
+        } else {
+          resp = await superagent(method, reqUrl)
+            .set(headers)
+            .send(data)
+        }
         return resp
       } catch (e) {
         resp = e.response
