@@ -12,7 +12,7 @@ export default {
   props: {
     route: {
       type: String,
-      required: true
+      default: undefined
     },
     apiRoot: {
       type: String,
@@ -68,9 +68,6 @@ export default {
         rpc: this.rpc,
         resetNewItem: this.create !== undefined ? this.resetNewItem : undefined
       }
-    },
-    url () {
-      return this.apiRoot + this.route
     }
   },
   methods: {
@@ -178,19 +175,20 @@ export default {
   created () {
     this.getPrimaryKeys()
 
-    this.$watch('url', this.getPrimaryKeys)
-    this.$watch('query', this.get.call, {
-      deep: true
+    this.$watch('apiRoot', () => {
+      this.getPrimaryKeys()
+      this.get.call()
     })
-    this.$watch('route', this.get.call)
-    this.$watch('apiRoot', this.get.call)
+    this.$watch('route', () => {
+      this.getPrimaryKeys()
+      this.get.call()
+    })
+    this.$watch('query', this.get.call, { deep: true })
     this.$watch('offset', this.get.call)
     this.$watch('limit', this.get.call)
     this.$watch('create', (newData) => {
       this.newItem = new GenericModel(newData, this.request, this.primaryKeys)
-    }, {
-      immediate: true
-    })
+    }, { immediate: true })
 
     this.get.call()
   },

@@ -8,32 +8,8 @@ import Postgrest from '@/Postgrest'
 const requestLogger = jest.fn((log) => {})
 const superagentMock = mock(request, config({
   data: {
-    '/clients': {
-      get: [{
-        id: 1,
-        name: 'Test Client 1'
-      },
-      {
-        id: 2,
-        name: 'Test Client 2'
-      },
-      {
-        id: 3,
-        name: 'Test Client 3'
-      }
-      ]
-    }
-  },
-  docs: {
-    definitions: {
-      clients: {
-        properties: {
-          id: {
-            type: 'integer',
-            description: 'Note:\nThis is a Primary Key.<pk/>'
-          }
-        }
-      }
+    '/rpc/rpc-test': {
+      get: 'test'
     }
   }
 }), requestLogger)
@@ -51,9 +27,7 @@ describe('RPC', () => {
     expect.assertions(6)
     const postgrest = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/',
-        route: 'clients',
-        query: {}
+        apiRoot: '/api/'
       },
       slots: { default: '<div />' }
     })
@@ -76,9 +50,7 @@ describe('RPC', () => {
     expect.assertions(3)
     const postgrest = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/',
-        route: 'clients',
-        query: {}
+        apiRoot: '/api/'
       },
       slots: { default: '<div />' }
     })
@@ -92,9 +64,7 @@ describe('RPC', () => {
     expect.assertions(2)
     const postgrest = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/',
-        route: 'clients',
-        query: {}
+        apiRoot: '/api/'
       },
       slots: { default: '<div />' }
     })
@@ -107,9 +77,7 @@ describe('RPC', () => {
     expect.assertions(3)
     const postgrest = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/',
-        route: 'clients',
-        query: {}
+        apiRoot: '/api/'
       },
       slots: { default: '<div />' }
     })
@@ -123,9 +91,7 @@ describe('RPC', () => {
     expect.assertions(1)
     const postgrest = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/',
-        route: 'clients',
-        query: {}
+        apiRoot: '/api/'
       },
       slots: { default: '<div />' }
     })
