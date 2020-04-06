@@ -33,6 +33,12 @@ describe('GenericModel', () => {
       expect(instance.primaryKeys).toBe(primaryKeys)
     })
 
+    it('sets the fourth constructor argument to instance property "select"', () => {
+      const select = ['id', 'name']
+      const instance = new GenericModel(data, makeRequestCB, primaryKeys, select)
+      expect(instance.select).toBe(select)
+    })
+
     it('throws "PrimaryKeyError" if primary key is not valid', async () => {
       expect.assertions(1)
       const instance = new GenericModel(data, makeRequestCB, ['not-existing'])
@@ -145,6 +151,22 @@ describe('GenericModel', () => {
         id: 321
       })
     })
+
+    it('sets select part of query if sync is true', async () => {
+      const select = ['id', 'name']
+      const postInstance = new GenericModel(data, makeRequestCB, [], select)
+      postInstance.post.call()
+      expect(makeRequestCB.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ select })
+    })
+
+    it('does not set select part of query if sync is false', async () => {
+      const select = ['id', 'name']
+      const postInstance = new GenericModel(data, makeRequestCB, [], select)
+      await postInstance.post.call({ sync: false })
+      expect(makeRequestCB.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({})
+    })
   })
 
   describe('Reset method', () => {
@@ -172,6 +194,26 @@ describe('GenericModel', () => {
   })
 
   describe('Patch method', () => {
+    it('sets select part of query if sync is true', async () => {
+      const select = ['id', 'name']
+      const patchInstance = new GenericModel(data, makeRequestCB, ['id'], select)
+      patchInstance.data.name = 'client321'
+      await patchInstance.$nextTick()
+      await patchInstance.patch.call()
+      expect(makeRequestCB.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id, select })
+    })
+
+    it('does not set select part of query if sync is false', async () => {
+      const select = ['id', 'name']
+      const patchInstance = new GenericModel(data, makeRequestCB, ['id'], select)
+      patchInstance.data.name = 'client321'
+      await patchInstance.$nextTick()
+      await patchInstance.patch.call({}, { sync: false })
+      expect(makeRequestCB.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id })
+    })
+
     describe('called without argument', () => {
       it('does not send a patch request if data was not changed', async () => {
         const patchInstance = new GenericModel(data, makeRequestCB, ['id'])

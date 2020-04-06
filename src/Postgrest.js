@@ -93,9 +93,7 @@ export default {
         headers.authorization = `Bearer ${this.token}`
       }
 
-      // add instance query (for vertical filtering etc.)
-      const q = Object.assign({}, this.query || {}, query)
-      const reqUrl = opts.root ? (opts.route ? this.apiRoot + opts.route : this.apiRoot) : this.apiRoot + url({ [opts.route || this.route]: q })
+      const reqUrl = opts.root ? (opts.route ? this.apiRoot + opts.route : this.apiRoot) : this.apiRoot + url({ [opts.route || this.route]: query })
       let resp
       try {
         if (opts.binary) {
@@ -134,11 +132,11 @@ export default {
 
         if (this.single) {
           this.items = null
-          this.item = resp && resp.body ? new GenericModel(resp.body, this.request, this.primaryKeys) : {}
+          this.item = resp && resp.body ? new GenericModel(resp.body, this.request, this.primaryKeys, (this.query || {}).select) : {}
         } else {
           this.item = null
           this.items = resp && resp.body ? resp.body.map(data => {
-            return new GenericModel(data, this.request, this.primaryKeys)
+            return new GenericModel(data, this.request, this.primaryKeys, (this.query || {}).select)
           }) : []
         }
 
@@ -175,7 +173,7 @@ export default {
       if (!this.create) {
         throw new Error('Create template not provided.')
       } else {
-        this.newItem = new GenericModel(this.create, this.request, this.primaryKeys)
+        this.newItem = new GenericModel(this.create, this.request, this.primaryKeys, (this.query || {}).select)
       }
     }
   },
@@ -194,7 +192,7 @@ export default {
     this.$watch('offset', this.get.call)
     this.$watch('limit', this.get.call)
     this.$watch('create', (newData) => {
-      this.newItem = new GenericModel(newData, this.request, this.primaryKeys)
+      this.newItem = new GenericModel(newData, this.request, this.primaryKeys, (this.query || {}).select)
     }, { immediate: true })
 
     this.get.call()

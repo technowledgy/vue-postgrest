@@ -43,7 +43,7 @@ const GenericModelTemplate = Vue.extend({
     async _post (opt) {
       const defaultOptions = { sync: true }
       const options = Object.assign({}, defaultOptions, opt)
-      const ret = await this.request('POST', {}, { representation: options.sync }, cloneDeep(this.data))
+      const ret = await this.request('POST', options.sync ? { select: this.select } : {}, { representation: options.sync }, cloneDeep(this.data))
       if (options.sync && ret && ret.body) {
         this.setData(ret.body[0])
       } else {
@@ -60,7 +60,7 @@ const GenericModelTemplate = Vue.extend({
       if (Object.keys(patchData).length === 0) {
         return
       }
-      const ret = await this.request('PATCH', this.query, { representation: options.sync }, cloneDeep(patchData))
+      const ret = await this.request('PATCH', options.sync ? { ...this.query, select: this.select } : this.query, { representation: options.sync }, cloneDeep(patchData))
       if (options.sync && ret && ret.body) {
         this.setData(ret.body[0])
       } else {
@@ -82,11 +82,12 @@ const GenericModelTemplate = Vue.extend({
 })
 
 class GenericModel extends GenericModelTemplate {
-  constructor (data, requestCB, primaryKeys) {
+  constructor (data, requestCB, primaryKeys, select) {
     super()
     this.setData(cloneDeep(data))
     this.request = requestCB
     this.primaryKeys = primaryKeys
+    this.select = select
     this.$watch('data', {
       deep: false,
       immediate: true,

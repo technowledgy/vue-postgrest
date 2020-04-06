@@ -74,7 +74,7 @@ describe('Request', () => {
     wrapper.destroy()
   })
 
-  it('merges select part of module query with query argument', async () => {
+  it('it does not send module query', async () => {
     const wrapper = shallowMount(Postgrest, {
       propsData: {
         apiRoot: '/api/',
@@ -86,8 +86,23 @@ describe('Request', () => {
       slots: { default: '<div />' }
     })
     await wrapper.vm.$nextTick()
-    await wrapper.vm.request('GET', { id: 'eq.123' })
-    expect(requestLogger.mock.calls[1][0].url).toBe('/api/clients?select=id,name&id=eq.123')
+    await wrapper.vm.request('GET')
+    expect(requestLogger.mock.calls[1][0].url).toBe('/api/clients')
+    wrapper.destroy()
+  })
+
+  it('it sends passed select part of query', async () => {
+    const wrapper = shallowMount(Postgrest, {
+      propsData: {
+        apiRoot: '/api/',
+        route: 'clients',
+        query: {}
+      },
+      slots: { default: '<div />' }
+    })
+    await wrapper.vm.$nextTick()
+    await wrapper.vm.request('GET', { select: ['id', 'name'] })
+    expect(requestLogger.mock.calls[1][0].url).toBe('/api/clients?select=id,name')
     wrapper.destroy()
   })
 
