@@ -151,6 +151,7 @@ export default {
         } else {
           this.range = undefined
         }
+        return resp
       } catch (e) {
         this.$emit('get-error', e)
         throw new EmittedError(e)

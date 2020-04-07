@@ -49,6 +49,24 @@ describe('Get', () => {
     requestLogger.mockReset()
   })
 
+  describe('"_get" function', () => {
+    it('returns request return value', async () => {
+      expect.assertions(1)
+      const wrapper = shallowMount(Postgrest, {
+          propsData: {
+            apiRoot: '/api/',
+            route: 'clients',
+            query: {}
+          },
+          scopedSlots: {
+            default () {}
+          }
+        })
+      const ret = await wrapper.vm._get()
+      expect(ret.body).toBe(mockData.data['/clients'].get)
+    })
+  })
+
   describe('Prop "query"', () => {
     it('sets "get.isPending" correctly', async () => {
       expect.assertions(2)
