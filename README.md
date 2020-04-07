@@ -47,7 +47,7 @@ Component "postgrest" is registered globally on your Vue instance.
 |----------|--------|---------|------|-----------------------------------|
 |route     |yes     |-        |String|The table/view that is queried     |
 |query     |no      |undefined|Object|The postgrest query                |
-|single    |no      |false    |Bool  |Request a single entity            |
+|accept    |no      |'multiple'|String|Accept header to set or one of the options 'single', 'multiple' or 'binary', which set the correct headers automatically|
 |create    |no      |undefined|Object|Template for a entity to be created|
 |limit     |no      |-        |Number|Limit the count of response entities|
 |offset    |no      |-        |Number|Offset the response entities|
@@ -238,4 +238,4 @@ Options:
 |---------------------|--------------|--------|-------------------------|
 |method               |String        |'POST'  |The method with which to request the stored procedure. Postgrest accepts 'POST' and 'GET'|
 |params                 |Object        |{}      |The stored procedure arguments|
-|binary               |Boolean       |false   |Sets the accept header to 'application/octet-stream', useful if you expect binary response from the server|
+|accept               |BString       |'multiple'   |Accept header to set or one of the options 'single', 'multiple' or 'binary', which set the correct headers automatically|

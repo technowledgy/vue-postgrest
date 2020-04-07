@@ -106,6 +106,29 @@ describe('Request', () => {
     wrapper.destroy()
   })
 
+  it('it parses accept option correctly', async () => {
+    const wrapper = shallowMount(Postgrest, {
+      propsData: {
+        apiRoot: '/api/',
+        route: 'clients',
+        query: {}
+      },
+      slots: { default: '<div />' }
+    })
+    await wrapper.vm.$nextTick()
+    await wrapper.vm.request('GET', {}, { accept: 'single' })
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients')[1][0].headers.accept).toBe('application/vnd.pgrst.object+json')
+    await wrapper.vm.request('GET', {}, { accept: 'multiple' })
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients')[2][0].headers.accept).toBe('application/json')
+    await wrapper.vm.request('GET', {}, { accept: 'binary' })
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients')[3][0].headers.accept).toBe('application/octet-stream')
+    await wrapper.vm.request('GET', {}, { accept: undefined })
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients')[4][0].headers.accept).toBe('application/json')
+    await wrapper.vm.request('GET', {}, { accept: 'custom-accept-header' })
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/clients')[5][0].headers.accept).toBe('custom-accept-header')
+    wrapper.destroy()
+  })
+
   it('does not throw if query argument is undefined', async () => {
     expect.assertions(1)
     const wrapper = shallowMount(Postgrest, {

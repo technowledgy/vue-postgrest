@@ -104,7 +104,7 @@ describe('Get', () => {
     })
 
     describe('set without conditions', () => {
-      it('returns list of entities if prop "single" is false', async () => {
+      it('returns list of entities if prop "accept" is not set', async () => {
         expect.assertions(4)
         let wrapper
         await new Promise((resolve, reject) => {
@@ -134,7 +134,37 @@ describe('Get', () => {
         wrapper.destroy()
       })
 
-      it('returns single entity if prop "single" is true', async () => {
+      it('returns list of entities if prop "accept" is "multiple"', async () => {
+        expect.assertions(4)
+        let wrapper
+        await new Promise((resolve, reject) => {
+          wrapper = shallowMount(Postgrest, {
+            propsData: {
+              apiRoot: '/api/',
+              route: 'clients',
+              query: {}
+            },
+            scopedSlots: {
+              default (props) {
+                try {
+                  if (!props.get.isPending) {
+                    expect(props.items.length).toBe(mockData.data['/clients'].get.length)
+                    expect(props.items[0].data.id).toBe(mockData.data['/clients'].get[0].id)
+                    expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
+                    expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.accept).toBe('application/json')
+                    resolve()
+                  }
+                } catch (e) {
+                  reject(e)
+                }
+              }
+            }
+          })
+        })
+        wrapper.destroy()
+      })
+
+      it('returns single entity if prop "accept" is "single"', async () => {
         expect.assertions(3)
         let wrapper
         await new Promise((resolve, reject) => {
@@ -143,7 +173,7 @@ describe('Get', () => {
               apiRoot: '/api/',
               route: 'clients',
               query: {},
-              single: true
+              accept: 'single'
             },
             scopedSlots: {
               default (props) {
@@ -173,7 +203,7 @@ describe('Get', () => {
               apiRoot: '/api/',
               route: 'clients',
               query: {},
-              single: true
+              accept: 'single'
             },
             scopedSlots: {
               default (props) {

@@ -68,7 +68,7 @@ describe('Module', () => {
       wrapper.destroy()
     })
 
-    it('provides "items" if prop "query" is set and prop "single" is not set', async () => {
+    it('provides "items" if prop "query" is set and prop "accept" is not set', async () => {
       expect.assertions(1)
       let wrapper
       await new Promise((resolve, reject) => {
@@ -92,7 +92,7 @@ describe('Module', () => {
       wrapper.destroy()
     })
 
-    it('provides "item" if prop "query" is set and prop "single" is true', async () => {
+    it('provides "items" if prop "query" is set and prop "accept" is "multiple"', async () => {
       expect.assertions(1)
       let wrapper
       await new Promise((resolve, reject) => {
@@ -100,7 +100,32 @@ describe('Module', () => {
           propsData: {
             route: '',
             query: {},
-            single: true
+            accept: 'multiple'
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                expect(Array.isArray(props.items)).toBe(true)
+                resolve()
+              } catch (e) {
+                reject(e)
+              }
+            }
+          }
+        })
+      })
+      wrapper.destroy()
+    })
+
+    it('provides "item" if prop "query" is set and prop "accept" is "single"', async () => {
+      expect.assertions(1)
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
+          propsData: {
+            route: '',
+            query: {},
+            accept: 'single'
           },
           scopedSlots: {
             default (props) {
@@ -213,7 +238,7 @@ describe('Module', () => {
       wrapper.destroy()
     })
 
-    it('does not provide "pagination" if prop "query" is set and prop "single" is true', async () => {
+    it('does not provide "pagination" if prop "query" is set and prop "accept" is "single"', async () => {
       expect.assertions(1)
       let wrapper
       await new Promise((resolve, reject) => {
@@ -221,7 +246,7 @@ describe('Module', () => {
           propsData: {
             route: '',
             query: {},
-            single: true
+            accept: 'single'
           },
           scopedSlots: {
             default (props) {
@@ -246,7 +271,7 @@ describe('Module', () => {
           propsData: {
             route: '',
             query: {},
-            single: true
+            accept: 'single'
           },
           scopedSlots: {
             default (props) {
@@ -271,7 +296,7 @@ describe('Module', () => {
           propsData: {
             route: '',
             query: {},
-            single: true
+            accept: 'single'
           },
           scopedSlots: {
             default (props) {
@@ -296,7 +321,7 @@ describe('Module', () => {
           propsData: {
             route: '',
             query: {},
-            single: true,
+            accept: 'single',
             create: {}
           },
           scopedSlots: {

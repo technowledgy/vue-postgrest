@@ -76,7 +76,7 @@ describe('RPC', () => {
     wrapper.destroy()
   })
 
-  it('sets correct header for option "binary"', async () => {
+  it('sets correct header for option accept is "binary"', async () => {
     expect.assertions(3)
     const wrapper = shallowMount(Postgrest, {
       propsData: {
@@ -84,10 +84,25 @@ describe('RPC', () => {
       },
       slots: { default: '<div />' }
     })
-    await wrapper.vm.rpc('rpc-test', { binary: true })
+    await wrapper.vm.rpc('rpc-test', { accept: 'binary' })
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test').length).toBe(1)
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].method).toBe('POST')
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].headers.accept).toBe('application/octet-stream')
+    wrapper.destroy()
+  })
+
+  it('sets correct custom header for option accept', async () => {
+    expect.assertions(3)
+    const wrapper = shallowMount(Postgrest, {
+      propsData: {
+        apiRoot: '/api/'
+      },
+      slots: { default: '<div />' }
+    })
+    await wrapper.vm.rpc('rpc-test', { accept: 'custom-accept-header' })
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test').length).toBe(1)
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].method).toBe('POST')
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].headers.accept).toBe('custom-accept-header')
     wrapper.destroy()
   })
 

@@ -26,9 +26,9 @@ export default {
       type: Object,
       default: undefined
     },
-    single: {
-      type: Boolean,
-      default: false
+    accept: {
+      type: String,
+      default: 'multiple'
     },
     limit: {
       type: Number,
@@ -61,8 +61,8 @@ export default {
     scope () {
       return {
         get: this.query !== undefined ? this.get : undefined,
-        items: (this.query !== undefined && !this.single) ? this.items : undefined,
-        item: (this.query !== undefined && this.single) ? this.item : undefined,
+        items: (this.query !== undefined && this.accept !== 'single') ? this.items : undefined,
+        item: (this.query !== undefined && this.accept === 'single') ? this.item : undefined,
         newItem: this.create !== undefined ? this.newItem : undefined,
         range: this.range,
         rpc: this.rpc,
@@ -72,20 +72,33 @@ export default {
   },
   methods: {
     async request (method, query = {}, opts = {}, data) {
-      const headers = {
-        accept: opts.single ? 'application/vnd.pgrst.object+json' : 'application/json'
+      const defaultOptions = { accept: 'multiple' }
+      const options = Object.assign({}, defaultOptions, opts)
+      const headers = {}
+      switch (options.accept) {
+        case 'single':
+          headers.accept = 'application/vnd.pgrst.object+json'
+          break
+        case 'multiple':
+          headers.accept = 'application/json'
+          break
+        case 'binary':
+          headers.accept = 'application/octet-stream'
+          break
+        case undefined:
+          headers.accept = 'application/json'
+          break
+        default:
+          headers.accept = options.accept
       }
-      if (opts.binary) {
-        headers.accept = 'application/octet-stream'
-      }
-      if (opts.limit || opts.offset) {
-        const range = [opts.offset || 0, opts.limit - 1 || null]
-        if (range[1] && opts.offset) range[1] += opts.offset
+      if (options.limit || options.offset) {
+        const range = [options.offset || 0, options.limit - 1 || null]
+        if (range[1] && options.offset) range[1] += options.offset
         headers['range-unit'] = 'items'
         headers.range = range.join('-')
       }
-      headers.prefer = opts.representation ? 'return=representation' : 'return=minimal'
-      if (opts.exactCount) {
+      headers.prefer = options.representation ? 'return=representation' : 'return=minimal'
+      if (options.exactCount) {
         headers.prefer = headers.prefer + ',count=exact'
       }
 
@@ -93,10 +106,10 @@ export default {
         headers.authorization = `Bearer ${this.token}`
       }
 
-      const reqUrl = this.apiRoot + url({ [opts.route || this.route]: query })
+      const reqUrl = this.apiRoot + url({ [options.route || this.route]: query })
       let resp
       try {
-        if (opts.binary) {
+        if (options.accept === 'binary') {
           resp = await superagent(method, reqUrl)
             .responseType('blob')
             .set(headers)
@@ -124,13 +137,13 @@ export default {
           return
         }
         const resp = await this.request('GET', this.query, {
-          single: this.single,
+          accept: this.accept,
           limit: this.limit,
           offset: this.offset,
           exactCount: this.exactCount
         })
 
-        if (this.single) {
+        if (this.accept === 'single') {
           this.items = null
           this.item = resp && resp.body ? new GenericModel(resp.body, this.request, this.primaryKeys, (this.query || {}).select) : {}
         } else {
@@ -164,7 +177,8 @@ export default {
       if (!['POST', 'GET'].includes(opts.method)) {
         throw new Error('RPC endpoint only supports "POST" and "GET" methods.')
       }
-      return this.request(opts.method, {}, { route: 'rpc/' + fn, binary: opts.binary }, opts.params)
+      const options = { route: 'rpc/' + fn, accept: opts.accept }
+      return this.request(opts.method, {}, options, opts.params)
     },
     async getPrimaryKeys () {
       const pks = await SchemaManager.getPrimaryKeys(this.apiRoot, this.token)
