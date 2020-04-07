@@ -93,7 +93,7 @@ export default {
         headers.authorization = `Bearer ${this.token}`
       }
 
-      const reqUrl = opts.root ? (opts.route ? this.apiRoot + opts.route : this.apiRoot) : this.apiRoot + url({ [opts.route || this.route]: query })
+      const reqUrl = this.apiRoot + url({ [opts.route || this.route]: query })
       let resp
       try {
         if (opts.binary) {
@@ -164,7 +164,7 @@ export default {
       if (!['POST', 'GET'].includes(opts.method)) {
         throw new Error('RPC endpoint only supports "POST" and "GET" methods.')
       }
-      return this.request(opts.method, {}, { root: true, route: 'rpc/' + fn, binary: opts.binary }, opts.params)
+      return this.request(opts.method, {}, { route: 'rpc/' + fn, binary: opts.binary }, opts.params)
     },
     async getPrimaryKeys () {
       const pks = await SchemaManager.getPrimaryKeys(this.apiRoot, this.token)
