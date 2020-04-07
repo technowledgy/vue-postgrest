@@ -133,6 +133,20 @@ describe('GenericModel', () => {
       expect(postInstance.data).toEqual(data)
     })
 
+    it('returns the requests return value', async () => {
+      const postInstance = new GenericModel(data, makeRequestCB)
+      const mockReturn = {
+        body: [{
+          ...data,
+          name: 'client321',
+          id: 321
+        }]
+      }
+      makeRequestCB.mockReturnValueOnce(mockReturn)
+      const ret = await postInstance.post.call()
+      expect(ret).toEqual(mockReturn)
+    })
+
     it('updates the instance data after the request if sync is true', async () => {
       const postInstance = new GenericModel(data, makeRequestCB)
       postInstance.data.name = 'client321'
@@ -470,6 +484,21 @@ describe('GenericModel', () => {
         name: 'client123'
       })
     })
+
+    it('returns the requests return value', async () => {
+      const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
+      patchInstance.data.name = 'client321'
+      await patchInstance.$nextTick()
+      const mockReturn = {
+        body: [{
+          ...data,
+          name: 'client321'
+        }]
+      }
+      makeRequestCB.mockReturnValueOnce(mockReturn)
+      const ret = await patchInstance.patch.call()
+      expect(ret).toEqual(mockReturn)
+    })
   })
 
   describe('Delete method', () => {
@@ -488,6 +517,20 @@ describe('GenericModel', () => {
         age: 'eq.' + data.age
       })
       expect(makeRequestCB.mock.calls[1][0]).toBe('DELETE')
+    })
+
+    it('returns the requests return value', async () => {
+      const deleteInstance = new GenericModel(data, makeRequestCB, ['id'])
+      const mockReturn = {
+        body: [{
+          ...data,
+          name: 'client321',
+          id: 321
+        }]
+      }
+      makeRequestCB.mockReturnValueOnce(mockReturn)
+      const ret = await deleteInstance.delete.call()
+      expect(ret).toEqual(mockReturn)
     })
   })
 })

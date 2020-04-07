@@ -50,6 +50,7 @@ const GenericModelTemplate = Vue.extend({
       } else {
         this.reset()
       }
+      return ret
     },
     async _patch (data = {}, opt) {
       if (!isObject(data) || Array.isArray(data)) {
@@ -76,9 +77,10 @@ const GenericModelTemplate = Vue.extend({
       } else {
         this.reset()
       }
+      return ret
     },
     async _delete () {
-      await this.request('DELETE', this.query)
+      return await this.request('DELETE', this.query)
     },
     setData (data) {
       this.diff = {}
