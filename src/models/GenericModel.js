@@ -37,14 +37,14 @@ const GenericModelTemplate = Vue.extend({
     async _post (opt) {
       const defaultOptions = { sync: true, columns: Object.keys(this.data) }
       const options = Object.assign({}, defaultOptions, opt)
-      const requestOptions = {}
+      const query = {}
       if (options.sync && this.select) {
-        requestOptions.select = this.select
+        query.select = this.select
       }
       if (options.columns !== undefined) {
-        requestOptions.columns = options.columns
+        query.columns = options.columns
       }
-      const ret = await this.request('POST', requestOptions, { representation: options.sync }, cloneDeep(this.data))
+      const ret = await this.request('POST', query, { representation: options.sync }, cloneDeep(this.data))
       if (options.sync && ret && ret.body) {
         this.setData(ret.body[0])
       } else {
@@ -63,15 +63,15 @@ const GenericModelTemplate = Vue.extend({
       const defaultOptions = { sync: true, columns: Object.keys(patchData) }
       const options = Object.assign({}, defaultOptions, opt)
 
-      const requestOptions = { ... this.query }
+      const query = { ... this.query }
       if (options.sync && this.select) {
-        requestOptions.select = this.select
+        query.select = this.select
       }
       if (options.columns !== undefined) {
-        requestOptions.columns = options.columns
+        query.columns = options.columns
       }
 
-      const ret = await this.request('PATCH', requestOptions, { representation: options.sync }, cloneDeep(patchData))
+      const ret = await this.request('PATCH', query, { representation: options.sync }, cloneDeep(patchData))
       if (options.sync && ret && ret.body) {
         this.setData(ret.body[0])
       } else {
