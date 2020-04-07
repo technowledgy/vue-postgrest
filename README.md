@@ -100,6 +100,8 @@ The api-response and following methods are available via slot-props:
 |reset                |Function      |Reset the entity's data object to initial state|
 |isDirty              |Bool          |Indicates wether data differs from initial state|
 
+Note: "patch" and "delete" methods are only provided, if the schema provides primary keys for the entity.
+
 ### Querys
 
 The query prop accepts an object with keys of column conditions and values of query string parameters.

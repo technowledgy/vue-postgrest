@@ -68,7 +68,7 @@ describe('GenericModel', () => {
       expect(typeof instance.post.isPending).toBe('boolean')
     })
 
-    it('has instance method "patch"', () => {
+    it('has instance method "patch" if primary keys are passed', () => {
       const instance = new GenericModel(data, makeRequestCB, primaryKeys)
       expect(typeof instance.patch).toBe('object')
       expect(typeof instance.patch.call).toBe('function')
@@ -76,12 +76,18 @@ describe('GenericModel', () => {
       expect(typeof instance.patch.isPending).toBe('boolean')
     })
 
-    it('has instance method "delete"', () => {
+    it('has instance method "delete" if primary keys are passed', () => {
       const instance = new GenericModel(data, makeRequestCB, primaryKeys)
       expect(typeof instance.delete).toBe('object')
       expect(typeof instance.delete.call).toBe('function')
       expect(typeof instance.delete.hasError).toBe('boolean')
       expect(typeof instance.delete.isPending).toBe('boolean')
+    })
+
+    it('does not have methods "delete" and "path" if primary keys are not passed', () => {
+      const instance = new GenericModel(data, makeRequestCB)
+      expect(instance.delete).toBe(undefined)
+      expect(instance.patch).toBe(undefined)
     })
 
     it('has instance method "reset"', () => {

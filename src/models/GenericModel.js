@@ -12,18 +12,12 @@ const GenericModelTemplate = Vue.extend({
       data: {},
       diff: {},
       resetCache: {},
-      post: {},
-      patch: {},
-      delete: {},
       request: null,
       primaryKeys: []
     }
   },
   created () {
     this.watchers = {}
-    this.post = wrap(this._post)
-    this.patch = wrap(this._patch)
-    this.delete = wrap(this._delete)
   },
   computed: {
     query () {
@@ -87,6 +81,11 @@ class GenericModel extends GenericModelTemplate {
     this.setData(cloneDeep(data))
     this.request = requestCB
     this.primaryKeys = primaryKeys
+    this.post = wrap(this._post)
+    if (this.primaryKeys && this.primaryKeys.length > 0) {  
+      this.patch = wrap(this._patch)
+      this.delete = wrap(this._delete)
+    }
     this.select = select
     this.$watch('data', {
       deep: false,
