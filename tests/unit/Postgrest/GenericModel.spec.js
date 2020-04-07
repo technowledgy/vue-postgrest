@@ -101,7 +101,7 @@ describe('GenericModel', () => {
       const postInstance = new GenericModel(data, makeRequestCB)
       postInstance.post.call()
       expect(makeRequestCB.mock.calls.length).toBe(1)
-      expect(makeRequestCB.mock.calls[0][1]).toEqual({})
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ columns: Object.keys(data) })
       expect(makeRequestCB.mock.calls[0][3]).toEqual(data)
       expect(makeRequestCB.mock.calls[0][0]).toBe('POST')
     })
@@ -111,7 +111,7 @@ describe('GenericModel', () => {
       postInstance.data.name = 'client321'
       postInstance.post.call()
       expect(makeRequestCB.mock.calls.length).toBe(1)
-      expect(makeRequestCB.mock.calls[0][1]).toEqual({})
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ columns: Object.keys(data) })
       expect(makeRequestCB.mock.calls[0][3]).toEqual({
         ...data,
         name: 'client321'
@@ -124,7 +124,7 @@ describe('GenericModel', () => {
       postInstance.data.name = 'client321'
       await postInstance.post.call({ sync: false })
       expect(makeRequestCB.mock.calls.length).toBe(1)
-      expect(makeRequestCB.mock.calls[0][1]).toEqual({})
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ columns: Object.keys(data) })
       expect(makeRequestCB.mock.calls[0][3]).toEqual({
         ...data,
         name: 'client321'
@@ -145,7 +145,7 @@ describe('GenericModel', () => {
       })
       await postInstance.post.call()
       expect(makeRequestCB.mock.calls.length).toBe(1)
-      expect(makeRequestCB.mock.calls[0][1]).toEqual({})
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ columns: Object.keys(data) })
       expect(makeRequestCB.mock.calls[0][3]).toEqual({
         ...data,
         name: 'client321'
@@ -163,7 +163,7 @@ describe('GenericModel', () => {
       const postInstance = new GenericModel(data, makeRequestCB, [], select)
       postInstance.post.call()
       expect(makeRequestCB.mock.calls.length).toBe(1)
-      expect(makeRequestCB.mock.calls[0][1]).toEqual({ select })
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ select, columns: Object.keys(data) })
     })
 
     it('does not set select part of query if sync is false', async () => {
@@ -171,7 +171,36 @@ describe('GenericModel', () => {
       const postInstance = new GenericModel(data, makeRequestCB, [], select)
       await postInstance.post.call({ sync: false })
       expect(makeRequestCB.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ columns: Object.keys(data) })
+    })
+
+    it('does not set select part of query if select is undefined', async () => {
+      const postInstance = new GenericModel(data, makeRequestCB)
+      await postInstance.post.call()
+      expect(makeRequestCB.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ columns: Object.keys(data) })
+    })
+
+    it('does not set columns part of query if columns is specified as undefined', async () => {
+      const postInstance = new GenericModel(data, makeRequestCB)
+      await postInstance.post.call({ columns: undefined })
+      expect(makeRequestCB.mock.calls.length).toBe(1)
       expect(makeRequestCB.mock.calls[0][1]).toEqual({})
+    })
+
+    it('sets columns part of query to all columns if option "columns" is undefined', async () => {
+      const postInstance = new GenericModel(data, makeRequestCB)
+      postInstance.post.call()
+      expect(makeRequestCB.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ columns: Object.keys(data) })
+    })
+
+    it('sets columns part of query to user-defined columns if option "columns" is specified', async () => {
+      const columns = ['column1', 'column2']
+      const postInstance = new GenericModel(data, makeRequestCB)
+      postInstance.post.call({ columns })
+      expect(makeRequestCB.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ columns })
     })
   })
 
@@ -207,7 +236,7 @@ describe('GenericModel', () => {
       await patchInstance.$nextTick()
       await patchInstance.patch.call()
       expect(makeRequestCB.mock.calls.length).toBe(1)
-      expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id, select })
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id, select, columns: ['name'] })
     })
 
     it('does not set select part of query if sync is false', async () => {
@@ -217,7 +246,58 @@ describe('GenericModel', () => {
       await patchInstance.$nextTick()
       await patchInstance.patch.call({}, { sync: false })
       expect(makeRequestCB.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id, columns: ['name'] })
+    })
+
+
+    it('does not set select part of query if select is undefined', async () => {
+      const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
+      patchInstance.data.name = 'client321'
+      await patchInstance.$nextTick()
+      await patchInstance.patch.call()
+      expect(makeRequestCB.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id, columns: ['name'] })
+    })
+
+    it('does not set columns part of query if columns is specified as undefined', async () => {
+      const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
+      patchInstance.data.name = 'client321'
+      await patchInstance.$nextTick()
+      await patchInstance.patch.call({}, { columns: undefined })
+      expect(makeRequestCB.mock.calls.length).toBe(1)
       expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id })
+      expect(makeRequestCB.mock.calls[0][0]).toBe('PATCH')
+      expect(makeRequestCB.mock.calls[0][3]).toEqual({
+        name: 'client321'
+      })
+    })
+
+
+    it('sets columns part of query to patched columns if option "columns" is undefined', async () => {
+      const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
+      patchInstance.data.name = 'client321'
+      await patchInstance.$nextTick()
+      await patchInstance.patch.call()
+      expect(makeRequestCB.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id, columns: ['name'] })
+      expect(makeRequestCB.mock.calls[0][0]).toBe('PATCH')
+      expect(makeRequestCB.mock.calls[0][3]).toEqual({
+        name: 'client321'
+      })
+    })
+
+    it('sets columns part of query to user-defined columns if option "columns" is specified', async () => {
+      const columns = ['column1']
+      const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
+      patchInstance.data.name = 'client321'
+      await patchInstance.$nextTick()
+      await patchInstance.patch.call({}, { columns })
+      expect(makeRequestCB.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id, columns })
+      expect(makeRequestCB.mock.calls[0][0]).toBe('PATCH')
+      expect(makeRequestCB.mock.calls[0][3]).toEqual({
+        name: 'client321'
+      })
     })
 
     describe('called without argument', () => {
@@ -241,7 +321,7 @@ describe('GenericModel', () => {
           await patchInstance.$nextTick()
           await patchInstance.patch.call()
           expect(makeRequestCB.mock.calls.length).toBe(1)
-          expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id })
+          expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id, columns: ['name'] })
           expect(makeRequestCB.mock.calls[0][0]).toBe('PATCH')
           expect(makeRequestCB.mock.calls[0][3]).toEqual({
             name: 'client321'
@@ -349,7 +429,7 @@ describe('GenericModel', () => {
             newField: true
           })
           expect(makeRequestCB.mock.calls.length).toBe(1)
-          expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id })
+          expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id, columns: ['name', 'age', 'newField'] })
           expect(makeRequestCB.mock.calls[0][0]).toBe('PATCH')
           expect(makeRequestCB.mock.calls[0][3]).toEqual({
             name: 'client 222',

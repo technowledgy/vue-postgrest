@@ -35,9 +35,16 @@ const GenericModelTemplate = Vue.extend({
   },
   methods: {
     async _post (opt) {
-      const defaultOptions = { sync: true }
+      const defaultOptions = { sync: true, columns: Object.keys(this.data) }
       const options = Object.assign({}, defaultOptions, opt)
-      const ret = await this.request('POST', options.sync ? { select: this.select } : {}, { representation: options.sync }, cloneDeep(this.data))
+      const requestOptions = {}
+      if (options.sync && this.select) {
+        requestOptions.select = this.select
+      }
+      if (options.columns !== undefined) {
+        requestOptions.columns = options.columns
+      }
+      const ret = await this.request('POST', requestOptions, { representation: options.sync }, cloneDeep(this.data))
       if (options.sync && ret && ret.body) {
         this.setData(ret.body[0])
       } else {
@@ -45,8 +52,6 @@ const GenericModelTemplate = Vue.extend({
       }
     },
     async _patch (data = {}, opt) {
-      const defaultOptions = { sync: true }
-      const options = Object.assign({}, defaultOptions, opt)
       if (!isObject(data) || Array.isArray(data)) {
         throw new Error('Patch data must be an object.')
       }
@@ -54,7 +59,18 @@ const GenericModelTemplate = Vue.extend({
       if (Object.keys(patchData).length === 0) {
         return
       }
-      const ret = await this.request('PATCH', options.sync ? { ...this.query, select: this.select } : this.query, { representation: options.sync }, cloneDeep(patchData))
+      const defaultOptions = { sync: true, columns: Object.keys(patchData) }
+      const options = Object.assign({}, defaultOptions, opt)
+
+      const requestOptions = { ... this.query }
+      if (options.sync && this.select) {
+        requestOptions.select = this.select
+      }
+      if (options.columns !== undefined) {
+        requestOptions.columns = options.columns
+      }
+
+      const ret = await this.request('PATCH', requestOptions, { representation: options.sync }, cloneDeep(patchData))
       if (options.sync && ret && ret.body) {
         this.setData(ret.body[0])
       } else {

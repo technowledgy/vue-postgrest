@@ -188,6 +188,7 @@ The (optional) second argument to the patch function is a object with the follow
 |Property             |Type     |Default  |Description    |
 |---------------------|---------|---------|---------------|
 |sync                 |Bool     |True     |Request the server to return the patched entity and update the local state accordingly|
+|columns              |Array    |keys of patch object     |Sets columns param on request to improve performance of updates/inserts, set manually for partial patches|
 
 ### Posting
 
@@ -212,6 +213,15 @@ newItem.post.call()
 ```
 
 All entities provide the post function, so it would be equally possible to alter a entity you requested from the serve, change its data and post it as a new item.
+
+#### Post options
+
+The (optional) first argument to the post function is a object with the following options:
+
+|Property             |Type     |Default  |Description    |
+|---------------------|---------|---------|---------------|
+|sync                 |Bool     |True     |Request the server to return the posted entity and update the local state accordingly|
+|columns              |Array    |keys of patch object     |Sets columns param on request to improve performance of inserts, set manually for partial posts|
 
 ### RPC (function-name, options)
 
