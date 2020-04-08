@@ -244,7 +244,7 @@ The (optional) first argument to the delete function is a object with the follow
 |return               |String   |undefined|Add return=[value] header to request. Possible values are 'representation' and 'minimal'.|
 |headers              |Object   |undefined|Properties of this object overwrite the specified header fields of the request. Keys are header field names, values are strings.|
 
-### RPC (function-name, options)
+### RPC: rpc.call(function-name[, options, params])
 
 The rpc function accepts the following arguments:
 
@@ -252,11 +252,12 @@ The rpc function accepts the following arguments:
 |---------------------|--------------|--------|----------------|
 |function-name        |String        |        |The name of the stored procedure to call|
 |options              |Object        |{}      |Options (see below)|
+|params                 |Object        |{}      |The stored procedure arguments|
 
-Options: 
+#### RPC options
 
 |Property             |Type          |Default |Description             |
 |---------------------|--------------|--------|-------------------------|
 |method               |String        |'POST'  |The method with which to request the stored procedure. Postgrest accepts 'POST' and 'GET'|
-|params                 |Object        |{}      |The stored procedure arguments|
-|accept               |BString       |'multiple'   |Accept header to set or one of the options 'single', 'multiple' or 'binary', which set the correct headers automatically|
+|accept               |String       |undefined   |Accept header to set or one of the options 'single' or 'binary', which set the correct headers automatically. Default header is set to 'application/json'|
+|headers              |Object   |undefined|Properties of this object overwrite the specified header fields of the request. Keys are header field names, values are strings.|

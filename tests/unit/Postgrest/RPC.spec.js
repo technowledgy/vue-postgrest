@@ -48,20 +48,20 @@ describe('RPC', () => {
       a: 1,
       b: 2
     }
-    await wrapper.vm.rpc.call('rpc-test', { method: 'POST', params: functionParams })
+    await wrapper.vm.rpc.call('rpc-test', { method: 'POST' }, functionParams)
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test').length).toBe(1)
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].method).toBe('POST')
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].data).toEqual(functionParams)
 
-    await wrapper.vm.rpc.call('rpc-test', { method: 'GET', params: functionParams })
-    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test').length).toBe(2)
-    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[1][0].method).toBe('GET')
-    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[1][0].data).toEqual(functionParams)
+    await wrapper.vm.rpc.call('rpc-test', { method: 'GET' }, functionParams)
+    expect(requestLogger.mock.calls.filter(c => c[0].url.startsWith('/api/rpc/rpc-test')).length).toBe(2)
+    expect(requestLogger.mock.calls.filter(c => c[0].url.startsWith('/api/rpc/rpc-test'))[1][0].method).toBe('GET')
+    expect(requestLogger.mock.calls.filter(c => c[0].url.startsWith('/api/rpc/rpc-test'))[1][0].url).toEqual('/api/rpc/rpc-test?a=1&b=2')
     wrapper.destroy()
   })
 
   it('does not send arguments when not specified', async () => {
-    expect.assertions(3)
+    expect.assertions(5)
     const wrapper = shallowMount(Postgrest, {
       propsData: {
         apiRoot: '/api/'
@@ -72,6 +72,10 @@ describe('RPC', () => {
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test').length).toBe(1)
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].method).toBe('POST')
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].data).toBe(undefined)
+
+    await wrapper.vm.rpc.call('rpc-test', { method: 'GET' })
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test').length).toBe(2)
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[1][0].method).toBe('GET')
     wrapper.destroy()
   })
 
@@ -89,8 +93,8 @@ describe('RPC', () => {
     wrapper.destroy()
   })
 
-  it('sets correct header for option accept is "binary"', async () => {
-    expect.assertions(3)
+  it('sets correct header for option accept', async () => {
+    expect.assertions(4)
     const wrapper = shallowMount(Postgrest, {
       propsData: {
         apiRoot: '/api/'
@@ -98,24 +102,27 @@ describe('RPC', () => {
       slots: { default: '<div />' }
     })
     await wrapper.vm.rpc.call('rpc-test', { accept: 'binary' })
-    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test').length).toBe(1)
-    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].method).toBe('POST')
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].headers.accept).toBe('application/octet-stream')
+    await wrapper.vm.rpc.call('rpc-test', { accept: 'single' })
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[1][0].headers.accept).toBe('application/vnd.pgrst.object+json')
+    await wrapper.vm.rpc.call('rpc-test')
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[2][0].headers.accept).toBe('application/json')
+    await wrapper.vm.rpc.call('rpc-test', { accept: 'custom-accept-header' })
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[3][0].headers.accept).toBe('custom-accept-header')
     wrapper.destroy()
   })
 
-  it('sets correct custom header for option accept', async () => {
-    expect.assertions(3)
+  it('correctly passes "headers" option', async () => {
+    expect.assertions(1)
     const wrapper = shallowMount(Postgrest, {
       propsData: {
         apiRoot: '/api/'
       },
       slots: { default: '<div />' }
     })
-    await wrapper.vm.rpc.call('rpc-test', { accept: 'custom-accept-header' })
-    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test').length).toBe(1)
-    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].method).toBe('POST')
-    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].headers.accept).toBe('custom-accept-header')
+    const headers = { accept: 'custom-accept-header', 'x-header': 'custom-x-header' }
+    await wrapper.vm.rpc.call('rpc-test', { accept: 'single', headers })
+    expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].headers).toEqual(headers)
     wrapper.destroy()
   })
 

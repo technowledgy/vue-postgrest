@@ -181,15 +181,19 @@ export default {
         throw new EmittedError(e)
       }
     },
-    async _rpc (fn, opts = {}) {
+    async _rpc (fn, opts = {}, params) {
       if (!opts.method) {
         opts.method = 'POST'
       }
       if (!['POST', 'GET'].includes(opts.method)) {
         throw new Error('RPC endpoint only supports "POST" and "GET" methods.')
       }
-      const options = { route: 'rpc/' + fn, accept: opts.accept }
-      return this.request(opts.method, {}, options, opts.params)
+      const requestOptions = { route: 'rpc/' + fn, accept: opts.accept, headers: opts.headers }
+      if (opts.method === 'GET') {
+        return this.request('GET', params, requestOptions)
+      } else {
+        return this.request(opts.method, {}, requestOptions, params)
+      }
     },
     async getPrimaryKeys () {
       const pks = await SchemaManager.getPrimaryKeys(this.apiRoot, this.token)
