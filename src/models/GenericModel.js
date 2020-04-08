@@ -34,6 +34,18 @@ const GenericModelTemplate = Vue.extend({
     }
   },
   methods: {
+    async _get (opts = {}) {
+      const query = { ...this.query }
+      if (this.select) {
+        query.select = this.select
+      }
+      const ret = await this.request('GET', query, { return: 'single', headers: opts.headers })
+
+      if (ret && ret.body) {
+        this.setData(ret.body, opts.keepChanges)
+      }
+      return ret
+    },
     async _post (opt, sync = true) {
       const defaultOptions = { columns: Object.keys(this.data) }
       const options = Object.assign({}, defaultOptions, opt)
@@ -103,10 +115,15 @@ const GenericModelTemplate = Vue.extend({
 
       return await this.request('DELETE', query, opts)
     },
-    setData (data) {
-      this.diff = {}
+    setData (data, keepDiff=false) {
       this.resetCache = cloneDeep(data)
-      syncObjects(this.data, data)
+      if (keepDiff) {
+        const diff = cloneDeep(this.diff)
+        syncObjects(this.data, data)
+        syncObjects(this.data, diff, false)
+      } else {
+        syncObjects(this.data, data) 
+      }
     },
     reset () {
       this.setData(this.resetCache)
@@ -124,6 +141,7 @@ class GenericModel extends GenericModelTemplate {
     if (this.primaryKeys && this.primaryKeys.length > 0) {
       this.patch = wrap(this._patch)
       this.delete = wrap(this._delete)
+      this.get = wrap(this._get)
     }
     this.select = select
     this.$watch('data', {

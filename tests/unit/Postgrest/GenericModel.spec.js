@@ -60,6 +60,14 @@ describe('GenericModel', () => {
       expect(instance.request).toEqual(makeRequestCB)
     })
 
+    it('has instance method "get" if primary keys are passed', () => {
+      const instance = new GenericModel(data, makeRequestCB, primaryKeys)
+      expect(typeof instance.get).toBe('object')
+      expect(typeof instance.get.call).toBe('function')
+      expect(typeof instance.get.hasError).toBe('boolean')
+      expect(typeof instance.get.isPending).toBe('boolean')
+    })
+
     it('has instance method "post"', () => {
       const instance = new GenericModel(data, makeRequestCB, primaryKeys)
       expect(typeof instance.post).toBe('object')
@@ -84,15 +92,94 @@ describe('GenericModel', () => {
       expect(typeof instance.delete.isPending).toBe('boolean')
     })
 
-    it('does not have methods "delete" and "path" if primary keys are not passed', () => {
+    it('does not have methods "delete", "patch" and "get" if primary keys are not passed', () => {
       const instance = new GenericModel(data, makeRequestCB)
       expect(instance.delete).toBe(undefined)
       expect(instance.patch).toBe(undefined)
+      expect(instance.get).toBe(undefined)
     })
 
     it('has instance method "reset"', () => {
       const instance = new GenericModel(data, makeRequestCB, primaryKeys)
       expect(typeof instance.reset).toBe('function')
+    })
+  })
+
+  describe('Get method', () => {
+    it('sends a get request for the specified entity to the relevant endpoint', async () => {
+      const getInstance = new GenericModel(data, makeRequestCB, ['id'])
+      await getInstance.get.call()
+      expect(makeRequestCB.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id })
+      expect(makeRequestCB.mock.calls[0][0]).toBe('GET')
+    })
+
+    it('sets select part of query', async () => {
+      const select = ['id', 'name']
+      const getInstance = new GenericModel(data, makeRequestCB, ['id'], select)
+      await getInstance.$nextTick()
+      await getInstance.get.call()
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id, select })
+    })
+
+    it('returns the requests return value and updates the items data', async () => {
+      const getInstance = new GenericModel(data, makeRequestCB, ['id'])
+      expect(getInstance.data).toEqual(data)
+      const mockReturn = {
+        body: {
+          ...data,
+          name: 'client321',
+          id: 321
+        }
+      }
+      makeRequestCB.mockReturnValueOnce(mockReturn)
+      const ret = await getInstance.get.call()
+      expect(ret).toEqual(mockReturn)
+      expect(getInstance.data).toEqual(mockReturn.body)
+    })
+
+    it('overwrites changes to the item data if option "keepChanges" is false', async () => {
+      const getInstance = new GenericModel(data, makeRequestCB, ['id'])
+      const mockReturn = {
+        body: {
+          ...data,
+          name: 'client321',
+          id: 321
+        }
+      }
+      makeRequestCB.mockReturnValueOnce(mockReturn)
+      getInstance.data.name = 'localName'
+      await getInstance.$nextTick()
+      await getInstance.get.call()
+      expect(getInstance.data.name).toBe(mockReturn.body.name)
+    })
+
+    it('does not overwrite changes to the item data if option "keepChanges" is true', async () => {
+      const getInstance = new GenericModel(data, makeRequestCB, ['id'])
+      const mockReturn = {
+        body: {
+          ...data,
+          name: 'client321',
+          id: 321
+        }
+      }
+      makeRequestCB.mockReturnValueOnce(mockReturn)
+      getInstance.data.name = 'localName'
+      await getInstance.$nextTick()
+      expect(getInstance.data.name).toBe('localName')
+      await getInstance.get.call({ keepChanges: true })
+      expect(getInstance.data.name).toBe('localName')
+      expect(getInstance.data.id).toBe(321)
+    })
+
+    describe('"headers" option', () => {
+      it('is passed as is to request method when set', async () => {
+        const headers = { prefer: 'custom-prefer-header', accept: 'custom-accept-header', 'x-header': 'custom-x-header' }
+        const getInstance = new GenericModel(data, makeRequestCB, ['id'])
+        await getInstance.$nextTick()
+        getInstance.get.call({ headers })
+        expect(makeRequestCB.mock.calls[0][2].headers).toEqual(headers)
+      })
     })
   })
 

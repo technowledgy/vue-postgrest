@@ -94,13 +94,14 @@ The api-response and following methods are available via slot-props:
 |Property             |Type          |Description             |
 |---------------------|--------------|------------------------|
 |data                 |Object        |The entity's data object|
+|get                  |Utility       |Send a request to fetch the entity|
 |post                 |Utility       |Send a post request with the entity's data|
-|patch                |Utility       |Send a patch request with the entity's data|
+|patch                |Utility       |Send a patch request with the entity's changed data|
 |delete               |Utility       |Send request to delete the entity|
 |reset                |Function      |Reset the entity's data object to initial state|
 |isDirty              |Bool          |Indicates wether data differs from initial state|
 
-Note: "patch" and "delete" methods are only provided, if the schema provides primary keys for the entity.
+Note: "patch", "delete" and "get" methods are only provided, if the schema provides primary keys for the entity.
 
 ### Querys
 
@@ -118,6 +119,21 @@ To get all users with age greater than 21 and active true:
 ```
 
 For available conditions see [the Postgrest docs](https://postgrest.org/en/v4.1/api.html#horizontal-filtering-rows).
+
+### Fetching: item.get.call([options])
+
+```
+item.get.call()
+```
+
+#### Get options
+
+The (optional) first argument to the get function is a object with the following options:
+
+|Property             |Type     |Default  |Description    |
+|---------------------|---------|---------|---------------|
+|headers              |Object   |undefined|Properties of this object overwrite the specified header fields of the request. Keys are header field names, values are strings.|
+|keepChanges          |Boolean  |false    |If true, local changes to the entities data are protected from being overwritten by fetched data and only unchanged fields are updated.|
 
 ### Patching: item.patch.call([data, options, sync])
 

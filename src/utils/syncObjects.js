@@ -1,10 +1,12 @@
 import Vue from 'vue'
 import isObject from './isObject'
 
-function sync (o1, o2) {
-  for (const k1 in o1) {
-    if (o2[k1] === undefined) {
-      Vue.delete(o1, k1)
+function sync (o1, o2, d=true) {
+  if (d) {
+    for (const k1 in o1) {
+      if (o2[k1] === undefined) {
+        Vue.delete(o1, k1)
+      }
     }
   }
   for (const k2 in o2) {
