@@ -487,6 +487,12 @@ describe('GenericModel', () => {
         await expect(patchInstance.patch.call([])).rejects.toThrow()
       })
 
+      it('does not send a patch request for undefined keys', async () => {
+        const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
+        await patchInstance.patch.call({ key: undefined })
+        expect(makeRequestCB.mock.calls.length).toBe(0)
+      })
+
       describe('sends a patch request for the specified entity to the relevant endpoint for changed', () => {
         it('data fields, merged with argument (takes precedence)', async () => {
           const patchInstance = new GenericModel(data, makeRequestCB, ['id'])

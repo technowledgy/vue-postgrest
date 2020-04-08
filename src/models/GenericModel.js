@@ -62,7 +62,12 @@ const GenericModelTemplate = Vue.extend({
       if (!isObject(data) || Array.isArray(data)) {
         throw new Error('Patch data must be an object.')
       }
-      const patchData = Object.assign({}, this.diff, data)
+      const patchData = Object.assign({}, this.diff, Object.keys(data).reduce((acc, key) => {
+        if (data[key] !== undefined) {
+          acc[key] = data[key]
+        }
+        return acc
+      }, {}))
       if (Object.keys(patchData).length === 0) {
         return
       }
