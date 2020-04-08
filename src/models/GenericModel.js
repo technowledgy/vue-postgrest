@@ -34,25 +34,31 @@ const GenericModelTemplate = Vue.extend({
     }
   },
   methods: {
-    async _post (opt) {
-      const defaultOptions = { sync: true, columns: Object.keys(this.data) }
+    async _post (opt, sync = true) {
+      const defaultOptions = { columns: Object.keys(this.data) }
       const options = Object.assign({}, defaultOptions, opt)
+      // always set return to representation if sync is true
+      if (sync) {
+        options.return = 'representation'
+      }
+
       const query = {}
-      if (options.sync && this.select) {
+      if (options.return === 'representation' && this.select) {
         query.select = this.select
       }
-      if (options.columns !== undefined) {
+      if (options.columns) {
         query.columns = options.columns
       }
-      const ret = await this.request('POST', query, { representation: options.sync }, cloneDeep(this.data))
-      if (options.sync && ret && ret.body) {
+
+      const ret = await this.request('POST', query, options, cloneDeep(this.data))
+      if (sync && ret && ret.body) {
         this.setData(ret.body[0])
       } else {
         this.reset()
       }
       return ret
     },
-    async _patch (data = {}, opt) {
+    async _patch (data = {}, opt, sync = true) {
       if (!isObject(data) || Array.isArray(data)) {
         throw new Error('Patch data must be an object.')
       }
@@ -60,27 +66,37 @@ const GenericModelTemplate = Vue.extend({
       if (Object.keys(patchData).length === 0) {
         return
       }
-      const defaultOptions = { sync: true, columns: Object.keys(patchData) }
+      const defaultOptions = { columns: Object.keys(patchData) }
       const options = Object.assign({}, defaultOptions, opt)
 
-      const query = { ... this.query }
-      if (options.sync && this.select) {
+      // always set return to representation if sync is true
+      if (sync) {
+        options.return = 'representation'
+      }
+
+      const query = { ...this.query }
+      if (options.return === 'representation' && this.select) {
         query.select = this.select
       }
-      if (options.columns !== undefined) {
+      if (options.columns) {
         query.columns = options.columns
       }
 
-      const ret = await this.request('PATCH', query, { representation: options.sync }, cloneDeep(patchData))
-      if (options.sync && ret && ret.body) {
+      const ret = await this.request('PATCH', query, options, cloneDeep(patchData))
+      if (sync && ret && ret.body) {
         this.setData(ret.body[0])
       } else {
         this.reset()
       }
       return ret
     },
-    async _delete () {
-      return await this.request('DELETE', this.query)
+    async _delete (opts = {}) {
+      const query = { ...this.query }
+      if (opts.return === 'representation' && this.select) {
+        query.select = this.select
+      }
+
+      return await this.request('DELETE', query, opts)
     },
     setData (data) {
       this.diff = {}
@@ -100,7 +116,7 @@ class GenericModel extends GenericModelTemplate {
     this.request = requestCB
     this.primaryKeys = primaryKeys
     this.post = wrap(this._post)
-    if (this.primaryKeys && this.primaryKeys.length > 0) {  
+    if (this.primaryKeys && this.primaryKeys.length > 0) {
       this.patch = wrap(this._patch)
       this.delete = wrap(this._delete)
     }

@@ -20,7 +20,8 @@ module.exports = function (mockData) {
               // setting content range properly to actual returned range not neccessary for the simple test cases
               const range = headers.range.split('-')
               const retRange = range[1] ? range.join('-') : [range[0], resp.body.length].join('-')
-              resp.headers['content-range'] = headers.prefer.split(',').includes('count=exact') ? retRange + '/' + resp.body.length : retRange + '/*'
+              const prefer = headers.prefer ? headers.prefer.split(',') : []
+              resp.headers['content-range'] = prefer.includes('count=exact') ? retRange + '/' + resp.body.length : retRange + '/*'
               resp.body = resp.body.slice(...range)
             }
             if (headers.authorization) {

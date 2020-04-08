@@ -122,7 +122,7 @@ describe('GenericModel', () => {
     it('resets the instance data after the request if sync is false', async () => {
       const postInstance = new GenericModel(data, makeRequestCB)
       postInstance.data.name = 'client321'
-      await postInstance.post.call({ sync: false })
+      await postInstance.post.call({}, false)
       expect(makeRequestCB.mock.calls.length).toBe(1)
       expect(makeRequestCB.mock.calls[0][1]).toEqual({ columns: Object.keys(data) })
       expect(makeRequestCB.mock.calls[0][3]).toEqual({
@@ -145,6 +145,18 @@ describe('GenericModel', () => {
       makeRequestCB.mockReturnValueOnce(mockReturn)
       const ret = await postInstance.post.call()
       expect(ret).toEqual(mockReturn)
+    })
+
+    it('parses "return" option correctly', async () => {
+      const postInstance = new GenericModel(data, makeRequestCB)
+      await postInstance.post.call({}, false)
+      expect(makeRequestCB.mock.calls[0][2].return).toBe(undefined)
+      await postInstance.post.call({ return: 'representation' })
+      expect(makeRequestCB.mock.calls[1][2].return).toBe('representation')
+      await postInstance.post.call({ return: 'minimal' }, false)
+      expect(makeRequestCB.mock.calls[2][2].return).toBe('minimal')
+      await postInstance.post.call({ return: 'minimal' })
+      expect(makeRequestCB.mock.calls[3][2].return).toBe('representation')
     })
 
     it('updates the instance data after the request if sync is true', async () => {
@@ -183,7 +195,7 @@ describe('GenericModel', () => {
     it('does not set select part of query if sync is false', async () => {
       const select = ['id', 'name']
       const postInstance = new GenericModel(data, makeRequestCB, [], select)
-      await postInstance.post.call({ sync: false })
+      await postInstance.post.call({}, false)
       expect(makeRequestCB.mock.calls.length).toBe(1)
       expect(makeRequestCB.mock.calls[0][1]).toEqual({ columns: Object.keys(data) })
     })
@@ -193,6 +205,14 @@ describe('GenericModel', () => {
       await postInstance.post.call()
       expect(makeRequestCB.mock.calls.length).toBe(1)
       expect(makeRequestCB.mock.calls[0][1]).toEqual({ columns: Object.keys(data) })
+    })
+
+    it('sets select part of query if return is "representation"', async () => {
+      const select = ['id', 'name']
+      const postInstance = new GenericModel(data, makeRequestCB, [], select)
+      postInstance.post.call({ return: 'representation' })
+      expect(makeRequestCB.mock.calls.length).toBe(1)
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ select, columns: Object.keys(data) })
     })
 
     it('does not set columns part of query if columns is specified as undefined', async () => {
@@ -215,6 +235,16 @@ describe('GenericModel', () => {
       postInstance.post.call({ columns })
       expect(makeRequestCB.mock.calls.length).toBe(1)
       expect(makeRequestCB.mock.calls[0][1]).toEqual({ columns })
+    })
+
+    describe('"headers" option', () => {
+      it('is passed as is to request method when set', async () => {
+        const headers = { prefer: 'custom-prefer-header', accept: 'custom-accept-header', 'x-header': 'custom-x-header' }
+        const postInstance = new GenericModel(data, makeRequestCB)
+        postInstance.post.call({ headers })
+        expect(makeRequestCB.mock.calls.length).toBe(1)
+        expect(makeRequestCB.mock.calls[0][2].headers).toEqual(headers)
+      })
     })
   })
 
@@ -243,13 +273,36 @@ describe('GenericModel', () => {
   })
 
   describe('Patch method', () => {
+    it('parses "return" option correctly', async () => {
+      const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
+
+      patchInstance.data.name = 'client321'
+      await patchInstance.$nextTick()
+      await patchInstance.patch.call({}, {}, false)
+      expect(makeRequestCB.mock.calls[0][2].return).toBe(undefined)
+
+      patchInstance.data.name = 'client1234'
+      await patchInstance.$nextTick()
+      await patchInstance.patch.call({}, { return: 'representation' })
+      expect(makeRequestCB.mock.calls[1][2].return).toBe('representation')
+
+      patchInstance.data.name = 'client4321'
+      await patchInstance.$nextTick()
+      await patchInstance.patch.call({}, { return: 'minimal' }, false)
+      expect(makeRequestCB.mock.calls[2][2].return).toBe('minimal')
+
+      patchInstance.data.name = 'client12345'
+      await patchInstance.$nextTick()
+      await patchInstance.patch.call({}, { return: 'minimal' })
+      expect(makeRequestCB.mock.calls[3][2].return).toBe('representation')
+    })
+
     it('sets select part of query if sync is true', async () => {
       const select = ['id', 'name']
       const patchInstance = new GenericModel(data, makeRequestCB, ['id'], select)
       patchInstance.data.name = 'client321'
       await patchInstance.$nextTick()
       await patchInstance.patch.call()
-      expect(makeRequestCB.mock.calls.length).toBe(1)
       expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id, select, columns: ['name'] })
     })
 
@@ -258,18 +311,24 @@ describe('GenericModel', () => {
       const patchInstance = new GenericModel(data, makeRequestCB, ['id'], select)
       patchInstance.data.name = 'client321'
       await patchInstance.$nextTick()
-      await patchInstance.patch.call({}, { sync: false })
-      expect(makeRequestCB.mock.calls.length).toBe(1)
+      await patchInstance.patch.call({}, {}, false)
       expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id, columns: ['name'] })
     })
 
+    it('sets select part of query if return is "representation"', async () => {
+      const select = ['id', 'name']
+      const patchInstance = new GenericModel(data, makeRequestCB, ['id'], select)
+      patchInstance.data.name = 'client321'
+      await patchInstance.$nextTick()
+      await patchInstance.patch.call({}, { return: 'representation' })
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id, select, columns: ['name'] })
+    })
 
     it('does not set select part of query if select is undefined', async () => {
       const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
       patchInstance.data.name = 'client321'
       await patchInstance.$nextTick()
       await patchInstance.patch.call()
-      expect(makeRequestCB.mock.calls.length).toBe(1)
       expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id, columns: ['name'] })
     })
 
@@ -278,26 +337,15 @@ describe('GenericModel', () => {
       patchInstance.data.name = 'client321'
       await patchInstance.$nextTick()
       await patchInstance.patch.call({}, { columns: undefined })
-      expect(makeRequestCB.mock.calls.length).toBe(1)
       expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id })
-      expect(makeRequestCB.mock.calls[0][0]).toBe('PATCH')
-      expect(makeRequestCB.mock.calls[0][3]).toEqual({
-        name: 'client321'
-      })
     })
-
 
     it('sets columns part of query to patched columns if option "columns" is undefined', async () => {
       const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
       patchInstance.data.name = 'client321'
       await patchInstance.$nextTick()
       await patchInstance.patch.call()
-      expect(makeRequestCB.mock.calls.length).toBe(1)
       expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id, columns: ['name'] })
-      expect(makeRequestCB.mock.calls[0][0]).toBe('PATCH')
-      expect(makeRequestCB.mock.calls[0][3]).toEqual({
-        name: 'client321'
-      })
     })
 
     it('sets columns part of query to user-defined columns if option "columns" is specified', async () => {
@@ -308,9 +356,16 @@ describe('GenericModel', () => {
       await patchInstance.patch.call({}, { columns })
       expect(makeRequestCB.mock.calls.length).toBe(1)
       expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id, columns })
-      expect(makeRequestCB.mock.calls[0][0]).toBe('PATCH')
-      expect(makeRequestCB.mock.calls[0][3]).toEqual({
-        name: 'client321'
+    })
+
+    describe('"headers" option', () => {
+      it('is passed as is to request method when set', async () => {
+        const headers = { prefer: 'custom-prefer-header', accept: 'custom-accept-header', 'x-header': 'custom-x-header' }
+        const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
+        patchInstance.data.name = 'client321'
+        await patchInstance.$nextTick()
+        patchInstance.patch.call({}, { headers })
+        expect(makeRequestCB.mock.calls[0][2].headers).toEqual(headers)
       })
     })
 
@@ -477,7 +532,7 @@ describe('GenericModel', () => {
       const patchInstance = new GenericModel(data, makeRequestCB, ['id'])
       patchInstance.data.name = 'client321'
       await patchInstance.$nextTick()
-      await patchInstance.patch.call({}, { sync: false })
+      await patchInstance.patch.call({}, {}, false)
       expect(makeRequestCB.mock.calls.length).toBe(1)
       expect(patchInstance.data).toEqual({
         ...data,
@@ -517,6 +572,45 @@ describe('GenericModel', () => {
         age: 'eq.' + data.age
       })
       expect(makeRequestCB.mock.calls[1][0]).toBe('DELETE')
+    })
+
+    it('parses "return" option correctly', async () => {
+      const deleteInstance = new GenericModel(data, makeRequestCB, ['id'])
+      await deleteInstance.$nextTick()
+      await deleteInstance.delete.call()
+      expect(makeRequestCB.mock.calls[0][2].return).toBe(undefined)
+      await deleteInstance.delete.call({ return: 'representation' })
+      expect(makeRequestCB.mock.calls[1][2].return).toBe('representation')
+      await deleteInstance.delete.call({ return: 'minimal' })
+      expect(makeRequestCB.mock.calls[2][2].return).toBe('minimal')
+    })
+
+    it('sets select part of query if return is "representation"', async () => {
+      const select = ['id', 'name']
+      const deleteInstance = new GenericModel(data, makeRequestCB, ['id'], select)
+      await deleteInstance.$nextTick()
+      await deleteInstance.delete.call({ return: 'representation' })
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id, select })
+    })
+
+    it('does not set select part of query if return is not "representation"', async () => {
+      const select = ['id', 'name']
+      const deleteInstance = new GenericModel(data, makeRequestCB, ['id'], select)
+      await deleteInstance.$nextTick()
+      await deleteInstance.delete.call({ return: 'minimal' })
+      expect(makeRequestCB.mock.calls[0][1]).toEqual({ id: 'eq.' + data.id })
+      await deleteInstance.delete.call()
+      expect(makeRequestCB.mock.calls[1][1]).toEqual({ id: 'eq.' + data.id })
+    })
+
+    describe('"headers" option', () => {
+      it('is passed as is to request method when set', async () => {
+        const headers = { prefer: 'custom-prefer-header', accept: 'custom-accept-header', 'x-header': 'custom-x-header' }
+        const deleteInstance = new GenericModel(data, makeRequestCB, ['id'])
+        await deleteInstance.$nextTick()
+        deleteInstance.delete.call({ headers })
+        expect(makeRequestCB.mock.calls[0][2].headers).toEqual(headers)
+      })
     })
 
     it('returns the requests return value', async () => {

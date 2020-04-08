@@ -28,7 +28,7 @@ export default {
     },
     accept: {
       type: String,
-      default: 'multiple'
+      default: undefined
     },
     limit: {
       type: Number,
@@ -38,9 +38,9 @@ export default {
       type: Number,
       default: undefined
     },
-    exactCount: {
-      type: Boolean,
-      default: false
+    count: {
+      type: String,
+      default: undefined
     },
     token: {
       type: String,
@@ -61,7 +61,7 @@ export default {
     scope () {
       return {
         get: this.query !== undefined ? this.get : undefined,
-        items: (this.query !== undefined && this.accept !== 'single') ? this.items : undefined,
+        items: (this.query !== undefined && !this.accept) ? this.items : undefined,
         item: (this.query !== undefined && this.accept === 'single') ? this.item : undefined,
         newItem: this.create !== undefined ? this.newItem : undefined,
         range: this.range,
@@ -71,35 +71,40 @@ export default {
     }
   },
   methods: {
-    async request (method, query = {}, opts = {}, data) {
-      const defaultOptions = { accept: 'multiple' }
-      const options = Object.assign({}, defaultOptions, opts)
+    async request (method, query = {}, options = {}, data) {
       const headers = {}
+
       switch (options.accept) {
         case 'single':
           headers.accept = 'application/vnd.pgrst.object+json'
-          break
-        case 'multiple':
-          headers.accept = 'application/json'
           break
         case 'binary':
           headers.accept = 'application/octet-stream'
           break
         case undefined:
+        case '':
           headers.accept = 'application/json'
           break
         default:
           headers.accept = options.accept
       }
+
       if (options.limit || options.offset) {
         const range = [options.offset || 0, options.limit - 1 || null]
         if (range[1] && options.offset) range[1] += options.offset
         headers['range-unit'] = 'items'
         headers.range = range.join('-')
       }
-      headers.prefer = options.representation ? 'return=representation' : 'return=minimal'
-      if (options.exactCount) {
-        headers.prefer = headers.prefer + ',count=exact'
+
+      const prefer = []
+      if (options.return) {
+        prefer.push('return=' + options.return)
+      }
+      if (options.count) {
+        prefer.push('count=' + options.count)
+      }
+      if (prefer.length > 0) {
+        headers.prefer = prefer.join(',')
       }
 
       if (this.token) {
@@ -107,6 +112,12 @@ export default {
       }
 
       const reqUrl = this.apiRoot + url({ [options.route || this.route]: query })
+
+      // overwrite headers with custom headers if set
+      if (options.headers) {
+        Object.assign(headers, options.headers)
+      }
+
       let resp
       try {
         if (options.accept === 'binary') {
@@ -140,13 +151,12 @@ export default {
           accept: this.accept,
           limit: this.limit,
           offset: this.offset,
-          exactCount: this.exactCount
+          count: this.count
         })
-
         if (this.accept === 'single') {
           this.items = null
           this.item = resp && resp.body ? new GenericModel(resp.body, this.request, this.primaryKeys, (this.query || {}).select) : {}
-        } else {
+        } else if (!this.accept) {
           this.item = null
           this.items = resp && resp.body ? resp.body.map(data => {
             return new GenericModel(data, this.request, this.primaryKeys, (this.query || {}).select)
@@ -194,7 +204,6 @@ export default {
   },
   created () {
     this.getPrimaryKeys()
-
     this.$watch('apiRoot', () => {
       this.getPrimaryKeys()
       this.get.call()
@@ -209,7 +218,6 @@ export default {
     this.$watch('create', (newData) => {
       this.newItem = new GenericModel(newData, this.request, this.primaryKeys, (this.query || {}).select)
     }, { immediate: true })
-
     this.get.call()
   },
   render (h) {

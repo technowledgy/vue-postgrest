@@ -92,15 +92,14 @@ describe('Module', () => {
       wrapper.destroy()
     })
 
-    it('provides "items" if prop "query" is set and prop "accept" is "multiple"', async () => {
+    it('provides "items" if prop "query" is set and prop "accept" is undefined', async () => {
       expect.assertions(1)
       let wrapper
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
             route: '',
-            query: {},
-            accept: 'multiple'
+            query: {}
           },
           scopedSlots: {
             default (props) {

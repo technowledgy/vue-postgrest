@@ -53,17 +53,52 @@ describe('Get', () => {
     it('returns request return value', async () => {
       expect.assertions(1)
       const wrapper = shallowMount(Postgrest, {
-          propsData: {
-            apiRoot: '/api/',
-            route: 'clients',
-            query: {}
-          },
-          scopedSlots: {
-            default () {}
-          }
-        })
+        propsData: {
+          apiRoot: '/api/',
+          route: 'clients',
+          query: {}
+        },
+        scopedSlots: {
+          default () {}
+        }
+      })
       const ret = await wrapper.vm._get()
       expect(ret.body).toBe(mockData.data['/clients'].get)
+    })
+
+    it('sets the correct headers for prop count undefined', async () => {
+      expect.assertions(1)
+      const wrapper = shallowMount(Postgrest, {
+        propsData: {
+          apiRoot: '/api/',
+          route: 'clients',
+          query: {}
+        },
+        scopedSlots: {
+          default () {}
+        }
+      })
+      await wrapper.vm._get()
+      const headers = requestLogger.mock.calls.filter(c => c[0].url === '/api/clients')[0][0].headers
+      expect(!headers.prefer ? false : headers.prefer.includes('count=exact')).toBe(false)
+    })
+
+    it('sets the correct headers for prop count is "exact"', async () => {
+      expect.assertions(1)
+      const wrapper = shallowMount(Postgrest, {
+        propsData: {
+          apiRoot: '/api/',
+          route: 'clients',
+          query: {},
+          count: 'exact'
+        },
+        scopedSlots: {
+          default () {}
+        }
+      })
+      await wrapper.vm._get()
+      const headers = requestLogger.mock.calls.filter(c => c[0].url === '/api/clients')[0][0].headers
+      expect(headers.prefer.includes('count=exact')).toBe(true)
     })
   })
 
@@ -614,7 +649,7 @@ describe('Get', () => {
 
   describe('Pagination response headers', () => {
     describe('set the slot-prop "range" correctly if available', () => {
-      it('with prop "exact-count" false', async () => {
+      it('with prop "count" undefined', async () => {
         expect.assertions(4)
         let wrapper
         await new Promise((resolve, reject) => {
@@ -645,7 +680,7 @@ describe('Get', () => {
         wrapper.destroy()
       })
 
-      it('with prop "exact-count" true', async () => {
+      it('with prop "count" is "exact"', async () => {
         expect.assertions(4)
         let wrapper
         await new Promise((resolve, reject) => {
@@ -655,7 +690,7 @@ describe('Get', () => {
               route: 'clients',
               query: {},
               limit: 2,
-              exactCount: true
+              count: 'exact'
             },
             scopedSlots: {
               default (props) {

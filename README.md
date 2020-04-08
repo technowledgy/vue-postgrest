@@ -51,7 +51,7 @@ Component "postgrest" is registered globally on your Vue instance.
 |create    |no      |undefined|Object|Template for a entity to be created|
 |limit     |no      |-        |Number|Limit the count of response entities|
 |offset    |no      |-        |Number|Offset the response entities|
-|exactCount|no      |false    |Bool  |Request the total amount of entities in DB (disabled by default due to performance considerations)|
+|count     |no      |undefined    |String|If set to "single", we request the total amount of entities in DB (disabled by default due to performance considerations)|
 |token     |no      |undefined|String|JWT token that is sent as authentication bearer with DB requests.|
 
 #### Slot-scope
@@ -187,8 +187,11 @@ The (optional) second argument to the patch function is a object with the follow
 
 |Property             |Type     |Default  |Description    |
 |---------------------|---------|---------|---------------|
-|sync                 |Bool     |True     |Request the server to return the patched entity and update the local state accordingly|
 |columns              |Array    |keys of patch object     |Sets columns param on request to improve performance of updates/inserts, set manually for partial patches|
+|return               |String   |undefined|Add return=[value] header to request. Possible values are 'representation' and 'minimal'. Defaults to 'representation' when sync option is True|
+|headers              |Object   |undefined|Properties of this object overwrite the specified header fields of the request. Keys are header field names, values are strings.|
+
+The (optional) third argument to the patch function is a Bool, if set to true it requests the server to return the patched entity and update the local state accordingly.
 
 ### Posting
 
@@ -220,8 +223,26 @@ The (optional) first argument to the post function is a object with the followin
 
 |Property             |Type     |Default  |Description    |
 |---------------------|---------|---------|---------------|
-|sync                 |Bool     |True     |Request the server to return the posted entity and update the local state accordingly|
-|columns              |Array    |keys of patch object     |Sets columns param on request to improve performance of inserts, set manually for partial posts|
+|columns              |Array    |keys of patch object     |Sets columns param on request to improve performance of updates/inserts, set manually for partial patches|
+|return               |String   |undefined|Add return=[value] header to request. Possible values are 'representation' and 'minimal'. Defaults to 'representation' when sync option is True|
+|headers              |Object   |undefined|Properties of this object overwrite the specified header fields of the request. Keys are header field names, values are strings.|
+
+The (optional) second argument to the post function is a Bool, if set to true it requests the server to return the posted entity and update the local state accordingly.
+
+### Deleting
+
+```
+item.delete.call()
+```
+
+#### Delete options
+
+The (optional) first argument to the delete function is a object with the following options:
+
+|Property             |Type     |Default  |Description    |
+|---------------------|---------|---------|---------------|
+|return               |String   |undefined|Add return=[value] header to request. Possible values are 'representation' and 'minimal'.|
+|headers              |Object   |undefined|Properties of this object overwrite the specified header fields of the request. Keys are header field names, values are strings.|
 
 ### RPC (function-name, options)
 
