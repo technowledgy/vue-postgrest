@@ -199,6 +199,36 @@ describe('Get', () => {
         wrapper.destroy()
       })
 
+      it('returns data if prop "accept" is "text/plain"', async () => {
+        expect.assertions(3)
+        let wrapper
+        await new Promise((resolve, reject) => {
+          wrapper = shallowMount(Postgrest, {
+            propsData: {
+              apiRoot: '/api/',
+              route: 'clients',
+              query: {},
+              accept: 'text/plain'
+            },
+            scopedSlots: {
+              default (props) {
+                try {
+                  if (!props.get.isPending) {
+                    expect(props.item).toBe(undefined)
+                    expect(props.items).toBe(undefined)
+                    expect(typeof props.data).toBe('string')
+                    resolve()
+                  }
+                } catch (e) {
+                  reject(e)
+                }
+              }
+            }
+          })
+        })
+        wrapper.destroy()
+      })
+
       it('returns generic models with correct properties', async () => {
         expect.assertions(4)
         let wrapper

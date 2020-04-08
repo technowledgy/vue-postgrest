@@ -115,14 +115,14 @@ const GenericModelTemplate = Vue.extend({
 
       return await this.request('DELETE', query, opts)
     },
-    setData (data, keepDiff=false) {
+    setData (data, keepDiff = false) {
       this.resetCache = cloneDeep(data)
       if (keepDiff) {
         const diff = cloneDeep(this.diff)
         syncObjects(this.data, data)
         syncObjects(this.data, diff, false)
       } else {
-        syncObjects(this.data, data) 
+        syncObjects(this.data, data)
       }
     },
     reset () {

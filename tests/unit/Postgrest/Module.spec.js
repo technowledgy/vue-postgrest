@@ -141,8 +141,33 @@ describe('Module', () => {
       wrapper.destroy()
     })
 
-    it('does not provide "item" or "items" if prop "query" is not set', async () => {
-      expect.assertions(2)
+    it('provides "data" if prop "query" is set and prop "accept" is "text/plain"', async () => {
+      expect.assertions()
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
+          propsData: {
+            route: '',
+            query: {},
+            accept: 'text/plain'
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                expect(props.data === undefined).toBe(false)
+                resolve()
+              } catch (e) {
+                reject(e)
+              }
+            }
+          }
+        })
+      })
+      wrapper.destroy()
+    })
+
+    it('does not provide "item", "items" or "data" if prop "query" is not set', async () => {
+      expect.assertions(3)
       let wrapper
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
@@ -154,6 +179,7 @@ describe('Module', () => {
               try {
                 expect(props.items).toBe(undefined)
                 expect(props.item).toBe(undefined)
+                expect(props.data).toBe(undefined)
                 resolve()
               } catch (e) {
                 reject(e)

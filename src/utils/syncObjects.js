@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import isObject from './isObject'
 
-function sync (o1, o2, d=true) {
+function sync (o1, o2, d = true) {
   if (d) {
     for (const k1 in o1) {
       if (o2[k1] === undefined) {

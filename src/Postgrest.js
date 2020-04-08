@@ -51,6 +51,7 @@ export default {
     return {
       items: [],
       item: {},
+      data: null,
       newItem: null,
       range: undefined,
       get: wrap(this._get),
@@ -64,6 +65,7 @@ export default {
         get: this.query !== undefined ? this.get : undefined,
         items: (this.query !== undefined && !this.accept) ? this.items : undefined,
         item: (this.query !== undefined && this.accept === 'single') ? this.item : undefined,
+        data: (this.query !== undefined && this.accept && this.accept !== 'single') ? this.data : undefined,
         newItem: this.create !== undefined ? this.newItem : undefined,
         range: this.range,
         rpc: this.rpc,
@@ -162,6 +164,10 @@ export default {
           this.items = resp && resp.body ? resp.body.map(data => {
             return new GenericModel(data, this.request, this.primaryKeys, (this.query || {}).select)
           }) : []
+        } else {
+          this.item = null
+          this.items = null
+          this.data = resp.body
         }
 
         if (resp && resp.headers['content-range']) {

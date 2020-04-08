@@ -15,6 +15,9 @@ module.exports = function (mockData) {
             if (headers.accept === 'application/vnd.pgrst.object+json') {
               resp.body = resp.body[0]
             }
+            if (headers.accept === 'text/plain') {
+              resp.body = JSON.stringify(resp.body)
+            }
             if (headers.range && Array.isArray(resp.body)) {
               resp.headers['range-unit'] = 'items'
               // setting content range properly to actual returned range not neccessary for the simple test cases
