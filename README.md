@@ -47,7 +47,7 @@ Component "postgrest" is registered globally on your Vue instance.
 |----------|--------|---------|------|-----------------------------------|
 |route     |yes     |-        |String|The table/view that is queried     |
 |query     |no      |undefined|Object|The postgrest query                |
-|accept    |no      |'multiple'|String|Accept header to set or one of the options 'single', 'multiple' or 'binary', which set the correct headers automatically|
+|accept               |String       |undefined   |Accept header to set or one of the options 'single' or 'binary', which set the correct headers automatically. Default header is set to 'application/json'|
 |create    |no      |undefined|Object|Template for a entity to be created|
 |limit     |no      |-        |Number|Limit the count of response entities|
 |offset    |no      |-        |Number|Offset the response entities|
@@ -119,7 +119,7 @@ To get all users with age greater than 21 and active true:
 
 For available conditions see [the Postgrest docs](https://postgrest.org/en/v4.1/api.html#horizontal-filtering-rows).
 
-### Patching
+### Patching: item.patch.call([data, options, sync])
 
 You can edit the data fields of an entity directly:
 
@@ -193,7 +193,7 @@ The (optional) second argument to the patch function is a object with the follow
 
 The (optional) third argument to the patch function is a Bool, if set to true it requests the server to return the patched entity and update the local state accordingly.
 
-### Posting
+### Posting: item.post.call([options, sync])
 
 ```
 <postgrest
@@ -229,7 +229,7 @@ The (optional) first argument to the post function is a object with the followin
 
 The (optional) second argument to the post function is a Bool, if set to true it requests the server to return the posted entity and update the local state accordingly.
 
-### Deleting
+### Deleting: item.delete.call([options])
 
 ```
 item.delete.call()
