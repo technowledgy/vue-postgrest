@@ -54,7 +54,8 @@ export default {
       newItem: null,
       range: undefined,
       get: wrap(this._get),
-      primaryKeys: []
+      primaryKeys: [],
+      rpc: wrap(this._rpc)
     }
   },
   computed: {
@@ -180,7 +181,7 @@ export default {
         throw new EmittedError(e)
       }
     },
-    async rpc (fn, opts = {}) {
+    async _rpc (fn, opts = {}) {
       if (!opts.method) {
         opts.method = 'POST'
       }

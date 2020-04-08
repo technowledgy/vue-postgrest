@@ -23,6 +23,19 @@ describe('RPC', () => {
     requestLogger.mockReset()
   })
 
+  it('is wrapped in utility object', () => {
+    const wrapper = shallowMount(Postgrest, {
+      propsData: {
+        apiRoot: '/api/'
+      },
+      slots: { default: '<div />' }
+    })
+    expect(typeof wrapper.vm.rpc).toBe('object')
+    expect(typeof wrapper.vm.rpc.call).toBe('function')
+    expect(typeof wrapper.vm.rpc.hasError).toBe('boolean')
+    expect(typeof wrapper.vm.rpc.isPending).toBe('boolean')
+  })
+
   it('sends a request with the specified method and arguments to the rpc route', async () => {
     expect.assertions(6)
     const wrapper = shallowMount(Postgrest, {
@@ -35,12 +48,12 @@ describe('RPC', () => {
       a: 1,
       b: 2
     }
-    await wrapper.vm.rpc('rpc-test', { method: 'POST', params: functionParams })
+    await wrapper.vm.rpc.call('rpc-test', { method: 'POST', params: functionParams })
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test').length).toBe(1)
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].method).toBe('POST')
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].data).toEqual(functionParams)
 
-    await wrapper.vm.rpc('rpc-test', { method: 'GET', params: functionParams })
+    await wrapper.vm.rpc.call('rpc-test', { method: 'GET', params: functionParams })
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test').length).toBe(2)
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[1][0].method).toBe('GET')
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[1][0].data).toEqual(functionParams)
@@ -55,7 +68,7 @@ describe('RPC', () => {
       },
       slots: { default: '<div />' }
     })
-    await wrapper.vm.rpc('rpc-test', { method: 'POST' })
+    await wrapper.vm.rpc.call('rpc-test', { method: 'POST' })
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test').length).toBe(1)
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].method).toBe('POST')
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].data).toBe(undefined)
@@ -70,7 +83,7 @@ describe('RPC', () => {
       },
       slots: { default: '<div />' }
     })
-    await wrapper.vm.rpc('rpc-test')
+    await wrapper.vm.rpc.call('rpc-test')
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test').length).toBe(1)
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].method).toBe('POST')
     wrapper.destroy()
@@ -84,7 +97,7 @@ describe('RPC', () => {
       },
       slots: { default: '<div />' }
     })
-    await wrapper.vm.rpc('rpc-test', { accept: 'binary' })
+    await wrapper.vm.rpc.call('rpc-test', { accept: 'binary' })
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test').length).toBe(1)
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].method).toBe('POST')
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].headers.accept).toBe('application/octet-stream')
@@ -99,7 +112,7 @@ describe('RPC', () => {
       },
       slots: { default: '<div />' }
     })
-    await wrapper.vm.rpc('rpc-test', { accept: 'custom-accept-header' })
+    await wrapper.vm.rpc.call('rpc-test', { accept: 'custom-accept-header' })
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test').length).toBe(1)
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].method).toBe('POST')
     expect(requestLogger.mock.calls.filter(c => c[0].url === '/api/rpc/rpc-test')[0][0].headers.accept).toBe('custom-accept-header')
@@ -114,7 +127,7 @@ describe('RPC', () => {
       },
       slots: { default: '<div />' }
     })
-    await expect(wrapper.vm.rpc('rpc-test', { method: 'PATCH' })).rejects.toThrow()
+    await expect(wrapper.vm.rpc.call('rpc-test', { method: 'PATCH' })).rejects.toThrow()
     wrapper.destroy()
   })
 })

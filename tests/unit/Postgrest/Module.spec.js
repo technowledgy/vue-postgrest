@@ -275,7 +275,7 @@ describe('Module', () => {
           scopedSlots: {
             default (props) {
               try {
-                expect(typeof props.rpc).toBe('function')
+                expect(typeof props.rpc).toBe('object')
                 resolve()
               } catch (e) {
                 reject(e)
