@@ -639,6 +639,37 @@ describe('Get', () => {
       wrapper.destroy()
     })
 
+    it('sets the correct request headers for limit of value 1 and with offset', async () => {
+      expect.assertions(3)
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
+          propsData: {
+            apiRoot: '/api/',
+            route: 'clients',
+            query: {},
+            offset: 5,
+            limit: 1
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                if (!props.get.isPending) {
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers['range-unit']).toBe('items')
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients')[0][0].headers.range).toBe('5-5')
+                  resolve()
+                }
+              } catch (e) {
+                reject(e)
+              }
+            }
+          }
+        })
+      })
+      wrapper.destroy()
+    })
+
     it('reacts to dynamic changes', async () => {
       expect.assertions(6)
       let wrapper
