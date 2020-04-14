@@ -93,7 +93,7 @@ export default {
       }
 
       if (options.limit || options.offset) {
-        const range = [options.offset || 0, options.limit - 1 || null]
+        const range = [options.offset || 0, options.limit > 0 ? options.limit - 1 : null]
         if (range[1] && options.offset) range[1] += options.offset
         headers['range-unit'] = 'items'
         headers.range = range.join('-')
