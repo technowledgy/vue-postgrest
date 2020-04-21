@@ -138,12 +138,18 @@ class GenericModel extends GenericModelTemplate {
     this.request = requestCB
     this.primaryKeys = primaryKeys
     this.post = wrap(this._post)
-    if (this.primaryKeys && this.primaryKeys.length > 0) {
-      this.patch = wrap(this._patch)
-      this.delete = wrap(this._delete)
-      this.get = wrap(this._get)
-    }
     this.select = select
+    this.$watch('primaryKeys', {
+      deep: false,
+      immediate: true,
+      handler (newPrimaryKeys) {
+        if (newPrimaryKeys && newPrimaryKeys.length > 0) {
+          this.patch = wrap(this._patch)
+          this.delete = wrap(this._delete)
+          this.get = wrap(this._get)
+        }
+      }
+    })
     this.$watch('data', {
       deep: false,
       immediate: true,
