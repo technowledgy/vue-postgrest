@@ -60,34 +60,38 @@ describe('GenericModel', () => {
       expect(instance.request).toEqual(makeRequestCB)
     })
 
-    it('has instance method "get" if primary keys are passed', () => {
+    it('has observable instance method "get" if primary keys are passed', () => {
       const instance = new GenericModel(data, makeRequestCB, primaryKeys)
-      expect(typeof instance.get).toBe('object')
-      expect(typeof instance.get.call).toBe('function')
+      expect(typeof instance.get).toBe('function')
+      expect(typeof instance.get.__ob__).toBe('object')
+      expect(typeof instance.get.call).toBe('function') // backwards compatibility
       expect(typeof instance.get.hasError).toBe('boolean')
       expect(typeof instance.get.isPending).toBe('boolean')
     })
 
-    it('has instance method "post"', () => {
+    it('has observable instance method "post"', () => {
       const instance = new GenericModel(data, makeRequestCB, primaryKeys)
-      expect(typeof instance.post).toBe('object')
-      expect(typeof instance.post.call).toBe('function')
+      expect(typeof instance.post).toBe('function')
+      expect(typeof instance.post.__ob__).toBe('object')
+      expect(typeof instance.post.call).toBe('function') // backwards compatibility
       expect(typeof instance.post.hasError).toBe('boolean')
       expect(typeof instance.post.isPending).toBe('boolean')
     })
 
-    it('has instance method "patch" if primary keys are passed', () => {
+    it('has observable instance method "patch" if primary keys are passed', () => {
       const instance = new GenericModel(data, makeRequestCB, primaryKeys)
-      expect(typeof instance.patch).toBe('object')
-      expect(typeof instance.patch.call).toBe('function')
+      expect(typeof instance.patch).toBe('function')
+      expect(typeof instance.patch.__ob__).toBe('object')
+      expect(typeof instance.patch.call).toBe('function') // backwards compatibility
       expect(typeof instance.patch.hasError).toBe('boolean')
       expect(typeof instance.patch.isPending).toBe('boolean')
     })
 
-    it('has instance method "delete" if primary keys are passed', () => {
+    it('has observable instance method "delete" if primary keys are passed', () => {
       const instance = new GenericModel(data, makeRequestCB, primaryKeys)
-      expect(typeof instance.delete).toBe('object')
-      expect(typeof instance.delete.call).toBe('function')
+      expect(typeof instance.delete).toBe('function')
+      expect(typeof instance.delete.__ob__).toBe('object')
+      expect(typeof instance.delete.call).toBe('function') // backwards compatibility
       expect(typeof instance.delete.hasError).toBe('boolean')
       expect(typeof instance.delete.isPending).toBe('boolean')
     })

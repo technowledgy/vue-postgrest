@@ -217,19 +217,19 @@ export default {
     this.getPrimaryKeys()
     this.$watch('apiRoot', () => {
       this.getPrimaryKeys()
-      this.get.call()
+      this.get()
     })
     this.$watch('route', () => {
       this.getPrimaryKeys()
-      this.get.call()
+      this.get()
     })
-    this.$watch('query', this.get.call, { deep: true })
-    this.$watch('offset', this.get.call)
-    this.$watch('limit', this.get.call)
+    this.$watch('query', this.get, { deep: true })
+    this.$watch('offset', this.get)
+    this.$watch('limit', this.get)
     this.$watch('create', (newData) => {
       this.newItem = new GenericModel(newData, this.request, this.primaryKeys, (this.query || {}).select)
     }, { immediate: true })
-    this.get.call()
+    this.get()
   },
   render (h) {
     return this.$scopedSlots.default(this.scope)

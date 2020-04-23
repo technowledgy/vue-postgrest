@@ -23,17 +23,18 @@ describe('RPC', () => {
     requestLogger.mockReset()
   })
 
-  it('is wrapped in utility object', () => {
+  it('is wrapped in utility function and observable', () => {
     const wrapper = shallowMount(Postgrest, {
       propsData: {
         apiRoot: '/api/'
       },
       slots: { default: '<div />' }
     })
-    expect(typeof wrapper.vm.rpc).toBe('object')
-    expect(typeof wrapper.vm.rpc.call).toBe('function')
-    expect(typeof wrapper.vm.rpc.hasError).toBe('boolean')
+    expect(typeof wrapper.vm.rpc).toBe('function')
+    expect(typeof wrapper.vm.rpc.__ob__).toBe('object')
+    expect(typeof wrapper.vm.rpc.call).toBe('function') // backwards compatibility
     expect(typeof wrapper.vm.rpc.isPending).toBe('boolean')
+    expect(typeof wrapper.vm.rpc.hasError).toBe('boolean')
   })
 
   it('sends a request with the specified method and arguments to the rpc route', async () => {

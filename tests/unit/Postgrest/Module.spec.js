@@ -18,8 +18,8 @@ describe('Module', () => {
   })
 
   describe('Slot scope', () => {
-    it('provides GET function if prop QUERY is set', async () => {
-      expect.assertions(4)
+    it('provides observable GET function if prop QUERY is set', async () => {
+      expect.assertions(5)
       let wrapper
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
@@ -30,8 +30,9 @@ describe('Module', () => {
           scopedSlots: {
             default (props) {
               try {
-                expect(typeof props.get).toBe('object')
-                expect(typeof props.get.call).toBe('function')
+                expect(typeof props.get).toBe('function')
+                expect(typeof props.get.__ob__).toBe('object')
+                expect(typeof props.get.call).toBe('function') // backwards compatibility
                 expect(typeof props.get.isPending).toBe('boolean')
                 expect(typeof props.get.hasError).toBe('boolean')
                 resolve()
@@ -288,8 +289,8 @@ describe('Module', () => {
       wrapper.destroy()
     })
 
-    it('provides a function "rpc"', async () => {
-      expect.assertions(1)
+    it('provides observable function "rpc"', async () => {
+      expect.assertions(5)
       let wrapper
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
@@ -301,7 +302,11 @@ describe('Module', () => {
           scopedSlots: {
             default (props) {
               try {
-                expect(typeof props.rpc).toBe('object')
+                expect(typeof props.rpc).toBe('function')
+                expect(typeof props.rpc.__ob__).toBe('object')
+                expect(typeof props.rpc.call).toBe('function') // backwards compatibility
+                expect(typeof props.rpc.isPending).toBe('boolean')
+                expect(typeof props.rpc.hasError).toBe('boolean')
                 resolve()
               } catch (e) {
                 reject(e)
