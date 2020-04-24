@@ -1,10 +1,8 @@
-import PrimaryKeyError from '@/errors/PrimaryKeyError'
-import wrap from '@/utils/wrap'
-import isObject from '@/utils/isObject'
 import Vue from 'vue'
+import { PrimaryKeyError } from '@/errors'
+import { ObservableFunction, isObject, syncObjects } from '@/utils'
 import cloneDeep from 'lodash.clonedeep'
 import isEqual from 'lodash.isequal'
-import syncObjects from '@/utils/syncObjects'
 
 const GenericModelTemplate = Vue.extend({
   data () {
@@ -137,16 +135,16 @@ class GenericModel extends GenericModelTemplate {
     this.setData(cloneDeep(data))
     this.request = requestCB
     this.primaryKeys = primaryKeys
-    this.post = wrap(this._post)
+    this.post = new ObservableFunction(this._post)
     this.select = select
     this.$watch('primaryKeys', {
       deep: false,
       immediate: true,
       handler (newPrimaryKeys) {
         if (newPrimaryKeys && newPrimaryKeys.length > 0) {
-          this.patch = wrap(this._patch)
-          this.delete = wrap(this._delete)
-          this.get = wrap(this._get)
+          this.patch = new ObservableFunction(this._patch)
+          this.delete = new ObservableFunction(this._delete)
+          this.get = new ObservableFunction(this._get)
         }
       }
     })

@@ -1,11 +1,9 @@
 import superagent from 'superagent'
+import { EmittedError } from '@/errors'
 import url from '@/utils/url'
-import wrap from '@/utils/wrap'
-import GenericModel from '@/models/GenericModel'
+import { ObservableFunction, syncObjects, splitToObject } from '@/utils'
+import GenericModel from '@/GenericModel'
 import SchemaManager from '@/SchemaManager'
-import EmittedError from '@/errors/EmittedError'
-import syncObjects from '@/utils/syncObjects'
-import headerStringToObject from '@/utils/headerStringToObject'
 
 export default {
   name: 'Postgrest',
@@ -54,9 +52,9 @@ export default {
       data: null,
       newItem: null,
       range: undefined,
-      get: wrap(this._get),
+      get: new ObservableFunction(this._get),
       primaryKeys: [],
-      rpc: wrap(this._rpc)
+      rpc: new ObservableFunction(this._rpc)
     }
   },
   computed: {
@@ -137,7 +135,7 @@ export default {
       } catch (e) {
         resp = e.response
         if (resp && resp.headers['www-authenticate']) {
-          const authError = headerStringToObject(resp.headers['www-authenticate'].replace('Bearer ', ''))
+          const authError = splitToObject(resp.headers['www-authenticate'].replace(/^Bearer /, ''))
           this.$emit('token-error', authError)
           throw new EmittedError(authError)
         } else {

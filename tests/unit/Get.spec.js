@@ -1,4 +1,4 @@
-import GenericModel from '@/models/GenericModel'
+import GenericModel from '@/GenericModel'
 import request from 'superagent'
 import config from './MockApi.config'
 import mock from 'superagent-mock'

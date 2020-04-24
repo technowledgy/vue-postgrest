@@ -1,5 +1,5 @@
-import PrimaryKeyError from '@/errors/PrimaryKeyError'
-import GenericModel from '@/models/GenericModel'
+import { PrimaryKeyError } from '@/errors'
+import GenericModel from '@/GenericModel'
 import cloneDeep from 'lodash.clonedeep'
 
 const data = {

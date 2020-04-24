@@ -5,7 +5,7 @@ import config from './MockApi.config'
 import mock from 'superagent-mock'
 
 import Postgrest from '@/Postgrest'
-import GenericModel from '@/models/GenericModel'
+import GenericModel from '@/GenericModel'
 
 const mockData = {}
 const superagentMock = mock(request, config(mockData))

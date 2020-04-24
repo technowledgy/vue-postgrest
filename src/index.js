@@ -1,10 +1,9 @@
 import Postgrest from './Postgrest'
 
 const plugin = {
-  install (Vue, options) {
-    if (options && options.apiRoot) {
+  install (Vue, options = {}) {
+    if (options.apiRoot) {
       Postgrest.props.apiRoot.default = options.apiRoot
-      Vue.component('postgrest', Postgrest)
     }
     Vue.component('postgrest', Postgrest)
   }
