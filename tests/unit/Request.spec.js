@@ -102,7 +102,7 @@ describe('Request', () => {
     })
     await wrapper.vm.$nextTick()
     await wrapper.vm.request('GET', { select: ['id', 'name'] })
-    expect(requestLogger.mock.calls[1][0].url).toBe('/api/clients?select=id,name')
+    expect(decodeURIComponent(requestLogger.mock.calls[1][0].url)).toBe('/api/clients?select=id,name')
     wrapper.destroy()
   })
 

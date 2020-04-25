@@ -114,7 +114,7 @@ To get all users with age greater than 21 and active true:
 ```
 <postgrest
   route="users"
-  :query="{ age: 'gt.21', active: 'is.true'}">
+  :query="{ 'age.gt': 21, 'active.is': true }">
 </postgrest>
 ```
 

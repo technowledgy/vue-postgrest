@@ -271,7 +271,7 @@ describe('Get', () => {
             propsData: {
               apiRoot: '/api/',
               route: 'clients',
-              query: { id: 'eq.1' }
+              query: { 'id.eq': 1 }
             },
             scopedSlots: {
               default (props) {
@@ -307,7 +307,7 @@ describe('Get', () => {
               try {
                 if (!props.get.isPending && !propsChanged) {
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)
-                  wrapper.setProps({ query: { id: 'eq.1' } })
+                  wrapper.setProps({ query: { 'id.eq': 1 } })
                   propsChanged = true
                 } else if (!props.get.isPending && propsChanged) {
                   expect(requestLogger.mock.calls.filter(call => call[0].url === '/api/clients').length).toBe(1)

@@ -1,7 +1,7 @@
 import superagent from 'superagent'
 import { EmittedError } from '@/errors'
-import url from '@/utils/url'
 import { ObservableFunction, syncObjects, splitToObject } from '@/utils'
+import Query from '@/Query'
 import GenericModel from '@/GenericModel'
 import SchemaManager from '@/SchemaManager'
 
@@ -112,7 +112,11 @@ export default {
         headers.authorization = `Bearer ${this.token}`
       }
 
-      const reqUrl = this.apiRoot + url({ [options.route || this.route]: query })
+      let url = this.apiRoot
+      if (!url.endsWith('/')) url += '/'
+      url += [options.route || this.route]
+      const queryString = new Query(query).toString()
+      if (queryString) url += `?${queryString}`
 
       // overwrite headers with custom headers if set
       if (options.headers) {
@@ -122,12 +126,12 @@ export default {
       let resp
       try {
         if (options.accept === 'binary') {
-          resp = await superagent(method, reqUrl)
+          resp = await superagent(method, url)
             .responseType('blob')
             .set(headers)
             .send(data)
         } else {
-          resp = await superagent(method, reqUrl)
+          resp = await superagent(method, url)
             .set(headers)
             .send(data)
         }
