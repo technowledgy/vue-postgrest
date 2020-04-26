@@ -1,32 +1,41 @@
-import request from 'superagent'
-import config from './MockApi.config'
-import mock from 'superagent-mock'
-
 import { shallowMount } from '@vue/test-utils'
 import Postgrest from '@/Postgrest'
 
-const requestLogger = jest.fn((log) => {})
-const superagentMock = mock(request, config({
-  data: {
-    '/rpc/rpc-test': {
-      get: 'test'
+fetch.mockResponse(async req => {
+  if (['http://localhost/api'].includes(req.url)) {
+    return {
+      body: JSON.stringify({
+        definitions: {}
+      }),
+      init: {
+        status: 200,
+        statusText: 'OK',
+        headers: {
+          'Content-Type': 'application/openapi+json'
+        }
+      }
+    }
+  } else {
+    return {
+      body: 'test',
+      init: {
+        status: 200,
+        statusText: 'OK'
+      }
     }
   }
-}), requestLogger)
+})
 
 describe('RPC', () => {
-  afterAll(() => {
-    superagentMock.unset()
-  })
-
   beforeEach(() => {
-    requestLogger.mockReset()
+    // just reset .mock data, but not .mockResponse
+    fetch.mockClear()
   })
 
   it('is wrapped in utility function and observable', () => {
     const wrapper = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/'
+        apiRoot: '/api'
       },
       slots: { default: '<div />' }
     })
@@ -38,10 +47,10 @@ describe('RPC', () => {
   })
 
   it('sends a request with the specified method and arguments to the rpc route', async () => {
-    expect.assertions(6)
+    expect.assertions(5)
     const wrapper = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/'
+        apiRoot: '/api'
       },
       slots: { default: '<div />' }
     })
@@ -50,14 +59,14 @@ describe('RPC', () => {
       b: 2
     }
     await wrapper.vm.rpc.call('rpc-test', { method: 'POST' }, functionParams)
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/rpc/rpc-test').length).toBe(1)
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/rpc/rpc-test')[0][0].method).toBe('POST')
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/rpc/rpc-test')[0][0].data).toEqual(functionParams)
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')).toBeTruthy()
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')[1].method).toBe('POST')
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')[1].body).toEqual(functionParams)
+    fetch.mockClear()
 
     await wrapper.vm.rpc.call('rpc-test', { method: 'GET' }, functionParams)
-    expect(requestLogger.mock.calls.filter(c => c[0].url.startsWith('http://localhost/api/rpc/rpc-test')).length).toBe(2)
-    expect(requestLogger.mock.calls.filter(c => c[0].url.startsWith('http://localhost/api/rpc/rpc-test'))[1][0].method).toBe('GET')
-    expect(requestLogger.mock.calls.filter(c => c[0].url.startsWith('http://localhost/api/rpc/rpc-test'))[1][0].url).toEqual('http://localhost/api/rpc/rpc-test?a=1&b=2')
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test?a=1&b=2')).toBeTruthy()
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test?a=1&b=2')[1].method).toBe('GET')
     wrapper.destroy()
   })
 
@@ -65,18 +74,19 @@ describe('RPC', () => {
     expect.assertions(5)
     const wrapper = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/'
+        apiRoot: '/api'
       },
       slots: { default: '<div />' }
     })
     await wrapper.vm.rpc.call('rpc-test', { method: 'POST' })
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/rpc/rpc-test').length).toBe(1)
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/rpc/rpc-test')[0][0].method).toBe('POST')
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/rpc/rpc-test')[0][0].data).toBe(undefined)
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')).toBeTruthy()
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')[1].method).toBe('POST')
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')[1].body).toBe(undefined)
+    fetch.mockClear()
 
     await wrapper.vm.rpc.call('rpc-test', { method: 'GET' })
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/rpc/rpc-test').length).toBe(2)
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/rpc/rpc-test')[1][0].method).toBe('GET')
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')).toBeTruthy()
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')[1].method).toBe('GET')
     wrapper.destroy()
   })
 
@@ -84,13 +94,13 @@ describe('RPC', () => {
     expect.assertions(2)
     const wrapper = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/'
+        apiRoot: '/api'
       },
       slots: { default: '<div />' }
     })
     await wrapper.vm.rpc.call('rpc-test')
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/rpc/rpc-test').length).toBe(1)
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/rpc/rpc-test')[0][0].method).toBe('POST')
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')).toBeTruthy()
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')[1].method).toBe('POST')
     wrapper.destroy()
   })
 
@@ -98,32 +108,40 @@ describe('RPC', () => {
     expect.assertions(4)
     const wrapper = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/'
+        apiRoot: '/api'
       },
       slots: { default: '<div />' }
     })
     await wrapper.vm.rpc.call('rpc-test', { accept: 'binary' })
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/rpc/rpc-test')[0][0].headers.accept).toBe('application/octet-stream')
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')[1].headers.get('Accept')).toBe('application/octet-stream')
+    fetch.mockClear()
+
     await wrapper.vm.rpc.call('rpc-test', { accept: 'single' })
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/rpc/rpc-test')[1][0].headers.accept).toBe('application/vnd.pgrst.object+json')
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')[1].headers.get('Accept')).toBe('application/vnd.pgrst.object+json')
+    fetch.mockClear()
+
     await wrapper.vm.rpc.call('rpc-test')
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/rpc/rpc-test')[2][0].headers.accept).toBe('application/json')
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')[1].headers.get('Accept')).toBe('application/json')
+    fetch.mockClear()
+
     await wrapper.vm.rpc.call('rpc-test', { accept: 'custom-accept-header' })
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/rpc/rpc-test')[3][0].headers.accept).toBe('custom-accept-header')
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')[1].headers.get('Accept')).toBe('custom-accept-header')
     wrapper.destroy()
   })
 
   it('correctly passes "headers" option', async () => {
-    expect.assertions(1)
+    expect.assertions(2)
     const wrapper = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/'
+        apiRoot: '/api'
       },
       slots: { default: '<div />' }
     })
     const headers = { accept: 'custom-accept-header', 'x-header': 'custom-x-header' }
     await wrapper.vm.rpc.call('rpc-test', { accept: 'single', headers })
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/rpc/rpc-test')[0][0].headers).toEqual(headers)
+    const respHeaders = fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')[1].headers
+    expect(respHeaders.get('Accept')).toBe(headers.accept)
+    expect(respHeaders.get('X-Header')).toBe(headers['x-header'])
     wrapper.destroy()
   })
 
@@ -131,7 +149,7 @@ describe('RPC', () => {
     expect.assertions(1)
     const wrapper = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/'
+        apiRoot: '/api'
       },
       slots: { default: '<div />' }
     })

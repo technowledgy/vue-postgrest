@@ -1,22 +1,38 @@
 import { shallowMount } from '@vue/test-utils'
-
-import request from 'superagent'
-import config from './MockApi.config'
-import mock from 'superagent-mock'
-
 import Postgrest from '@/Postgrest'
 import GenericModel from '@/GenericModel'
 
-const mockData = {}
-const superagentMock = mock(request, config(mockData))
+Postgrest.props.apiRoot.default = '/api'
 
-Postgrest.props.apiRoot.default = '/api/'
+fetch.mockResponse(async req => {
+  if (['http://localhost/api'].includes(req.url)) {
+    return {
+      body: JSON.stringify({
+        definitions: {}
+      }),
+      init: {
+        status: 200,
+        statusText: 'OK',
+        headers: {
+          'Content-Type': 'application/openapi+json'
+        }
+      }
+    }
+  } else {
+    return {
+      body: '{}',
+      init: {
+        status: 200,
+        statusText: 'OK',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    }
+  }
+})
 
 describe('Module', () => {
-  afterAll(() => {
-    superagentMock.unset()
-  })
-
   describe('Slot scope', () => {
     it('provides observable GET function if prop QUERY is set', async () => {
       expect.assertions(5)

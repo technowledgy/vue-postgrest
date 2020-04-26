@@ -92,7 +92,7 @@ describe('SchemaManager', () => {
     it('requests schema and returns the primary keys for the requested api root if schema exists', async () => {
       const keys = await getSchema('/api')
       expect(fetch.mock.calls.length).toBe(1)
-      expect(fetch.mock.calls[0][0]).toBe('/api')
+      expect(fetch.mock.calls[0][0]).toBe('http://localhost/api')
       expect(keys).toEqual({
         no_pk: {
           pks: []
@@ -110,7 +110,7 @@ describe('SchemaManager', () => {
       it('does not send auth header in request when no token provided', async () => {
         await getSchema('/api')
         expect(fetch.mock.calls.length).toBe(1)
-        expect(fetch.mock.calls[0][0]).toBe('/api')
+        expect(fetch.mock.calls[0][0]).toBe('http://localhost/api')
         expect(fetch.mock.calls[0][1].headers.get('Authorization')).toBe(null)
       })
 
@@ -118,7 +118,7 @@ describe('SchemaManager', () => {
         const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiamRvZSIsImV4cCI6MTQ3NTUxNjI1MH0.GYDZV3yM0gqvuEtJmfpplLBXSGYnke_Pvnl0tbKAjB'
         await getSchema('/api', token)
         expect(fetch.mock.calls.length).toBe(1)
-        expect(fetch.mock.calls[0][0]).toBe('/api')
+        expect(fetch.mock.calls[0][0]).toBe('http://localhost/api')
         expect(fetch.mock.calls[0][1].headers.get('Authorization')).toBe(`Bearer ${token}`)
       })
     })
@@ -129,7 +129,7 @@ describe('SchemaManager', () => {
         expect(fetch.mock.calls.length).toBe(1)
         const keysCached = await getSchema('/api')
         expect(fetch.mock.calls.length).toBe(1)
-        expect(fetch.mock.calls[0][0]).toBe('/api')
+        expect(fetch.mock.calls[0][0]).toBe('http://localhost/api')
         expect(keys).toEqual({
           no_pk: {
             pks: []

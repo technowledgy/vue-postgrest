@@ -1,71 +1,101 @@
-import request from 'superagent'
-import config from './MockApi.config'
-import mock from 'superagent-mock'
-
 import { shallowMount } from '@vue/test-utils'
 import Postgrest from '@/Postgrest'
 
-const requestLogger = jest.fn((log) => {})
-const superagentMock = mock(request, config({
-  data: {
-    '/clients': {
-      get: [{
-        id: 1,
-        name: 'Test Client 1'
-      },
-      {
-        id: 2,
-        name: 'Test Client 2'
-      },
-      {
-        id: 3,
-        name: 'Test Client 3'
+const mockData = [
+  {
+    id: 1,
+    name: 'Test Client 1'
+  },
+  {
+    id: 2,
+    name: 'Test Client 2'
+  },
+  {
+    id: 3,
+    name: 'Test Client 3'
+  }
+]
+
+fetch.mockResponse(async req => {
+  if (req.url === 'http://localhost/api') {
+    return {
+      body: JSON.stringify({
+        definitions: {
+          clients: {
+            properties: {
+              id: {
+                type: 'integer',
+                description: 'Note:\nThis is a Primary Key.<pk/>'
+              }
+            }
+          }
+        }
+      }),
+      init: {
+        status: 200,
+        statusText: 'OK',
+        headers: {
+          'Content-Type': 'application/openapi+json'
+        }
       }
-      ]
+    }
+  } else if (req.headers.get('Authorization') === 'Bearer expired-token') {
+    return {
+      body: '',
+      init: {
+        status: 401,
+        headers: {
+          'WWW-Authenticate': 'Bearer error="invalid_token", error_description="JWT expired"'
+        }
+      }
+    }
+  } else {
+    return {
+      body: JSON.stringify(mockData),
+      init: {
+        status: 200,
+        statusText: 'OK',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
     }
   }
-}), requestLogger)
+})
 
 describe('Request', () => {
-  afterAll(() => {
-    superagentMock.unset()
-  })
-
   beforeEach(() => {
-    requestLogger.mockReset()
+    // just reset .mock data, but not .mockResponse
+    fetch.mockClear()
   })
 
   it('sends a request with the specified method', async () => {
-    expect.assertions(8)
+    expect.assertions(4)
     const wrapper = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/',
+        apiRoot: '/api',
         route: 'clients'
       },
       slots: { default: '<div />' }
     })
     await wrapper.vm.request('GET', {})
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients').length).toBe(1)
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients')[0][0].method).toBe('GET')
+    expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients' && args[1].method === 'GET').length).toBe(1)
 
     await wrapper.vm.request('POST', {})
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients').length).toBe(2)
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients')[1][0].method).toBe('POST')
+    expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients' && args[1].method === 'POST').length).toBe(1)
 
     await wrapper.vm.request('DELETE', {})
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients').length).toBe(3)
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients')[2][0].method).toBe('DELETE')
+    expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients' && args[1].method === 'DELETE').length).toBe(1)
 
     await wrapper.vm.request('PATCH', {})
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients').length).toBe(4)
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients')[3][0].method).toBe('PATCH')
+    expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients' && args[1].method === 'PATCH').length).toBe(1)
     wrapper.destroy()
   })
 
   it('it does not send module query', async () => {
     const wrapper = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/',
+        apiRoot: '/api',
         route: 'clients',
         query: {
           select: ['id', 'name']
@@ -74,85 +104,105 @@ describe('Request', () => {
       slots: { default: '<div />' }
     })
     await wrapper.vm.$nextTick()
+    fetch.mockClear()
+
     await wrapper.vm.request('GET')
-    expect(requestLogger.mock.calls[1][0].url).toBe('http://localhost/api/clients')
+    expect(fetch.mock.calls[0][0]).toBe('http://localhost/api/clients')
     wrapper.destroy()
   })
 
   it('it sends passed select part of query', async () => {
     const wrapper = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/',
+        apiRoot: '/api',
         route: 'clients',
         query: {}
       },
       slots: { default: '<div />' }
     })
     await wrapper.vm.$nextTick()
+    fetch.mockClear()
+
     await wrapper.vm.request('GET', { select: ['id', 'name'] })
-    expect(decodeURIComponent(requestLogger.mock.calls[1][0].url)).toBe('http://localhost/api/clients?select=id,name')
+    expect(decodeURIComponent(fetch.mock.calls[0][0])).toBe('http://localhost/api/clients?select=id,name')
     wrapper.destroy()
   })
 
   it('it parses "accept" option correctly', async () => {
     const wrapper = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/',
+        apiRoot: '/api',
         route: 'clients',
         query: {}
       },
       slots: { default: '<div />' }
     })
     await wrapper.vm.$nextTick()
+    fetch.mockClear()
+
     await wrapper.vm.request('GET', {}, { accept: 'single' })
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients')[1][0].headers.accept).toBe('application/vnd.pgrst.object+json')
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Accept')).toBe('application/vnd.pgrst.object+json')
+    fetch.mockClear()
+
     await wrapper.vm.request('GET', {}, { accept: 'binary' })
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients')[2][0].headers.accept).toBe('application/octet-stream')
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Accept')).toBe('application/octet-stream')
+    fetch.mockClear()
+
     await wrapper.vm.request('GET', {}, { accept: undefined })
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients')[3][0].headers.accept).toBe('application/json')
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Accept')).toBe('application/json')
+    fetch.mockClear()
+
     await wrapper.vm.request('GET', {}, { accept: 'custom-accept-header' })
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients')[4][0].headers.accept).toBe('custom-accept-header')
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Accept')).toBe('custom-accept-header')
     wrapper.destroy()
   })
 
   it('it parses "return" option correctly', async () => {
     const wrapper = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/',
+        apiRoot: '/api',
         route: 'clients',
         query: {}
       },
       slots: { default: '<div />' }
     })
     await wrapper.vm.$nextTick()
+    fetch.mockClear()
+
     await wrapper.vm.request('GET', {}, {})
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients')[1][0].headers.prefer).toBe(undefined)
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Prefer')).toBe(null)
+    fetch.mockClear()
+
     await wrapper.vm.request('GET', {}, { return: 'representation' })
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients')[2][0].headers.prefer).toBe('return=representation')
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Prefer')).toBe('return=representation')
     wrapper.destroy()
   })
 
   it('it parses "count" option correctly', async () => {
     const wrapper = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/',
+        apiRoot: '/api',
         route: 'clients',
         query: {}
       },
       slots: { default: '<div />' }
     })
     await wrapper.vm.$nextTick()
+    fetch.mockClear()
+
     await wrapper.vm.request('GET', {}, {})
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients')[1][0].headers.prefer).toBe(undefined)
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Prefer')).toBe(null)
+    fetch.mockClear()
+
     await wrapper.vm.request('GET', {}, { count: 'exact' })
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients')[2][0].headers.prefer).toBe('count=exact')
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Prefer')).toBe('count=exact')
     wrapper.destroy()
   })
 
   it('it parses "headers" option correctly', async () => {
     const wrapper = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/',
+        apiRoot: '/api',
         route: 'clients',
         query: {}
       },
@@ -160,25 +210,37 @@ describe('Request', () => {
     })
     const headers = { prefer: 'custom-prefer-header', accept: 'custom-accept-header', 'x-header': 'custom-x-header' }
     await wrapper.vm.$nextTick()
+    fetch.mockClear()
+
     await wrapper.vm.request('GET', {}, { headers })
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients')[1][0].headers).toEqual(headers)
+    const getHeaders = fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers
+    expect(getHeaders.get('Prefer')).toBe(headers.prefer)
+    expect(getHeaders.get('Accept')).toBe(headers.accept)
+    expect(getHeaders.get('X-Header')).toBe(headers['x-header'])
+    fetch.mockClear()
+
     await wrapper.vm.request('POST', {}, { accept: 'binary', return: 'minimal', headers })
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients')[2][0].headers).toEqual(headers)
+    const postHeaders = fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers
+    expect(postHeaders.get('Prefer')).toBe(headers.prefer)
+    expect(postHeaders.get('Accept')).toBe(headers.accept)
+    expect(postHeaders.get('X-Header')).toBe(headers['x-header'])
     wrapper.destroy()
   })
 
   it('it combines return and count options correctly', async () => {
     const wrapper = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/',
+        apiRoot: '/api',
         route: 'clients',
         query: {}
       },
       slots: { default: '<div />' }
     })
     await wrapper.vm.$nextTick()
+    fetch.mockClear()
+
     await wrapper.vm.request('POST', {}, { count: 'exact', return: 'minimal' })
-    expect(requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients')[1][0].headers.prefer).toBe('return=minimal,count=exact')
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Prefer')).toBe('return=minimal,count=exact')
     wrapper.destroy()
   })
 
@@ -186,7 +248,7 @@ describe('Request', () => {
     expect.assertions(1)
     const wrapper = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/',
+        apiRoot: '/api',
         route: 'clients',
         query: {}
       },
@@ -196,35 +258,41 @@ describe('Request', () => {
     wrapper.destroy()
   })
 
-  it('does not send authentication header if prop "token" is not set', async () => {
+  it('does not send authorization header if prop "token" is not set', async () => {
     expect.assertions(1)
     const wrapper = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/',
+        apiRoot: '/api',
         route: 'clients',
         query: {}
       },
       slots: { default: '<div />' }
     })
+    await wrapper.vm.$nextTick()
+    fetch.mockClear()
+
     await wrapper.vm.request('GET', {})
-    expect(requestLogger.mock.calls[1][0].headers.authorization).toBe(undefined)
+    expect(fetch.mock.calls[0][1].headers.get('Authorization')).toBe(null)
     wrapper.destroy()
   })
 
-  it('sends authentication header if prop "token" is set', async () => {
+  it('sends authorization header if prop "token" is set', async () => {
     const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiamRvZSIsImV4cCI6MTQ3NTUxNjI1MH0.GYDZV3yM0gqvuEtJmfpplLBXSGYnke_Pvnl0tbKAjB'
     expect.assertions(1)
     const wrapper = shallowMount(Postgrest, {
       propsData: {
-        apiRoot: '/api/',
+        apiRoot: '/api',
         route: 'clients',
         query: {},
         token
       },
       slots: { default: '<div />' }
     })
+    await wrapper.vm.$nextTick()
+    fetch.mockClear()
+
     await wrapper.vm.request('GET', {})
-    expect(requestLogger.mock.calls[1][0].headers.authorization).toBe(`Bearer ${token}`)
+    expect(fetch.mock.calls[0][1].headers.get('Authorization')).toBe(`Bearer ${token}`)
     wrapper.destroy()
   })
 
@@ -234,10 +302,10 @@ describe('Request', () => {
     await new Promise((resolve, reject) => {
       wrapper = shallowMount(Postgrest, {
         propsData: {
-          apiRoot: '/api/',
+          apiRoot: '/api',
           route: 'clients',
           query: {},
-          token: 'expired'
+          token: 'expired-token'
         },
         scopedSlots: {
           default (props) {

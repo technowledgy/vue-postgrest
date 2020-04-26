@@ -1,40 +1,88 @@
-import GenericModel from '@/GenericModel'
-import request from 'superagent'
-import config from './MockApi.config'
-import mock from 'superagent-mock'
-
 import { shallowMount } from '@vue/test-utils'
 import Postgrest from '@/Postgrest'
+import GenericModel from '@/GenericModel'
 
-const mockData = {
-  data: {
-    '/clients': {
-      get: [{
-        id: 1,
-        name: 'Test Client 1'
-      },
-      {
-        id: 2,
-        name: 'Test Client 2'
-      },
-      {
-        id: 3,
-        name: 'Test Client 3'
+const mockData = [
+  {
+    id: 1,
+    name: 'Test Client 1'
+  },
+  {
+    id: 2,
+    name: 'Test Client 2'
+  },
+  {
+    id: 3,
+    name: 'Test Client 3'
+  }
+]
+
+fetch.mockResponse(async req => {
+  if (['http://localhost/api', 'http://localhost/another-api', 'http://localhost/another-api/'].includes(req.url)) {
+    return {
+      body: JSON.stringify({
+        definitions: {
+          clients: {
+            properties: {
+              id: {
+                type: 'integer',
+                description: 'Note:\nThis is a Primary Key.<pk/>'
+              }
+            }
+          }
+        }
+      }),
+      init: {
+        status: 200,
+        statusText: 'OK',
+        headers: {
+          'Content-Type': 'application/openapi+json'
+        }
       }
-      ]
+    }
+  } else if (req.url === 'http://localhost/api/404') {
+    return {
+      body: '{}',
+      init: {
+        status: 404,
+        statusText: 'Not found'
+      }
+    }
+  } else if (req.headers.get('Accept') === 'application/vnd.pgrst.object+json') {
+    return {
+      body: JSON.stringify(mockData[0]),
+      init: {
+        status: 200,
+        statusText: 'OK',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    }
+  } else {
+    const rangeHeaders = {}
+    if (req.headers.get('Range')) {
+      rangeHeaders['Range-Units'] = 'items'
+      rangeHeaders['Content-Range'] = req.headers.get('Prefer') && req.headers.get('Prefer').includes('count=exact') ? '0-1/3' : '0-1/*'
+    }
+    return {
+      body: JSON.stringify(mockData),
+      init: {
+        status: 200,
+        statusText: 'OK',
+        headers: {
+          'Content-Type': 'application/json',
+          ...rangeHeaders
+        }
+      }
     }
   }
-}
-const requestLogger = jest.fn((log) => {})
-const superagentMock = mock(request, config(mockData), requestLogger)
+})
 
 describe('Get', () => {
-  afterAll(() => {
-    superagentMock.unset()
-  })
-
   beforeEach(() => {
-    requestLogger.mockReset()
+    // just reset .mock data, but not .mockResponse
+    fetch.mockClear()
   })
 
   describe('"_get" function', () => {
@@ -42,7 +90,7 @@ describe('Get', () => {
       expect.assertions(1)
       const wrapper = shallowMount(Postgrest, {
         propsData: {
-          apiRoot: '/api/',
+          apiRoot: '/api',
           route: 'clients',
           query: {}
         },
@@ -51,14 +99,14 @@ describe('Get', () => {
         }
       })
       const ret = await wrapper.vm._get()
-      expect(ret.body).toBe(mockData.data['/clients'].get)
+      expect(ret).toEqual(mockData)
     })
 
     it('sets the correct headers for prop count undefined', async () => {
       expect.assertions(1)
       const wrapper = shallowMount(Postgrest, {
         propsData: {
-          apiRoot: '/api/',
+          apiRoot: '/api',
           route: 'clients',
           query: {}
         },
@@ -67,15 +115,15 @@ describe('Get', () => {
         }
       })
       await wrapper.vm._get()
-      const headers = requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients')[0][0].headers
-      expect(!headers.prefer ? false : headers.prefer.includes('count=exact')).toBe(false)
+      const headers = fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers
+      expect(headers.get('Prefer')).toBe(null)
     })
 
     it('sets the correct headers for prop count is "exact"', async () => {
       expect.assertions(1)
       const wrapper = shallowMount(Postgrest, {
         propsData: {
-          apiRoot: '/api/',
+          apiRoot: '/api',
           route: 'clients',
           query: {},
           count: 'exact'
@@ -85,8 +133,8 @@ describe('Get', () => {
         }
       })
       await wrapper.vm._get()
-      const headers = requestLogger.mock.calls.filter(c => c[0].url === 'http://localhost/api/clients')[0][0].headers
-      expect(headers.prefer.includes('count=exact')).toBe(true)
+      const headers = fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers
+      expect(headers.get('Prefer')).toBe('count=exact')
     })
   })
 
@@ -100,7 +148,7 @@ describe('Get', () => {
         let started = false
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            apiRoot: '/api/',
+            apiRoot: '/api',
             route: 'clients',
             query: {}
           },
@@ -133,7 +181,7 @@ describe('Get', () => {
         await new Promise((resolve, reject) => {
           wrapper = shallowMount(Postgrest, {
             propsData: {
-              apiRoot: '/api/',
+              apiRoot: '/api',
               route: 'clients',
               query: {}
             },
@@ -141,10 +189,10 @@ describe('Get', () => {
               default (props) {
                 try {
                   if (!props.get.isPending) {
-                    expect(props.items.length).toBe(mockData.data['/clients'].get.length)
-                    expect(props.items[0].data.id).toBe(mockData.data['/clients'].get[0].id)
-                    expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients').length).toBe(1)
-                    expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[0][0].headers.accept).toBe('application/json')
+                    expect(props.items.length).toBe(mockData.length)
+                    expect(props.items[0].data.id).toBe(mockData[0].id)
+                    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
+                    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Accept')).toBe('application/json')
                     resolve()
                   }
                 } catch (e) {
@@ -163,7 +211,7 @@ describe('Get', () => {
         await new Promise((resolve, reject) => {
           wrapper = shallowMount(Postgrest, {
             propsData: {
-              apiRoot: '/api/',
+              apiRoot: '/api',
               route: 'clients',
               query: {},
               accept: 'single'
@@ -172,9 +220,9 @@ describe('Get', () => {
               default (props) {
                 try {
                   if (!props.get.isPending) {
-                    expect(props.item.data.id).toBe(mockData.data['/clients'].get[0].id)
-                    expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients').length).toBe(1)
-                    expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[0][0].headers.accept).toBe('application/vnd.pgrst.object+json')
+                    expect(props.item.data.id).toBe(mockData[0].id)
+                    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
+                    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Accept')).toBe('application/vnd.pgrst.object+json')
                     resolve()
                   }
                 } catch (e) {
@@ -193,7 +241,7 @@ describe('Get', () => {
         await new Promise((resolve, reject) => {
           wrapper = shallowMount(Postgrest, {
             propsData: {
-              apiRoot: '/api/',
+              apiRoot: '/api',
               route: 'clients',
               query: {},
               accept: 'text/plain'
@@ -223,7 +271,7 @@ describe('Get', () => {
         await new Promise((resolve, reject) => {
           wrapper = shallowMount(Postgrest, {
             propsData: {
-              apiRoot: '/api/',
+              apiRoot: '/api',
               route: 'clients',
               query: {},
               accept: 'single'
@@ -234,7 +282,7 @@ describe('Get', () => {
                   if (!props.get.isPending) {
                     expect(props.item instanceof GenericModel).toBe(true)
                     expect(typeof props.item.request).toBe('function')
-                    expect(props.item.data).toEqual(mockData.data['/clients'].get[0])
+                    expect(props.item.data).toEqual(mockData[0])
                     // primary keys as defined by docs above
                     expect(props.item.primaryKeys).toEqual(['id'])
                     resolve()
@@ -257,7 +305,7 @@ describe('Get', () => {
         await new Promise((resolve, reject) => {
           wrapper = shallowMount(Postgrest, {
             propsData: {
-              apiRoot: '/api/',
+              apiRoot: '/api',
               route: 'clients',
               query: { 'id.eq': 1 }
             },
@@ -265,7 +313,7 @@ describe('Get', () => {
               default (props) {
                 try {
                   if (!props.get.isPending) {
-                    expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients?id=eq.1').length).toBe(1)
+                    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients?id=eq.1')).toBeTruthy()
                     resolve()
                   }
                 } catch (e) {
@@ -286,7 +334,7 @@ describe('Get', () => {
         let propsChanged = false
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            apiRoot: '/api/',
+            apiRoot: '/api',
             route: 'clients',
             query: {}
           },
@@ -294,12 +342,12 @@ describe('Get', () => {
             default (props) {
               try {
                 if (!props.get.isPending && !propsChanged) {
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients').length).toBe(1)
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
                   wrapper.setProps({ query: { 'id.eq': 1 } })
                   propsChanged = true
                 } else if (!props.get.isPending && propsChanged) {
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients').length).toBe(1)
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients?id=eq.1').length).toBe(1)
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients?id=eq.1')).toBeTruthy()
                   resolve()
                 }
               } catch (e) {
@@ -320,7 +368,7 @@ describe('Get', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            apiRoot: '/api/',
+            apiRoot: '/api',
             route: 'clients',
             query: {}
           },
@@ -328,7 +376,7 @@ describe('Get', () => {
             default (props) {
               try {
                 if (!props.get.isPending) {
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients').length).toBe(1)
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
                   resolve()
                 }
               } catch (e) {
@@ -348,7 +396,7 @@ describe('Get', () => {
         let propsChanged = false
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            apiRoot: '/api/',
+            apiRoot: '/api',
             route: 'clients',
             query: {}
           },
@@ -356,12 +404,12 @@ describe('Get', () => {
             default (props) {
               try {
                 if (!props.get.isPending && !propsChanged) {
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients').length).toBe(1)
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
                   wrapper.setProps({ route: 'users' })
                   propsChanged = true
                 } else if (!props.get.isPending && propsChanged) {
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients').length).toBe(1)
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/users').length).toBe(1)
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/users')).toBeTruthy()
                   resolve()
                 }
               } catch (e) {
@@ -382,7 +430,7 @@ describe('Get', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            apiRoot: '/another-api/',
+            apiRoot: '/another-api',
             route: 'clients',
             query: {}
           },
@@ -390,7 +438,7 @@ describe('Get', () => {
             default (props) {
               try {
                 if (!props.get.isPending) {
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/another-api/clients').length).toBe(1)
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/another-api/clients')).toBeTruthy()
                   resolve()
                 }
               } catch (e) {
@@ -403,13 +451,13 @@ describe('Get', () => {
       wrapper.destroy()
     })
 
-    it('sets the request url correctly without / at the end', async () => {
+    it('sets the request url correctly with / at the end', async () => {
       expect.assertions(1)
       let wrapper
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            apiRoot: '/another-api',
+            apiRoot: '/another-api/',
             route: 'clients',
             query: {}
           },
@@ -417,7 +465,7 @@ describe('Get', () => {
             default (props) {
               try {
                 if (!props.get.isPending) {
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/another-api/clients').length).toBe(1)
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/another-api/clients')).toBeTruthy()
                   resolve()
                 }
               } catch (e) {
@@ -437,7 +485,7 @@ describe('Get', () => {
         let propsChanged = false
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            apiRoot: '/api/',
+            apiRoot: '/api',
             route: 'clients',
             query: {}
           },
@@ -445,12 +493,12 @@ describe('Get', () => {
             default (props) {
               try {
                 if (!props.get.isPending && !propsChanged) {
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients').length).toBe(1)
-                  wrapper.setProps({ apiRoot: '/another-api/' })
+                  expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
+                  wrapper.setProps({ apiRoot: '/another-api' })
                   propsChanged = true
                 } else if (!props.get.isPending && propsChanged) {
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients').length).toBe(1)
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/another-api/clients').length).toBe(1)
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/another-api/clients')).toBeTruthy()
                   resolve()
                 }
               } catch (e) {
@@ -471,7 +519,7 @@ describe('Get', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            apiRoot: '/api/',
+            apiRoot: '/api',
             route: 'clients',
             query: {}
           },
@@ -479,9 +527,9 @@ describe('Get', () => {
             default (props) {
               try {
                 if (!props.get.isPending) {
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients').length).toBe(1)
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[0][0].headers['range-unit']).toBe(undefined)
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[0][0].headers.range).toBe(undefined)
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Range-Unit')).toBe(null)
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Range')).toBe(null)
                   resolve()
                 }
               } catch (e) {
@@ -500,7 +548,7 @@ describe('Get', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            apiRoot: '/api/',
+            apiRoot: '/api',
             route: 'clients',
             query: {},
             limit: 1
@@ -509,9 +557,9 @@ describe('Get', () => {
             default (props) {
               try {
                 if (!props.get.isPending) {
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients').length).toBe(1)
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[0][0].headers['range-unit']).toBe('items')
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[0][0].headers.range).toBe('0-0')
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Range-Unit')).toBe('items')
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Range')).toBe('0-0')
                   resolve()
                 }
               } catch (e) {
@@ -530,7 +578,7 @@ describe('Get', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            apiRoot: '/api/',
+            apiRoot: '/api',
             route: 'clients',
             query: {},
             limit: 10
@@ -539,9 +587,9 @@ describe('Get', () => {
             default (props) {
               try {
                 if (!props.get.isPending) {
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients').length).toBe(1)
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[0][0].headers['range-unit']).toBe('items')
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[0][0].headers.range).toBe('0-9')
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Range-Unit')).toBe('items')
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Range')).toBe('0-9')
                   resolve()
                 }
               } catch (e) {
@@ -561,7 +609,7 @@ describe('Get', () => {
         let propsChanged = false
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            apiRoot: '/api/',
+            apiRoot: '/api',
             route: 'clients',
             query: {},
             limit: 10
@@ -570,15 +618,15 @@ describe('Get', () => {
             default (props) {
               try {
                 if (!props.get.isPending && !propsChanged) {
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients').length).toBe(1)
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[0][0].headers['range-unit']).toBe('items')
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[0][0].headers.range).toBe('0-9')
+                  expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients').length).toBe(1)
+                  expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients')[0][1].headers.get('Range-Unit')).toBe('items')
+                  expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients')[0][1].headers.get('Range')).toBe('0-9')
                   wrapper.setProps({ limit: 20 })
                   propsChanged = true
                 } else if (!props.get.isPending && propsChanged) {
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients').length).toBe(2)
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[1][0].headers['range-unit']).toBe('items')
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[1][0].headers.range).toBe('0-19')
+                  expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients').length).toBe(2)
+                  expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients')[1][1].headers.get('Range-Unit')).toBe('items')
+                  expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients')[1][1].headers.get('Range')).toBe('0-19')
                   resolve()
                 }
               } catch (e) {
@@ -599,7 +647,7 @@ describe('Get', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            apiRoot: '/api/',
+            apiRoot: '/api',
             route: 'clients',
             query: {},
             offset: 5
@@ -608,9 +656,9 @@ describe('Get', () => {
             default (props) {
               try {
                 if (!props.get.isPending) {
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients').length).toBe(1)
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[0][0].headers['range-unit']).toBe('items')
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[0][0].headers.range).toBe('5-')
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Range-Unit')).toBe('items')
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Range')).toBe('5-')
                   resolve()
                 }
               } catch (e) {
@@ -629,7 +677,7 @@ describe('Get', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            apiRoot: '/api/',
+            apiRoot: '/api',
             route: 'clients',
             query: {},
             offset: 5,
@@ -639,9 +687,9 @@ describe('Get', () => {
             default (props) {
               try {
                 if (!props.get.isPending) {
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients').length).toBe(1)
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[0][0].headers['range-unit']).toBe('items')
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[0][0].headers.range).toBe('5-14')
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Range-Unit')).toBe('items')
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Range')).toBe('5-14')
                   resolve()
                 }
               } catch (e) {
@@ -660,7 +708,7 @@ describe('Get', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            apiRoot: '/api/',
+            apiRoot: '/api',
             route: 'clients',
             query: {},
             offset: 5,
@@ -670,9 +718,9 @@ describe('Get', () => {
             default (props) {
               try {
                 if (!props.get.isPending) {
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients').length).toBe(1)
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[0][0].headers['range-unit']).toBe('items')
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[0][0].headers.range).toBe('5-5')
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Range-Unit')).toBe('items')
+                  expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Range')).toBe('5-5')
                   resolve()
                 }
               } catch (e) {
@@ -692,7 +740,7 @@ describe('Get', () => {
         let propsChanged = false
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            apiRoot: '/api/',
+            apiRoot: '/api',
             route: 'clients',
             query: {},
             offset: 5
@@ -701,15 +749,15 @@ describe('Get', () => {
             default (props) {
               try {
                 if (!props.get.isPending && !propsChanged) {
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients').length).toBe(1)
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[0][0].headers['range-unit']).toBe('items')
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[0][0].headers.range).toBe('5-')
+                  expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients').length).toBe(1)
+                  expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients')[0][1].headers.get('Range-Unit')).toBe('items')
+                  expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients')[0][1].headers.get('Range')).toBe('5-')
                   wrapper.setProps({ offset: 10 })
                   propsChanged = true
                 } else if (!props.get.isPending && propsChanged) {
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients').length).toBe(2)
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[1][0].headers['range-unit']).toBe('items')
-                  expect(requestLogger.mock.calls.filter(call => call[0].url === 'http://localhost/api/clients')[1][0].headers.range).toBe('10-')
+                  expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients').length).toBe(2)
+                  expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients')[1][1].headers.get('Range-Unit')).toBe('items')
+                  expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients')[1][1].headers.get('Range')).toBe('10-')
                   resolve()
                 }
               } catch (e) {
@@ -731,7 +779,7 @@ describe('Get', () => {
         await new Promise((resolve, reject) => {
           wrapper = shallowMount(Postgrest, {
             propsData: {
-              apiRoot: '/api/',
+              apiRoot: '/api',
               route: 'clients',
               query: {},
               limit: 2
@@ -762,7 +810,7 @@ describe('Get', () => {
         await new Promise((resolve, reject) => {
           wrapper = shallowMount(Postgrest, {
             propsData: {
-              apiRoot: '/api/',
+              apiRoot: '/api',
               route: 'clients',
               query: {},
               limit: 2,
@@ -795,7 +843,7 @@ describe('Get', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            apiRoot: '/api/',
+            apiRoot: '/api',
             route: 'clients',
             query: {}
           },
@@ -824,7 +872,7 @@ describe('Get', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            apiRoot: '/api/',
+            apiRoot: '/api',
             route: '404',
             query: {}
           },
@@ -851,7 +899,7 @@ describe('Get', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            apiRoot: '/api/',
+            apiRoot: '/api',
             route: '404',
             query: {}
           },
@@ -862,7 +910,7 @@ describe('Get', () => {
                   expect(props.get.hasError).toBe(true)
                   expect(wrapper.emitted()['get-error']).toBeTruthy()
                   expect(wrapper.emitted()['get-error'].length).toBe(1)
-                  expect(wrapper.emitted()['get-error'][0][0].message).toEqual('404')
+                  expect(wrapper.emitted()['get-error'][0][0].status).toEqual(404)
                   resolve()
                 }
               } catch (e) {

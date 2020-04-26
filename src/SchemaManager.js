@@ -27,7 +27,8 @@ async function getSchema (apiRoot, token) {
     headers.append('Authorization', `Bearer ${token}`)
   }
   try {
-    const resp = await fetch(apiRoot, { headers }).then(throwWhenStatusNotOk)
+    const url = new URL(apiRoot, window.location.href)
+    const resp = await fetch(url.toString(), { headers }).then(throwWhenStatusNotOk)
     const body = await resp.json()
     if (!resp.headers.get('Content-Type').startsWith('application/openapi+json') || !body.definitions) {
       throw new Error('wrong body format')

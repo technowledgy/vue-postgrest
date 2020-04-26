@@ -24,7 +24,7 @@ class FetchError extends Error {
     super(resp.statusText)
     this.resp = resp
     this.status = resp.status
-    Object.assign(this, resp.body.json())
+    resp.json().catch(() => ({})).then(body => Object.assign(this))
   }
 }
 

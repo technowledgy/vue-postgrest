@@ -1,5 +1,4 @@
-import superagent from 'superagent'
-import { EmittedError } from '@/errors'
+import { throwWhenStatusNotOk, EmittedError } from '@/errors'
 import { ObservableFunction, syncObjects, splitToObject } from '@/utils'
 import Query from '@/Query'
 import GenericModel from '@/GenericModel'
@@ -72,29 +71,29 @@ export default {
     }
   },
   methods: {
-    async request (method, query = {}, options = {}, data) {
-      const headers = {}
+    async request (method, query = {}, options = {}, body) {
+      const headers = new Headers()
 
       switch (options.accept) {
         case 'single':
-          headers.accept = 'application/vnd.pgrst.object+json'
+          headers.set('Accept', 'application/vnd.pgrst.object+json')
           break
         case 'binary':
-          headers.accept = 'application/octet-stream'
+          headers.set('Accept', 'application/octet-stream')
           break
         case undefined:
         case '':
-          headers.accept = 'application/json'
+          headers.set('Accept', 'application/json')
           break
         default:
-          headers.accept = options.accept
+          headers.set('Accept', options.accept)
       }
 
       if (options.limit || options.offset) {
         const range = [options.offset || 0, options.limit > 0 ? options.limit - 1 : null]
         if (range[1] !== null && options.offset) range[1] += options.offset
-        headers['range-unit'] = 'items'
-        headers.range = range.join('-')
+        headers.set('Range-Unit', 'items')
+        headers.set('Range', range.join('-'))
       }
 
       const prefer = []
@@ -105,41 +104,35 @@ export default {
         prefer.push('count=' + options.count)
       }
       if (prefer.length > 0) {
-        headers.prefer = prefer.join(',')
+        headers.set('Prefer', prefer.join(','))
       }
 
       if (this.token) {
-        headers.authorization = `Bearer ${this.token}`
+        headers.set('Authorization', `Bearer ${this.token}`)
       }
-
-      const url = (new Query(this.apiRoot, options.route || this.route, query)).toString()
 
       // overwrite headers with custom headers if set
       if (options.headers) {
-        Object.assign(headers, options.headers)
+        for (const [k, v] of Object.entries(options.headers)) {
+          headers.set(k, v)
+        }
       }
 
-      let resp
+      const url = new Query(this.apiRoot, options.route || this.route, query)
+
       try {
-        if (options.accept === 'binary') {
-          resp = await superagent(method, url)
-            .responseType('blob')
-            .set(headers)
-            .send(data)
-        } else {
-          resp = await superagent(method, url)
-            .set(headers)
-            .send(data)
-        }
-        return resp
-      } catch (e) {
-        resp = e.response
-        if (resp && resp.headers['www-authenticate']) {
-          const authError = splitToObject(resp.headers['www-authenticate'].replace(/^Bearer /, ''))
+        return await fetch(url.toString(), {
+          method,
+          headers,
+          body
+        }).then(throwWhenStatusNotOk)
+      } catch (err) {
+        if (err.resp && err.resp.headers.get('WWW-Authenticate')) {
+          const authError = splitToObject(err.resp.headers.get('WWW-Authenticate').replace(/^Bearer /, ''))
           this.$emit('token-error', authError)
           throw new EmittedError(authError)
         } else {
-          throw e
+          throw err
         }
       }
     },
@@ -154,32 +147,33 @@ export default {
           offset: this.offset,
           count: this.count
         })
+        let body
         if (this.accept === 'single') {
           this.items = null
-          this.item = resp && resp.body ? new GenericModel(resp.body, this.request, this.primaryKeys, this.query.select) : {}
+          body = await resp.json()
+          this.item = new GenericModel(body, this.request, this.primaryKeys, this.query.select)
         } else if (!this.accept) {
           this.item = null
-          this.items = resp && resp.body ? resp.body.map(data => {
-            return new GenericModel(data, this.request, this.primaryKeys, this.query.select)
-          }) : []
+          body = await resp.json()
+          this.items = body.map(data => new GenericModel(data, this.request, this.primaryKeys, this.query.select))
         } else {
           this.item = null
           this.items = null
-          this.data = resp.body
+          this.data = body = await resp.text()
         }
 
-        if (resp && resp.headers['content-range']) {
-          const contentRange = resp.headers['content-range'].split('/')
-          const range = contentRange[0].split('-')
+        if (resp.headers.get('Content-Range')) {
+          const [range, total] = resp.headers.get('Content-Range').split('/')
+          const [first, last] = range.split('-')
           this.range = {
-            totalCount: contentRange[1] === '*' ? undefined : parseInt(contentRange[1]),
-            first: parseInt(range[0]),
-            last: parseInt(range[1])
+            totalCount: total === '*' ? undefined : parseInt(total),
+            first: parseInt(first),
+            last: parseInt(last)
           }
         } else {
           this.range = undefined
         }
-        return resp
+        return body
       } catch (e) {
         this.$emit('get-error', e)
         throw new EmittedError(e)
