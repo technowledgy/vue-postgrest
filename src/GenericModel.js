@@ -1,6 +1,7 @@
 import Vue from 'vue'
+import ObservableFunction from '@/ObservableFunction'
 import { PrimaryKeyError } from '@/errors'
-import { ObservableFunction, isObject, syncObjects } from '@/utils'
+import { isObject, syncObjects } from '@/utils'
 import cloneDeep from 'lodash.clonedeep'
 import isEqual from 'lodash.isequal'
 
@@ -10,14 +11,16 @@ const GenericModelTemplate = Vue.extend({
       data: {},
       diff: {},
       resetCache: {},
-      request: null,
-      primaryKeys: []
+      request: null
     }
   },
   created () {
     this.watchers = {}
   },
   computed: {
+    primaryKeys () {
+      return (this.schema[this.route] && this.schema[this.route].pks) || []
+    },
     query () {
       return this.primaryKeys && this.primaryKeys.reduce((q, pk) => {
         if (this.resetCache[pk] === undefined) {
@@ -130,13 +133,14 @@ const GenericModelTemplate = Vue.extend({
 })
 
 class GenericModel extends GenericModelTemplate {
-  constructor (data, requestCB, primaryKeys, select) {
+  constructor (data, { route, schema, request, select }) {
     super()
     this.setData(cloneDeep(data))
-    this.request = requestCB
-    this.primaryKeys = primaryKeys
-    this.post = new ObservableFunction(this._post)
+    this.route = route
+    this.schema = schema
+    this.request = request
     this.select = select
+    this.post = new ObservableFunction(this._post)
     this.$watch('primaryKeys', {
       deep: false,
       immediate: true,

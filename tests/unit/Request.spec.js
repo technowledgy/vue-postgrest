@@ -296,6 +296,42 @@ describe('Request', () => {
     wrapper.destroy()
   })
 
+  it('reacts to dynamic change of prop "token"', async () => {
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiamRvZSIsImV4cCI6MTQ3NTUxNjI1MH0.GYDZV3yM0gqvuEtJmfpplLBXSGYnke_Pvnl0tbKAjB'
+    expect.assertions(4)
+    let wrapper
+    await new Promise((resolve, reject) => {
+      let propsChanged = false
+      wrapper = shallowMount(Postgrest, {
+        propsData: {
+          apiRoot: '/api',
+          route: 'clients',
+          query: {}
+        },
+        scopedSlots: {
+          default (props) {
+            try {
+              if (!props.get.isPending && !propsChanged) {
+                expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
+                expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients')[1]).toBe(undefined)
+                fetch.mockClear()
+                wrapper.setProps({ token })
+                propsChanged = true
+              } else if (!props.get.isPending && propsChanged) {
+                expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
+                expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Authorization')).toBe(`Bearer ${token}`)
+                resolve()
+              }
+            } catch (e) {
+              reject(e)
+            }
+          }
+        }
+      })
+    })
+    wrapper.destroy()
+  })
+
   it('emits "token-error" when server sets appropriate header', async () => {
     expect.assertions(3)
     let wrapper

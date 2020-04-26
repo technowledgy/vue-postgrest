@@ -1,8 +1,9 @@
-import { throwWhenStatusNotOk, EmittedError } from '@/errors'
-import { ObservableFunction, syncObjects, splitToObject } from '@/utils'
-import Query from '@/Query'
 import GenericModel from '@/GenericModel'
-import { getSchema } from '@/SchemaManager'
+import ObservableFunction from '@/ObservableFunction'
+import Query from '@/Query'
+import Schema from '@/Schema'
+import { throwWhenStatusNotOk, EmittedError } from '@/errors'
+import { splitToObject } from '@/utils'
 
 export default {
   name: 'Postgrest',
@@ -52,7 +53,7 @@ export default {
       newItem: null,
       range: undefined,
       get: new ObservableFunction(this._get),
-      primaryKeys: [],
+      schema: null,
       rpc: new ObservableFunction(this._rpc)
     }
   },
@@ -90,10 +91,10 @@ export default {
       }
 
       if (options.limit || options.offset) {
-        const range = [options.offset || 0, options.limit > 0 ? options.limit - 1 : null]
-        if (range[1] !== null && options.offset) range[1] += options.offset
+        const lower = options.offset || 0
+        const upper = options.limit ? lower + options.limit - 1 : ''
         headers.set('Range-Unit', 'items')
-        headers.set('Range', range.join('-'))
+        headers.set('Range', [lower, upper].join('-'))
       }
 
       const prefer = []
@@ -151,11 +152,21 @@ export default {
         if (this.accept === 'single') {
           this.items = null
           body = await resp.json()
-          this.item = new GenericModel(body, this.request, this.primaryKeys, this.query.select)
+          this.item = new GenericModel(body, {
+            route: this.route,
+            schema: this.schema,
+            request: this.request,
+            select: this.query.select
+          })
         } else if (!this.accept) {
           this.item = null
           body = await resp.json()
-          this.items = body.map(data => new GenericModel(data, this.request, this.primaryKeys, this.query.select))
+          this.items = body.map(data => new GenericModel(data, {
+            route: this.route,
+            schema: this.schema,
+            request: this.request,
+            select: this.query.select
+          }))
         } else {
           this.item = null
           this.items = null
@@ -193,29 +204,41 @@ export default {
         return this.request(opts.method, {}, requestOptions, params)
       }
     },
-    async getPrimaryKeys () {
-      const schema = await getSchema(this.apiRoot, this.token)
-      syncObjects(this.primaryKeys, (schema[this.route] && schema[this.route].pks) || [])
+    loadSchema () {
+      this.schema = new Schema(this.apiRoot, this.token)
     },
     resetNewItem () {
-      this.newItem = new GenericModel(this.create, this.request, this.primaryKeys, (this.query || {}).select)
+      this.newItem = new GenericModel(this.create, {
+        route: this.route,
+        schema: this.schema,
+        request: this.request,
+        select: (this.query || {}).select
+      })
     }
   },
   created () {
-    this.getPrimaryKeys()
+    this.loadSchema()
     this.$watch('apiRoot', () => {
-      this.getPrimaryKeys()
+      this.loadSchema()
+      this.get()
+    })
+    this.$watch('token', () => {
+      this.loadSchema()
       this.get()
     })
     this.$watch('route', () => {
-      this.getPrimaryKeys()
       this.get()
     })
     this.$watch('query', this.get, { deep: true })
     this.$watch('offset', this.get)
     this.$watch('limit', this.get)
     this.$watch('create', (newData) => {
-      this.newItem = new GenericModel(newData, this.request, this.primaryKeys, (this.query || {}).select)
+      this.newItem = new GenericModel(newData, {
+        route: this.route,
+        schema: this.schema,
+        request: this.request,
+        select: (this.query || {}).select
+      })
     }, { immediate: true })
     this.get()
   },

@@ -1,4 +1,4 @@
-import { getSchema, resetSchemaCache } from '@/SchemaManager'
+import Schema, { resetSchemaCache } from '@/Schema'
 
 fetch.resetMocks()
 fetch.mockResponse(JSON.stringify({
@@ -48,20 +48,20 @@ fetch.mockResponse(JSON.stringify({
   }
 })
 
-describe('SchemaManager', () => {
+describe('Schema', () => {
   beforeEach(() => {
     resetSchemaCache()
     // just reset .mock data, but not .mockResponse
     fetch.mockClear()
   })
 
-  describe('"getSchema" method', () => {
+  describe('ready method', () => {
     it('throws error if api does not exist', async () => {
       fetch.once('{}', {
         status: 404,
         statusText: 'Not found'
       })
-      await expect(getSchema('/api')).rejects.toThrow('No openapi definition found for api-root: /api')
+      await expect((new Schema('/api'))._ready).rejects.toThrow('No openapi definition found for api-root: /api')
     })
 
     it('throws error if exists but is not json', async () => {
@@ -72,7 +72,7 @@ describe('SchemaManager', () => {
           'Content-Type': 'application/json'
         }
       })
-      await expect(getSchema('/api')).rejects.toThrow('No openapi definition found for api-root: /api')
+      await expect((new Schema('/api'))._ready).rejects.toThrow('No openapi definition found for api-root: /api')
     })
 
     it('throws error if exists but is regular json', async () => {
@@ -86,14 +86,17 @@ describe('SchemaManager', () => {
           'Content-Type': 'application/json'
         }
       })
-      await expect(getSchema('/api')).rejects.toThrow('No openapi definition found for api-root: /api')
+      await expect((new Schema('/api'))._ready).rejects.toThrow('No openapi definition found for api-root: /api')
     })
+  })
 
-    it('requests schema and returns the primary keys for the requested api root if schema exists', async () => {
-      const keys = await getSchema('/api')
+  describe('once ready', () => {
+    it('returns the primary keys for the requested api root', async () => {
+      const schema = new Schema('/api')
+      await schema._ready
       expect(fetch.mock.calls.length).toBe(1)
       expect(fetch.mock.calls[0][0]).toBe('http://localhost/api')
-      expect(keys).toEqual({
+      expect(schema).toEqual({
         no_pk: {
           pks: []
         },
@@ -107,56 +110,64 @@ describe('SchemaManager', () => {
     })
 
     describe('tokens', () => {
-      it('does not send auth header in request when no token provided', async () => {
-        await getSchema('/api')
+      it('has not sent auth header in request when no token provided', async () => {
+        const schema = new Schema('/api')
+        await schema._ready
         expect(fetch.mock.calls.length).toBe(1)
         expect(fetch.mock.calls[0][0]).toBe('http://localhost/api')
         expect(fetch.mock.calls[0][1].headers.get('Authorization')).toBe(null)
       })
 
-      it('uses api token in request', async () => {
+      it('used api token in request', async () => {
         const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiamRvZSIsImV4cCI6MTQ3NTUxNjI1MH0.GYDZV3yM0gqvuEtJmfpplLBXSGYnke_Pvnl0tbKAjB'
-        await getSchema('/api', token)
+        const schema = new Schema('/api', token)
+        await schema._ready
         expect(fetch.mock.calls.length).toBe(1)
         expect(fetch.mock.calls[0][0]).toBe('http://localhost/api')
         expect(fetch.mock.calls[0][1].headers.get('Authorization')).toBe(`Bearer ${token}`)
       })
     })
+  })
 
-    describe('cache', () => {
-      it('returns cached schema when called twice', async () => {
-        const keys = await getSchema('/api')
-        expect(fetch.mock.calls.length).toBe(1)
-        const keysCached = await getSchema('/api')
-        expect(fetch.mock.calls.length).toBe(1)
-        expect(fetch.mock.calls[0][0]).toBe('http://localhost/api')
-        expect(keys).toEqual({
-          no_pk: {
-            pks: []
-          },
-          simple_pk: {
-            pks: ['id']
-          },
-          composite_pk: {
-            pks: ['id', 'name']
-          }
-        })
-        expect(keysCached).toBe(keys)
+  describe('cache', () => {
+    it('returns cached schema when called twice', async () => {
+      const schema = new Schema('/api')
+      await schema._ready
+      expect(fetch.mock.calls.length).toBe(1)
+      const schemaCached = new Schema('/api')
+      await schemaCached._ready
+      expect(fetch.mock.calls.length).toBe(1)
+      expect(fetch.mock.calls[0][0]).toBe('http://localhost/api')
+      expect(schema).toEqual({
+        no_pk: {
+          pks: []
+        },
+        simple_pk: {
+          pks: ['id']
+        },
+        composite_pk: {
+          pks: ['id', 'name']
+        }
       })
+      expect(schemaCached).toBe(schema)
+    })
 
-      it('separates cache by api-root', async () => {
-        await getSchema('/api')
-        expect(fetch.mock.calls.length).toBe(1)
-        await getSchema('/api2')
-        expect(fetch.mock.calls.length).toBe(2)
-      })
+    it('separates cache by api-root', async () => {
+      const schema = new Schema('/api')
+      await schema._ready
+      expect(fetch.mock.calls.length).toBe(1)
+      const schema2 = new Schema('/api2')
+      await schema2._ready
+      expect(fetch.mock.calls.length).toBe(2)
+    })
 
-      it('separates cache by token', async () => {
-        await getSchema('/api')
-        expect(fetch.mock.calls.length).toBe(1)
-        await getSchema('/api', 'token')
-        expect(fetch.mock.calls.length).toBe(2)
-      })
+    it('separates cache by token', async () => {
+      const schema = new Schema('/api')
+      await schema._ready
+      expect(fetch.mock.calls.length).toBe(1)
+      const schema2 = new Schema('/api', 'token')
+      await schema2._ready
+      expect(fetch.mock.calls.length).toBe(2)
     })
   })
 })
