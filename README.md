@@ -1,7 +1,10 @@
 <div align="center">
 
-[![Build Status](https://travis-ci.org/technowledgy/vue-postgrest.svg?branch=master)](https://travis-ci.org/technowledgy/vue-postgrest)
-[![Coverage Status](https://coveralls.io/repos/github/technowledgy/vue-postgrest/badge.svg?branch=master)](https://coveralls.io/github/technowledgy/vue-postgrest?branch=master)
+![Travis (.org)](https://img.shields.io/travis/technowledgy/vue-postgrest)
+![Coveralls github](https://img.shields.io/coveralls/github/technowledgy/vue-postgrest)
+![Libraries.io dependency status for latest release](https://img.shields.io/librariesio/release/npm/vue-postgrest)
+![NPM](https://img.shields.io/npm/l/vue-postgrest)
+![npm](https://img.shields.io/npm/v/vue-postgrest)
 
 </div>
 

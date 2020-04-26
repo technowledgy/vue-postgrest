@@ -3,4 +3,4 @@ node_js:
   - node
   - 'lts/*'
 after_script:
-  cat ./coverage/lcov.info | coveralls
+  - cat ./coverage/lcov.info | coveralls
