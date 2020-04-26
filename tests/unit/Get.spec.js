@@ -415,6 +415,33 @@ describe('Get', () => {
       wrapper.destroy()
     })
 
+    it('sets the request url correctly without / at the end', async () => {
+      expect.assertions(1)
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
+          propsData: {
+            apiRoot: '/another-api',
+            route: 'clients',
+            query: {}
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                if (!props.get.isPending) {
+                  expect(requestLogger.mock.calls.filter(call => call[0].url === '/another-api/clients').length).toBe(1)
+                  resolve()
+                }
+              } catch (e) {
+                reject(e)
+              }
+            }
+          }
+        })
+      })
+      wrapper.destroy()
+    })
+
     it('reacts to dynamic changes', async () => {
       expect.assertions(3)
       let wrapper

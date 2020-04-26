@@ -149,7 +149,7 @@ class GenericModel extends GenericModelTemplate {
       }
     })
     this.$watch('data', {
-      deep: false,
+      deep: true,
       immediate: true,
       handler (newData) {
         for (const prop in newData) {

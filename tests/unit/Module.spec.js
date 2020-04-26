@@ -24,7 +24,7 @@ describe('Module', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            route: '',
+            route: 'missing',
             query: {}
           },
           scopedSlots: {
@@ -52,7 +52,7 @@ describe('Module', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            route: ''
+            route: 'missing'
           },
           scopedSlots: {
             default (props) {
@@ -75,7 +75,7 @@ describe('Module', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            route: '',
+            route: 'missing',
             query: {}
           },
           scopedSlots: {
@@ -99,7 +99,7 @@ describe('Module', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            route: '',
+            route: 'missing',
             query: {}
           },
           scopedSlots: {
@@ -123,7 +123,7 @@ describe('Module', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            route: '',
+            route: 'missing',
             query: {},
             accept: 'single'
           },
@@ -148,7 +148,7 @@ describe('Module', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            route: '',
+            route: 'missing',
             query: {},
             accept: 'text/plain'
           },
@@ -173,7 +173,7 @@ describe('Module', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            route: ''
+            route: 'missing'
           },
           scopedSlots: {
             default (props) {
@@ -198,7 +198,7 @@ describe('Module', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            route: '',
+            route: 'missing',
             create: {}
           },
           scopedSlots: {
@@ -222,7 +222,7 @@ describe('Module', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            route: ''
+            route: 'missing'
           },
           scopedSlots: {
             default (props) {
@@ -247,7 +247,7 @@ describe('Module', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            route: ''
+            route: 'missing'
           },
           scopedSlots: {
             default (props) {
@@ -270,7 +270,7 @@ describe('Module', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            route: '',
+            route: 'missing',
             query: {},
             accept: 'single'
           },
@@ -295,7 +295,7 @@ describe('Module', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            route: '',
+            route: 'missing',
             query: {},
             accept: 'single'
           },
@@ -324,7 +324,7 @@ describe('Module', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            route: '',
+            route: 'missing',
             query: {},
             accept: 'single'
           },
@@ -349,7 +349,7 @@ describe('Module', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            route: '',
+            route: 'missing',
             query: {},
             accept: 'single',
             create: {}
@@ -379,7 +379,7 @@ describe('Module', () => {
       }
       const wrapper = shallowMount(Postgrest, {
         propsData: {
-          route: '',
+          route: 'missing',
           create
         },
         scopedSlots: {
@@ -404,7 +404,7 @@ describe('Module', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            route: '',
+            route: 'missing',
             create: {}
           },
           scopedSlots: {
@@ -432,7 +432,7 @@ describe('Module', () => {
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
           propsData: {
-            route: '',
+            route: 'missing',
             create
           },
           scopedSlots: {

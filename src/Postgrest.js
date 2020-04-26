@@ -160,11 +160,11 @@ export default {
         })
         if (this.accept === 'single') {
           this.items = null
-          this.item = resp && resp.body ? new GenericModel(resp.body, this.request, this.primaryKeys, (this.query || {}).select) : {}
+          this.item = resp && resp.body ? new GenericModel(resp.body, this.request, this.primaryKeys, this.query.select) : {}
         } else if (!this.accept) {
           this.item = null
           this.items = resp && resp.body ? resp.body.map(data => {
-            return new GenericModel(data, this.request, this.primaryKeys, (this.query || {}).select)
+            return new GenericModel(data, this.request, this.primaryKeys, this.query.select)
           }) : []
         } else {
           this.item = null
@@ -208,11 +208,7 @@ export default {
       syncObjects(this.primaryKeys, pks[this.route] || [])
     },
     resetNewItem () {
-      if (!this.create) {
-        throw new Error('Create template not provided.')
-      } else {
-        this.newItem = new GenericModel(this.create, this.request, this.primaryKeys, (this.query || {}).select)
-      }
+      this.newItem = new GenericModel(this.create, this.request, this.primaryKeys, (this.query || {}).select)
     }
   },
   created () {

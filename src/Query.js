@@ -12,7 +12,7 @@ function quoteValue (str) {
 }
 
 // conditional concat - only if str is set
-function cc (prefix = '', str, suffix = '') {
+function cc (prefix, str, suffix = '') {
   str = str && str.toString()
   return str ? `${prefix}${str}${suffix}` : ''
 }

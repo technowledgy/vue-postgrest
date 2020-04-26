@@ -44,7 +44,7 @@ module.exports = function (mockData) {
         if (match[1] === '/404') {
           throw new Error(404)
         }
-        if (match[1] === '/') {
+        if (match[1] === '/' || match[1] === '') {
           return {
             body: mockData.docs || { definitions: {} },
             headers: {
