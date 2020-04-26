@@ -17,13 +17,15 @@ function cc (prefix, str, suffix = '') {
   return str ? `${prefix}${str}${suffix}` : ''
 }
 
-class Query extends URLSearchParams {
+class Query extends URL {
   _subQueries = {}
 
-  constructor (queryObject = {}) {
-    super()
+  constructor (apiRoot, route, queryObject = {}) {
+    const url = (apiRoot + '/' + route).replace(/\/+/g, '/')
+    super(url, window.location.href)
+    this._apiRoot = apiRoot
     const { columns, select, order, limit, offset, ...conditions } = queryObject
-    if (columns) this.append('columns', columns)
+    if (columns) this.searchParams.append('columns', columns)
     this._appendSelect(select)
     this._appendOrder(order)
     this._appendLimit(limit)
@@ -35,10 +37,10 @@ class Query extends URLSearchParams {
   _appendSubQueryParams (parent, aliasChain = '') {
     for (let [alias, query] of Object.entries(parent._subQueries)) {
       alias = cc(`${aliasChain}`, alias)
-      for (const [key, value] of query.entries()) {
+      for (const [key, value] of query.searchParams.entries()) {
         // columns are not merged with subqueries and select is handled in _parseSelectObject
         if (['columns', 'select'].includes(key)) continue
-        this.append(`${alias}.${key}`, value)
+        this.searchParams.append(`${alias}.${key}`, value)
       }
       this._appendSubQueryParams(query, alias)
     }
@@ -46,9 +48,9 @@ class Query extends URLSearchParams {
 
   _appendSelect (select) {
     if (typeof select === 'object' && !Array.isArray(select)) {
-      this.append('select', this._parseSelectObject(select))
+      this.searchParams.append('select', this._parseSelectObject(select))
     } else if (select) {
-      this.append('select', select.toString())
+      this.searchParams.append('select', select.toString())
     }
   }
 
@@ -58,10 +60,10 @@ class Query extends URLSearchParams {
       if (!v) return
       // embedding resources with sub queries
       if (v && v.select) {
-        const subQuery = new Query(v)
         const alias = k.split(':', 1)[0].split('!', 1)[0]
+        const subQuery = new Query(this._apiRoot, alias, v)
         this._subQueries[alias] = subQuery
-        return `${k}(${subQuery.get('select')})`
+        return `${k}(${subQuery.searchParams.get('select')})`
       }
       // regular select
       let alias = ''; let field; let cast = ''; let subfields = []
@@ -90,7 +92,7 @@ class Query extends URLSearchParams {
 
   _appendOrder (order) {
     if (Array.isArray(order)) {
-      this.append('order', order.map(item => {
+      this.searchParams.append('order', order.map(item => {
         if (Array.isArray(item)) {
           return item.join('.')
         } else {
@@ -98,7 +100,7 @@ class Query extends URLSearchParams {
         }
       }).join(','))
     } else if (typeof order === 'object') {
-      this.append('order', Object.entries(order).map(([k, v]) => {
+      this.searchParams.append('order', Object.entries(order).map(([k, v]) => {
         if (v && typeof v === 'string') {
           return `${k}.${v}`
         } else {
@@ -106,25 +108,25 @@ class Query extends URLSearchParams {
         }
       }).join(','))
     } else if (order) {
-      this.append('order', order)
+      this.searchParams.append('order', order)
     }
   }
 
   _appendLimit (limit) {
     if (limit) {
-      this.append('limit', limit)
+      this.searchParams.append('limit', limit)
     }
   }
 
   _appendOffset (offset) {
     if (offset) {
-      this.append('offset', offset)
+      this.searchParams.append('offset', offset)
     }
   }
 
   _appendConditions (obj) {
     for (const { key, value } of this._parseConditions(obj)) {
-      this.append(key, value)
+      this.searchParams.append(key, value)
     }
   }
 

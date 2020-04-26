@@ -112,11 +112,7 @@ export default {
         headers.authorization = `Bearer ${this.token}`
       }
 
-      let url = this.apiRoot
-      if (!url.endsWith('/')) url += '/'
-      url += [options.route || this.route]
-      const queryString = new Query(query).toString()
-      if (queryString) url += `?${queryString}`
+      const url = (new Query(this.apiRoot, options.route || this.route, query)).toString()
 
       // overwrite headers with custom headers if set
       if (options.headers) {

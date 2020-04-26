@@ -10,5 +10,6 @@ module.exports = {
   ],
   setupFilesAfterEnv: [
     '<rootDir>/tests/setup.js'
-  ]
+  ],
+  testURL: 'http://localhost/nested/path'
 }

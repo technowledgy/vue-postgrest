@@ -3,19 +3,28 @@ import Query from '@/Query'
 // helper function for simple input-output testcases
 function itt (desc, inputObject, expectedResult) {
   it(desc, () => {
-    expect(decodeURIComponent((new Query(inputObject)).toString())).toBe(expectedResult)
+    expect(decodeURIComponent((new Query('/api', 'test', inputObject)).searchParams.toString())).toBe(expectedResult)
   })
 }
 
 describe('Query', () => {
-  it('implements URLSearchParams interface', () => {
+  it('implements URL interface', () => {
     // eslint-disable-next-line no-prototype-builtins
-    expect(URLSearchParams.isPrototypeOf(Query)).toBe(true)
+    expect(URL.isPrototypeOf(Query)).toBe(true)
   })
 
-  itt('returns empty string without input', undefined, '')
+  itt('returns empty query string without input', undefined, '')
 
-  itt('returns empty string with empty input', {}, '')
+  itt('returns empty query string with empty input', {}, '')
+
+  it('returns path of URI properly', () => {
+    // jsdom is configured in jest.config to have window.location at localhost/nested/path
+    expect((new Query('api', 'test', {})).toString()).toBe('http://localhost/nested/api/test')
+    expect((new Query('/api', 'test', {})).toString()).toBe('http://localhost/api/test')
+    expect((new Query('/api/', 'test', {})).toString()).toBe('http://localhost/api/test')
+    expect((new Query('/api', 'rpc/test', {})).toString()).toBe('http://localhost/api/rpc/test')
+    expect((new Query('/api', '/rpc/test', {})).toString()).toBe('http://localhost/api/rpc/test')
+  })
 
   describe('arguments', () => {
     itt('sets string', { str: 'test' }, 'str=test')
@@ -56,12 +65,12 @@ describe('Query', () => {
     itt('supports multiple operators', { 'id.not.eq': 1 }, 'id=not.eq.1')
 
     it('throws when using logical operator without object', () => {
-      expect(() => new Query({ or: true })).toThrow()
-      expect(() => new Query({ and: null })).toThrow()
-      expect(() => new Query({ 'not.or': '' })).toThrow()
-      expect(() => new Query({ 'not.and': [] })).toThrow()
-      expect(() => new Query({ or: 1 })).toThrow()
-      expect(() => new Query({ and: undefined })).toThrow()
+      expect(() => new Query('/api', 'test', { or: true })).toThrow()
+      expect(() => new Query('/api', 'test', { and: null })).toThrow()
+      expect(() => new Query('/api', 'test', { 'not.or': '' })).toThrow()
+      expect(() => new Query('/api', 'test', { 'not.and': [] })).toThrow()
+      expect(() => new Query('/api', 'test', { or: 1 })).toThrow()
+      expect(() => new Query('/api', 'test', { and: undefined })).toThrow()
     })
 
     itt('supports logical disjoining with "or" object', {
@@ -118,7 +127,7 @@ describe('Query', () => {
     }, 'json_data->>blood_type=eq.A-&json_data->age=gt.20')
 
     it('throws when using logical operator nested in json field', () => {
-      expect(() => new Query({
+      expect(() => new Query('/api', 'test', {
         json_field: {
           or: {}
         }
