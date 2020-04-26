@@ -1,115 +1,162 @@
-import request from 'superagent'
-import config from './MockApi.config'
-import mock from 'superagent-mock'
-import SchemaManager from '@/SchemaManager'
+import { getSchema, resetSchemaCache } from '@/SchemaManager'
 
-const mockData = {
-  docs: {
-    definitions: {
-      table1: {
-        properties: {
-          name: {
-            type: 'text',
-            description: 'Note:\nThis is a Primary Key.<pk/>'
-          },
-          id: {
-            type: 'integer',
-            description: 'Note:\nThis is a Primary Key.<pk/>'
-          },
-          age: {
-            type: 'integer',
-            description: 'This is not a primary key.'
-          }
+fetch.resetMocks()
+fetch.mockResponse(JSON.stringify({
+  definitions: {
+    no_pk: {
+      properties: {
+        age: {
+          type: 'integer',
+          description: 'This is not a primary key.'
+        }
+      }
+    },
+    simple_pk: {
+      properties: {
+        id: {
+          type: 'integer',
+          description: 'Note:\nThis is a Primary Key.<pk/>'
+        },
+        age: {
+          type: 'integer',
+          description: 'This is not a primary key.'
+        }
+      }
+    },
+    composite_pk: {
+      properties: {
+        id: {
+          type: 'integer',
+          description: 'Note:\nThis is a Primary Key.<pk/>'
+        },
+        name: {
+          type: 'text',
+          description: 'Note:\nThis is a Primary Key.<pk/>'
+        },
+        age: {
+          type: 'integer',
+          description: 'This is not a primary key.'
         }
       }
     }
   }
-}
-const requestLogger = jest.fn((log) => {})
-const superagentMock = mock(request, config(mockData), requestLogger)
+}), {
+  status: 200,
+  statusText: 'OK',
+  headers: {
+    'Content-Type': 'application/openapi+json'
+  }
+})
 
 describe('SchemaManager', () => {
-  afterAll(() => {
-    superagentMock.unset()
-  })
-
   beforeEach(() => {
-    requestLogger.mockReset()
+    resetSchemaCache()
+    // just reset .mock data, but not .mockResponse
+    fetch.mockClear()
   })
 
-  describe('"resetCache" method', () => {
-    it('empties the cache', () => {
-      SchemaManager.cache = { data: true }
-      expect(SchemaManager.cache.data).toBeTruthy()
-      SchemaManager.resetCache()
-      expect(SchemaManager.cache.data).toBe(undefined)
-    })
-  })
-
-  describe('"getPrimaryKeys" method', () => {
-    beforeEach(() => {
-      SchemaManager.resetCache()
-      requestLogger.mockReset()
+  describe('"getSchema" method', () => {
+    it('throws error if api does not exist', async () => {
+      fetch.once('{}', {
+        status: 404,
+        statusText: 'Not found'
+      })
+      await expect(getSchema('/api')).rejects.toThrow('No openapi definition found for api-root: /api')
     })
 
-    describe('when provided a token', () => {
+    it('throws error if exists but is not json', async () => {
+      fetch.once('just some text', {
+        status: 200,
+        statusText: 'OK',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      await expect(getSchema('/api')).rejects.toThrow('No openapi definition found for api-root: /api')
+    })
+
+    it('throws error if exists but is regular json', async () => {
+      fetch.once(JSON.stringify({
+        just: 'some',
+        json: 'data'
+      }), {
+        status: 200,
+        statusText: 'OK',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      await expect(getSchema('/api')).rejects.toThrow('No openapi definition found for api-root: /api')
+    })
+
+    it('requests schema and returns the primary keys for the requested api root if schema exists', async () => {
+      const keys = await getSchema('/api')
+      expect(fetch.mock.calls.length).toBe(1)
+      expect(fetch.mock.calls[0][0]).toBe('/api')
+      expect(keys).toEqual({
+        no_pk: {
+          pks: []
+        },
+        simple_pk: {
+          pks: ['id']
+        },
+        composite_pk: {
+          pks: ['id', 'name']
+        }
+      })
+    })
+
+    describe('tokens', () => {
+      it('does not send auth header in request when no token provided', async () => {
+        await getSchema('/api')
+        expect(fetch.mock.calls.length).toBe(1)
+        expect(fetch.mock.calls[0][0]).toBe('/api')
+        expect(fetch.mock.calls[0][1].headers.get('Authorization')).toBe(null)
+      })
+
       it('uses api token in request', async () => {
         const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiamRvZSIsImV4cCI6MTQ3NTUxNjI1MH0.GYDZV3yM0gqvuEtJmfpplLBXSGYnke_Pvnl0tbKAjB'
-        await SchemaManager.getPrimaryKeys('/api/', token)
-        expect(requestLogger.mock.calls.length).toBe(1)
-        expect(requestLogger.mock.calls[0][0].headers.authorization).toBe(`Bearer ${token}`)
+        await getSchema('/api', token)
+        expect(fetch.mock.calls.length).toBe(1)
+        expect(fetch.mock.calls[0][0]).toBe('/api')
+        expect(fetch.mock.calls[0][1].headers.get('Authorization')).toBe(`Bearer ${token}`)
       })
+    })
 
-      it('caches schema under token level and returns the cached schema', async () => {
-        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiamRvZSIsImV4cCI6MTQ3NTUxNjI1MH0.GYDZV3yM0gqvuEtJmfpplLBXSGYnke_Pvnl0tbKAjB'
-        const keys = await SchemaManager.getPrimaryKeys('/api/', token)
-        expect(SchemaManager.cache['/api/'][token]).toEqual({
-          table1: ['name', 'id']
+    describe('cache', () => {
+      it('returns cached schema when called twice', async () => {
+        const keys = await getSchema('/api')
+        expect(fetch.mock.calls.length).toBe(1)
+        const keysCached = await getSchema('/api')
+        expect(fetch.mock.calls.length).toBe(1)
+        expect(fetch.mock.calls[0][0]).toBe('/api')
+        expect(keys).toEqual({
+          no_pk: {
+            pks: []
+          },
+          simple_pk: {
+            pks: ['id']
+          },
+          composite_pk: {
+            pks: ['id', 'name']
+          }
         })
-        expect(SchemaManager.cache['/api/'][token]).toBe(keys)
-      })
-    })
-
-    describe('when not provided a token', () => {
-      it('does not send auth header in request', async () => {
-        await SchemaManager.getPrimaryKeys('/api/')
-        expect(requestLogger.mock.calls.length).toBe(1)
-        expect(requestLogger.mock.calls[0][0].headers.authorization).toBe(undefined)
+        expect(keysCached).toBe(keys)
       })
 
-      it('caches schema under "anonymous" and returns the cached schema', async () => {
-        const keys = await SchemaManager.getPrimaryKeys('/api/')
-        expect(SchemaManager.cache['/api/'].anonymous).toEqual({
-          table1: ['name', 'id']
-        })
-        expect(SchemaManager.cache['/api/'].anonymous).toBe(keys)
+      it('separates cache by api-root', async () => {
+        await getSchema('/api')
+        expect(fetch.mock.calls.length).toBe(1)
+        await getSchema('/api2')
+        expect(fetch.mock.calls.length).toBe(2)
       })
-    })
 
-    it('requests schema if not cached and returns the primary keys for the requested api root if schema exists', async () => {
-      const keys = await SchemaManager.getPrimaryKeys('/api/')
-      expect(requestLogger.mock.calls.length).toBe(1)
-      expect(keys).toEqual({
-        table1: ['name', 'id']
+      it('separates cache by token', async () => {
+        await getSchema('/api')
+        expect(fetch.mock.calls.length).toBe(1)
+        await getSchema('/api', 'token')
+        expect(fetch.mock.calls.length).toBe(2)
       })
-    })
-
-    it('uses existing schema if cached and returns the primary keys for the requested api root if schema exists', async () => {
-      let keys = await SchemaManager.getPrimaryKeys('/api/')
-      expect(requestLogger.mock.calls.length).toBe(1)
-      expect(keys).toEqual({
-        table1: ['name', 'id']
-      })
-      keys = await SchemaManager.getPrimaryKeys('/api/')
-      expect(requestLogger.mock.calls.length).toBe(1)
-    })
-
-    it('throws error if api does not exist', async () => {
-      await expect(SchemaManager.getPrimaryKeys('/non-existing/')).rejects.toThrow()
-    })
-
-    it('throws error if exists but is not an api', async () => {
-      await expect(SchemaManager.getPrimaryKeys('/other-server/')).rejects.toThrow('Not an api.')
     })
   })
 })

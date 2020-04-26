@@ -3,7 +3,7 @@ import { EmittedError } from '@/errors'
 import { ObservableFunction, syncObjects, splitToObject } from '@/utils'
 import Query from '@/Query'
 import GenericModel from '@/GenericModel'
-import SchemaManager from '@/SchemaManager'
+import { getSchema } from '@/SchemaManager'
 
 export default {
   name: 'Postgrest',
@@ -204,8 +204,8 @@ export default {
       }
     },
     async getPrimaryKeys () {
-      const pks = await SchemaManager.getPrimaryKeys(this.apiRoot, this.token)
-      syncObjects(this.primaryKeys, pks[this.route] || [])
+      const schema = await getSchema(this.apiRoot, this.token)
+      syncObjects(this.primaryKeys, (schema[this.route] && schema[this.route].pks) || [])
     },
     resetNewItem () {
       this.newItem = new GenericModel(this.create, this.request, this.primaryKeys, (this.query || {}).select)

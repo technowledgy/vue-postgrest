@@ -1,44 +1,54 @@
-import superagent from 'superagent'
+import { throwWhenStatusNotOk, SchemaNotFoundError } from '@/errors'
 
-export default {
-  cache: {},
-  resetCache () {
-    this.cache = {}
-  },
-  async getPrimaryKeys (apiRoot, token = 'anonymous') {
-    if (!this.cache[apiRoot] || !this.cache[apiRoot][token]) {
-      await this._getSchema(apiRoot, token)
-    }
-    return this.cache[apiRoot][token]
-  },
-  async _getSchema (apiRoot, token) {
-    let resp
-    if (token === 'anonymous') {
-      resp = await superagent.get(apiRoot)
-    } else {
-      resp = await superagent.get(apiRoot).set({ authorization: `Bearer ${token}` })
-    }
-    if (resp && resp.headers['content-type'].startsWith('application/openapi+json') && resp.body && resp.body.definitions) {
-      if (!this.cache[apiRoot]) {
-        this.cache[apiRoot] = {}
-      }
-      this.cache[apiRoot][token] = this._extractPrimaryKeys(resp.body.definitions)
-    } else {
-      throw new Error('Not an api.')
-    }
-  },
-  _extractPrimaryKeys (def) {
-    const pks = {}
-    Object.keys(def).map(table => {
-      Object.keys(def[table].properties).map(key => {
-        if (def[table].properties[key].description && def[table].properties[key].description.includes('<pk/>')) {
-          if (!pks[table]) {
-            pks[table] = []
-          }
-          pks[table].push(key)
-        }
-      })
-    })
-    return pks
+let schemaCache = {}
+
+class Schema {
+  constructor (schema) {
+    Object.assign(this, this._extractPrimaryKeys(schema))
   }
+
+  _extractPrimaryKeys (schema) {
+    return Object.entries(schema.definitions).reduce((acc, [table, tableDef]) => {
+      const pks = Object.entries(tableDef.properties)
+        .filter(([field, fieldDef]) => fieldDef.description && fieldDef.description.includes('<pk/>'))
+        .map(([field]) => field)
+      acc[table] = { pks }
+      return acc
+    }, {})
+  }
+}
+
+async function getSchema (apiRoot, token) {
+  const cached = schemaCache[apiRoot] && schemaCache[apiRoot][token]
+  if (cached) return cached
+  // cache not available, make request
+  const headers = new Headers()
+  if (token) {
+    headers.append('Authorization', `Bearer ${token}`)
+  }
+  try {
+    const resp = await fetch(apiRoot, { headers }).then(throwWhenStatusNotOk)
+    const body = await resp.json()
+    if (!resp.headers.get('Content-Type').startsWith('application/openapi+json') || !body.definitions) {
+      throw new Error('wrong body format')
+    }
+    if (!schemaCache[apiRoot]) {
+      schemaCache[apiRoot] = {}
+    }
+    const schema = new Schema(body)
+    // cache it for nex ttime
+    schemaCache[apiRoot][token] = schema
+    return schema
+  } catch (err) {
+    throw new SchemaNotFoundError(apiRoot, err)
+  }
+}
+
+function resetSchemaCache () {
+  schemaCache = {}
+}
+
+export {
+  getSchema,
+  resetSchemaCache
 }

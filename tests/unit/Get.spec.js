@@ -23,18 +23,6 @@ const mockData = {
       }
       ]
     }
-  },
-  docs: {
-    definitions: {
-      clients: {
-        properties: {
-          id: {
-            type: 'integer',
-            description: 'Note:\nThis is a Primary Key.<pk/>'
-          }
-        }
-      }
-    }
   }
 }
 const requestLogger = jest.fn((log) => {})
