@@ -40,8 +40,8 @@
     "jest-fetch-mock": "^3.0.3",
     "standard-version": "^7.1.0",
     "superagent-mock": "^3.7.0",
-    "vue": "^2.6.10",
-    "vue-template-compiler": "^2.6.10",
+    "vue": "^2.6.11",
+    "vue-template-compiler": "^2.6.11",
     "webpack-node-externals": "^1.7.2"
   },
   "homepage": "https://github.com/technowledgy/vue-postgrest#readme",
