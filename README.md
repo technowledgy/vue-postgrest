@@ -1,6 +1,7 @@
 <div align="center">
 
 [![Build Status](https://travis-ci.org/technowledgy/vue-postgrest.svg?branch=master)](https://travis-ci.org/technowledgy/vue-postgrest)
+[![Coverage Status](https://coveralls.io/repos/github/technowledgy/vue-postgrest/badge.svg?branch=master)](https://coveralls.io/github/technowledgy/vue-postgrest?branch=master)
 
 </div>
 
