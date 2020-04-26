@@ -1,5 +1,7 @@
 <div align="center">
+
 [![Build Status](https://travis-ci.org/technowledgy/vue-postgrest.svg?branch=master)](https://travis-ci.org/technowledgy/vue-postgrest)
+
 </div>
 
 # vue-postgrest
