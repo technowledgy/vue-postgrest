@@ -2,10 +2,6 @@
   "name": "vue-postgrest",
   "version": "0.7.4",
   "description": "Vue.js Component providing PostgREST integration",
-  "author": {
-    "name": "julian walther",
-    "email": "julian.walther@technowledgy.de"
-  },
   "bugs": {
     "url": "https://github.com/technowledgy/vue-postgrest/issues"
   },
@@ -18,7 +14,7 @@
     "pre-version": "yarn test && yarn lint && yarn build"
   },
   "files": [
-    "dist/*"
+    "dist/*.js"
   ],
   "dependencies": {
     "lodash.clonedeep": "^4.5.0",
@@ -51,8 +47,9 @@
   "homepage": "https://github.com/technowledgy/vue-postgrest#readme",
   "keywords": [
     "plugin",
-    "vue",
-    "postgrest"
+    "postgres",
+    "postgrest",
+    "vue"
   ],
   "license": "MIT",
   "repository": {

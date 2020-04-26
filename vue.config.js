@@ -6,7 +6,6 @@ module.exports = {
     output: {
       libraryExport: 'default'
     },
-    target: 'node',
     externals: [nodeExternals()]
   }
 }
