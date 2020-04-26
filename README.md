@@ -2,7 +2,7 @@
 
 ![Travis (.org)](https://img.shields.io/travis/technowledgy/vue-postgrest)
 ![Coveralls github](https://img.shields.io/coveralls/github/technowledgy/vue-postgrest)
-![Libraries.io dependency status for latest release](https://img.shields.io/librariesio/release/npm/vue-postgrest)
+![Depfu](https://img.shields.io/depfu/technowledgy/vue-postgrest)
 ![NPM](https://img.shields.io/npm/l/vue-postgrest)
 ![npm](https://img.shields.io/npm/v/vue-postgrest)
 
