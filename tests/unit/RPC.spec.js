@@ -58,13 +58,13 @@ describe('RPC', () => {
       a: 1,
       b: 2
     }
-    await wrapper.vm.rpc.call('rpc-test', { method: 'POST' }, functionParams)
+    await wrapper.vm.rpc.call('rpc-test', { get: false }, functionParams)
     expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')).toBeTruthy()
     expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')[1].method).toBe('POST')
     expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')[1].body).toEqual(functionParams)
     fetch.mockClear()
 
-    await wrapper.vm.rpc.call('rpc-test', { method: 'GET' }, functionParams)
+    await wrapper.vm.rpc.call('rpc-test', { get: true }, functionParams)
     expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test?a=1&b=2')).toBeTruthy()
     expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test?a=1&b=2')[1].method).toBe('GET')
     wrapper.destroy()
@@ -78,13 +78,13 @@ describe('RPC', () => {
       },
       slots: { default: '<div />' }
     })
-    await wrapper.vm.rpc.call('rpc-test', { method: 'POST' })
+    await wrapper.vm.rpc.call('rpc-test', { get: false })
     expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')).toBeTruthy()
     expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')[1].method).toBe('POST')
     expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')[1].body).toBe(undefined)
     fetch.mockClear()
 
-    await wrapper.vm.rpc.call('rpc-test', { method: 'GET' })
+    await wrapper.vm.rpc.call('rpc-test', { get: true })
     expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')).toBeTruthy()
     expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test')[1].method).toBe('GET')
     wrapper.destroy()
@@ -145,15 +145,32 @@ describe('RPC', () => {
     wrapper.destroy()
   })
 
-  it('throws if method is neither "POST" nor "GET"', async () => {
-    expect.assertions(1)
+  it('correctly passes "query" option on GET request', async () => {
+    expect.assertions(2)
     const wrapper = shallowMount(Postgrest, {
       propsData: {
         apiRoot: '/api'
       },
       slots: { default: '<div />' }
     })
-    await expect(wrapper.vm.rpc.call('rpc-test', { method: 'PATCH' })).rejects.toThrow()
+    await wrapper.vm.rpc.call('rpc-test', { get: true, query: { select: 'id' } }, { a: 1, b: 2 })
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test?select=id&a=1&b=2')).toBeTruthy()
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test?select=id&a=1&b=2')[1].method).toBe('GET')
+    wrapper.destroy()
+  })
+
+  it('correctly passes "query" option on POST request', async () => {
+    expect.assertions(3)
+    const wrapper = shallowMount(Postgrest, {
+      propsData: {
+        apiRoot: '/api'
+      },
+      slots: { default: '<div />' }
+    })
+    await wrapper.vm.rpc.call('rpc-test', { get: false, query: { select: 'id' } }, { a: 1, b: 2 })
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test?select=id')).toBeTruthy()
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test?select=id')[1].method).toBe('POST')
+    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/rpc/rpc-test?select=id')[1].body).toEqual({ a: 1, b: 2 })
     wrapper.destroy()
   })
 })

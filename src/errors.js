@@ -1,7 +1,23 @@
+class AuthError extends Error {
+  constructor (err) {
+    super(err.error_description)
+    Object.assign(this, err)
+  }
+}
+
 class EmittedError extends Error {
   constructor (msg) {
     super(msg)
     this.name = 'EmittedError'
+  }
+}
+
+class FetchError extends Error {
+  constructor (resp) {
+    super(resp.statusText)
+    this.resp = resp
+    this.status = resp.status
+    resp.json().catch(() => ({})).then(body => Object.assign(this, body))
   }
 }
 
@@ -19,15 +35,6 @@ class SchemaNotFoundError extends Error {
   }
 }
 
-class FetchError extends Error {
-  constructor (resp) {
-    super(resp.statusText)
-    this.resp = resp
-    this.status = resp.status
-    resp.json().catch(() => ({})).then(body => Object.assign(this))
-  }
-}
-
 function throwWhenStatusNotOk (resp) {
   if (!resp.ok) {
     throw new FetchError(resp)
@@ -36,6 +43,7 @@ function throwWhenStatusNotOk (resp) {
 }
 
 export {
+  AuthError,
   EmittedError,
   FetchError,
   PrimaryKeyError,

@@ -18,6 +18,16 @@ fetch.mockResponse(async req => {
         }
       }
     }
+  } else if (req.headers.get('Authorization') === 'Bearer expired-token') {
+    return {
+      body: '',
+      init: {
+        status: 401,
+        headers: {
+          'WWW-Authenticate': 'Bearer error="invalid_token", error_description="JWT expired"'
+        }
+      }
+    }
   } else {
     return {
       body: '{}',
@@ -465,5 +475,71 @@ describe('Module', () => {
       })
       wrapper.destroy()
     })
+  })
+
+  it('reacts to dynamic change of prop "token"', async () => {
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiamRvZSIsImV4cCI6MTQ3NTUxNjI1MH0.GYDZV3yM0gqvuEtJmfpplLBXSGYnke_Pvnl0tbKAjB'
+    expect.assertions(4)
+    let wrapper
+    await new Promise((resolve, reject) => {
+      let propsChanged = false
+      wrapper = shallowMount(Postgrest, {
+        propsData: {
+          apiRoot: '/api',
+          route: 'clients',
+          query: {}
+        },
+        scopedSlots: {
+          default (props) {
+            try {
+              if (!props.get.isPending && !propsChanged) {
+                expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
+                expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients')[1]).toBe(undefined)
+                fetch.mockClear()
+                wrapper.setProps({ token })
+                propsChanged = true
+              } else if (!props.get.isPending && propsChanged) {
+                expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
+                expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Authorization')).toBe(`Bearer ${token}`)
+                resolve()
+              }
+            } catch (e) {
+              reject(e)
+            }
+          }
+        }
+      })
+    })
+    wrapper.destroy()
+  })
+
+  it('emits "token-error" when server sets appropriate header', async () => {
+    expect.assertions(3)
+    let wrapper
+    await new Promise((resolve, reject) => {
+      wrapper = shallowMount(Postgrest, {
+        propsData: {
+          apiRoot: '/api',
+          route: 'clients',
+          query: {},
+          token: 'expired-token'
+        },
+        scopedSlots: {
+          default (props) {
+            try {
+              if (!props.get.isPending) {
+                expect(wrapper.emitted()['token-error']).toBeTruthy()
+                expect(wrapper.emitted()['token-error'].length).toBe(1)
+                expect(wrapper.emitted()['token-error'][0][0]).toMatchObject({ error: 'invalid_token', error_description: 'JWT expired' })
+                resolve()
+              }
+            } catch (e) {
+              reject(e)
+            }
+          }
+        }
+      })
+    })
+    wrapper.destroy()
   })
 })
