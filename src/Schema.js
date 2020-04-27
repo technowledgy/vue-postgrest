@@ -18,8 +18,14 @@ export default class Schema {
       schemaCache[apiRoot] = {}
     }
     schemaCache[apiRoot][token] = this
+    const ready = this._fetchSchema(apiRoot, token)
+      .then(schema => {
+        Object.assign(this, this._extractPrimaryKeys(schema))
+        return schema
+      })
+    // non-enumerable _ready prop returning the promise, just for tests
     Object.defineProperty(this, '_ready', {
-      value: this._fetchSchema(apiRoot, token)
+      value: ready
     })
   }
 
@@ -35,13 +41,10 @@ export default class Schema {
       if (!resp.headers.get('Content-Type').startsWith('application/openapi+json') || !body.definitions) {
         throw new Error('wrong body format')
       }
-      Object.defineProperty(this, '_schema', {
-        value: body
-      })
+      return body
     } catch (err) {
       throw new SchemaNotFoundError(apiRoot, err)
     }
-    Object.assign(this, this._extractPrimaryKeys(this._schema))
   }
 
   _extractPrimaryKeys (schema) {

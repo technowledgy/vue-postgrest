@@ -18,12 +18,13 @@ function cc (prefix, str, suffix = '') {
 }
 
 class Query extends URL {
-  _subQueries = {}
+  subQueries = {}
+  #apiRoot
 
   constructor (apiRoot, route, queryObject = {}) {
     const url = (apiRoot + '/' + route).replace(/\/+/g, '/')
     super(url, window.location.href)
-    this._apiRoot = apiRoot
+    this.#apiRoot = apiRoot
     const { columns, select, order, limit, offset, ...conditions } = queryObject
     if (columns) this.searchParams.append('columns', columns)
     this._appendSelect(select)
@@ -35,7 +36,7 @@ class Query extends URL {
   }
 
   _appendSubQueryParams (parent, aliasChain = '') {
-    for (let [alias, query] of Object.entries(parent._subQueries)) {
+    for (let [alias, query] of Object.entries(parent.subQueries)) {
       alias = cc(`${aliasChain}`, alias)
       for (const [key, value] of query.searchParams.entries()) {
         // columns are not merged with subqueries and select is handled in _parseSelectObject
@@ -61,8 +62,8 @@ class Query extends URL {
       // embedding resources with sub queries
       if (v && v.select) {
         const alias = k.split(':', 1)[0].split('!', 1)[0]
-        const subQuery = new Query(this._apiRoot, alias, v)
-        this._subQueries[alias] = subQuery
+        const subQuery = new Query(this.#apiRoot, alias, v)
+        this.subQueries[alias] = subQuery
         return `${k}(${subQuery.searchParams.get('select')})`
       }
       // regular select
