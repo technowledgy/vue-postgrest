@@ -1,31 +1,6 @@
 import { shallowMount } from '@vue/test-utils'
 import Postgrest from '@/Postgrest'
 
-fetch.mockResponse(async req => {
-  if (['http://localhost/api'].includes(req.url)) {
-    return {
-      body: JSON.stringify({
-        definitions: {}
-      }),
-      init: {
-        status: 200,
-        statusText: 'OK',
-        headers: {
-          'Content-Type': 'application/openapi+json'
-        }
-      }
-    }
-  } else {
-    return {
-      body: 'test',
-      init: {
-        status: 200,
-        statusText: 'OK'
-      }
-    }
-  }
-})
-
 describe('RPC', () => {
   beforeEach(() => {
     // just reset .mock data, but not .mockResponse

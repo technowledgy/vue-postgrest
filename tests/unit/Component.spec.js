@@ -4,44 +4,6 @@ import GenericModel from '@/GenericModel'
 
 Postgrest.props.apiRoot.default = '/api'
 
-fetch.mockResponse(async req => {
-  if (['http://localhost/api'].includes(req.url)) {
-    return {
-      body: JSON.stringify({
-        definitions: {}
-      }),
-      init: {
-        status: 200,
-        statusText: 'OK',
-        headers: {
-          'Content-Type': 'application/openapi+json'
-        }
-      }
-    }
-  } else if (req.headers.get('Authorization') === 'Bearer expired-token') {
-    return {
-      body: '',
-      init: {
-        status: 401,
-        headers: {
-          'WWW-Authenticate': 'Bearer error="invalid_token", error_description="JWT expired"'
-        }
-      }
-    }
-  } else {
-    return {
-      body: '{}',
-      init: {
-        status: 200,
-        statusText: 'OK',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    }
-  }
-})
-
 describe('Module', () => {
   describe('Slot scope', () => {
     it('provides observable GET function if prop QUERY is set', async () => {
@@ -485,7 +447,6 @@ describe('Module', () => {
       let propsChanged = false
       wrapper = shallowMount(Postgrest, {
         propsData: {
-          apiRoot: '/api',
           route: 'clients',
           query: {}
         },
@@ -519,7 +480,6 @@ describe('Module', () => {
     await new Promise((resolve, reject) => {
       wrapper = shallowMount(Postgrest, {
         propsData: {
-          apiRoot: '/api',
           route: 'clients',
           query: {},
           token: 'expired-token'

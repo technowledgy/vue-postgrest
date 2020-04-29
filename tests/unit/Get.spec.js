@@ -2,83 +2,6 @@ import { shallowMount } from '@vue/test-utils'
 import Postgrest from '@/Postgrest'
 import GenericModel from '@/GenericModel'
 
-const mockData = [
-  {
-    id: 1,
-    name: 'Test Client 1'
-  },
-  {
-    id: 2,
-    name: 'Test Client 2'
-  },
-  {
-    id: 3,
-    name: 'Test Client 3'
-  }
-]
-
-fetch.mockResponse(async req => {
-  if (['http://localhost/api', 'http://localhost/another-api', 'http://localhost/another-api/'].includes(req.url)) {
-    return {
-      body: JSON.stringify({
-        definitions: {
-          clients: {
-            properties: {
-              id: {
-                type: 'integer',
-                description: 'Note:\nThis is a Primary Key.<pk/>'
-              }
-            }
-          }
-        }
-      }),
-      init: {
-        status: 200,
-        statusText: 'OK',
-        headers: {
-          'Content-Type': 'application/openapi+json'
-        }
-      }
-    }
-  } else if (req.url === 'http://localhost/api/404') {
-    return {
-      body: '{}',
-      init: {
-        status: 404,
-        statusText: 'Not found'
-      }
-    }
-  } else if (req.headers.get('Accept') === 'application/vnd.pgrst.object+json') {
-    return {
-      body: JSON.stringify(mockData[0]),
-      init: {
-        status: 200,
-        statusText: 'OK',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    }
-  } else {
-    const rangeHeaders = {}
-    if (req.headers.get('Range')) {
-      rangeHeaders['Range-Units'] = 'items'
-      rangeHeaders['Content-Range'] = req.headers.get('Prefer') && req.headers.get('Prefer').includes('count=exact') ? '0-1/3' : '0-1/*'
-    }
-    return {
-      body: JSON.stringify(mockData),
-      init: {
-        status: 200,
-        statusText: 'OK',
-        headers: {
-          'Content-Type': 'application/json',
-          ...rangeHeaders
-        }
-      }
-    }
-  }
-})
-
 describe('Get', () => {
   beforeEach(() => {
     // just reset .mock data, but not .mockResponse
@@ -99,7 +22,20 @@ describe('Get', () => {
         }
       })
       const ret = await wrapper.vm._get()
-      expect(ret).toEqual(mockData)
+      expect(ret).toEqual([
+        {
+          id: 1,
+          name: 'Test Client 1'
+        },
+        {
+          id: 2,
+          name: 'Test Client 2'
+        },
+        {
+          id: 3,
+          name: 'Test Client 3'
+        }
+      ])
     })
 
     it('sets the correct headers for prop count undefined', async () => {
@@ -189,8 +125,8 @@ describe('Get', () => {
               default (props) {
                 try {
                   if (!props.get.isPending) {
-                    expect(props.items.length).toBe(mockData.length)
-                    expect(props.items[0].data.id).toBe(mockData[0].id)
+                    expect(props.items.length).toBe(3)
+                    expect(props.items[0].data.id).toBe(1)
                     expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
                     expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Accept')).toBe('application/json')
                     resolve()
@@ -220,7 +156,7 @@ describe('Get', () => {
               default (props) {
                 try {
                   if (!props.get.isPending) {
-                    expect(props.item.data.id).toBe(mockData[0].id)
+                    expect(props.item.data.id).toBe(1)
                     expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
                     expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Accept')).toBe('application/vnd.pgrst.object+json')
                     resolve()
@@ -282,7 +218,10 @@ describe('Get', () => {
                   if (!props.get.isPending) {
                     expect(props.item instanceof GenericModel).toBe(true)
                     expect(typeof props.item.request).toBe('function')
-                    expect(props.item.data).toEqual(mockData[0])
+                    expect(props.item.data).toEqual({
+                      id: 1,
+                      name: 'Test Client 1'
+                    })
                     // primary keys as defined by docs above
                     expect(props.item.primaryKeys).toEqual(['id'])
                     resolve()

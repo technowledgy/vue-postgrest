@@ -1,57 +1,5 @@
 import request from '@/request'
 
-const mockData = [
-  {
-    id: 1,
-    name: 'Test Client 1'
-  },
-  {
-    id: 2,
-    name: 'Test Client 2'
-  },
-  {
-    id: 3,
-    name: 'Test Client 3'
-  }
-]
-
-fetch.mockResponse(async req => {
-  if (req.url === 'http://localhost/api') {
-    return {
-      body: JSON.stringify({
-        definitions: {
-          clients: {
-            properties: {
-              id: {
-                type: 'integer',
-                description: 'Note:\nThis is a Primary Key.<pk/>'
-              }
-            }
-          }
-        }
-      }),
-      init: {
-        status: 200,
-        statusText: 'OK',
-        headers: {
-          'Content-Type': 'application/openapi+json'
-        }
-      }
-    }
-  } else {
-    return {
-      body: JSON.stringify(mockData),
-      init: {
-        status: 200,
-        statusText: 'OK',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    }
-  }
-})
-
 describe('Request', () => {
   beforeEach(() => {
     // just reset .mock data, but not .mockResponse
