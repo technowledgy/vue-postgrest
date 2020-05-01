@@ -10,68 +10,54 @@ const GenericModelTemplate = Vue.extend({
     return {
       data: {},
       diff: {},
-      resetCache: {},
-      request: null
+      resetCache: {}
     }
   },
   created () {
     this.watchers = {}
   },
   computed: {
-    primaryKeys () {
-      return (this.schema[this.route] && this.schema[this.route].pks) || []
-    },
-    query () {
-      return this.primaryKeys && this.primaryKeys.reduce((q, pk) => {
-        if (this.resetCache[pk] === undefined) {
-          throw new PrimaryKeyError(pk)
-        }
-        q[pk] = 'eq.' + this.resetCache[pk]
-        return q
-      }, {})
-    },
     isDirty () {
       return Object.keys(this.diff).length > 0
     }
   },
   methods: {
     async _get (opts = {}) {
-      const query = { ...this.query }
+      const defaultOptions = { accept: 'single' }
+      const { keepChanges, ...options } = Object.assign({}, defaultOptions, opts)
+
+      const query = await this._query()
       if (this.select) {
         query.select = this.select
       }
-      const ret = await this.request('GET', query, { return: 'single', headers: opts.headers })
+      const ret = await this.route.get(query, { ...options, accept: 'single' })
 
       if (ret && ret.body) {
-        this.setData(ret.body, opts.keepChanges)
+        this.setData(ret.body, keepChanges)
       }
       return ret
     },
-    async _post (opt, sync = true) {
-      const defaultOptions = { columns: Object.keys(this.data) }
-      const options = Object.assign({}, defaultOptions, opt)
-      // always set return to representation if sync is true
-      if (sync) {
-        options.return = 'representation'
-      }
+    async _post (opts) {
+      const defaultOptions = { return: 'representation', columns: Object.keys(this.data) }
+      const { columns, ...options } = Object.assign({}, defaultOptions, opts)
 
       const query = {}
       if (options.return === 'representation' && this.select) {
         query.select = this.select
       }
-      if (options.columns) {
-        query.columns = options.columns
+      if (columns) {
+        query.columns = columns
       }
 
-      const ret = await this.request('POST', query, options, cloneDeep(this.data))
-      if (sync && ret && ret.body) {
+      const ret = await this.route.post(query, { ...options, accept: 'single' }, cloneDeep(this.data))
+      if (options.return === 'representation' && ret && ret.body) {
         this.setData(ret.body[0])
       } else {
         this.reset()
       }
       return ret
     },
-    async _patch (data = {}, opt, sync = true) {
+    async _patch (data = {}, opts) {
       if (!isObject(data) || Array.isArray(data)) {
         throw new Error('Patch data must be an object.')
       }
@@ -81,40 +67,48 @@ const GenericModelTemplate = Vue.extend({
         }
         return acc
       }, {}))
-      if (Object.keys(patchData).length === 0) {
-        return
-      }
-      const defaultOptions = { columns: Object.keys(patchData) }
-      const options = Object.assign({}, defaultOptions, opt)
+      const defaultOptions = { return: 'representation', columns: Object.keys(patchData) }
+      const { columns, ...options } = Object.assign({}, defaultOptions, opts)
 
-      // always set return to representation if sync is true
-      if (sync) {
-        options.return = 'representation'
-      }
-
-      const query = { ...this.query }
+      const query = await this._query()
       if (options.return === 'representation' && this.select) {
         query.select = this.select
       }
-      if (options.columns) {
-        query.columns = options.columns
+      if (columns) {
+        query.columns = columns
       }
 
-      const ret = await this.request('PATCH', query, options, cloneDeep(patchData))
-      if (sync && ret && ret.body) {
+      // no empty requests
+      if (Object.keys(patchData).length === 0) {
+        return
+      }
+
+      const ret = await this.route.patch(query, { ...options, accept: 'single' }, cloneDeep(patchData))
+      if (options.return === 'representation' && ret && ret.body) {
         this.setData(ret.body[0])
       } else {
         this.reset()
       }
       return ret
     },
-    async _delete (opts = {}) {
-      const query = { ...this.query }
-      if (opts.return === 'representation' && this.select) {
+    async _delete (options = {}) {
+      const query = await this._query()
+      if (options.return === 'representation' && this.select) {
         query.select = this.select
       }
 
-      return await this.request('DELETE', query, opts)
+      return await this.route.delete(query, { ...options, accept: 'single' })
+    },
+    async _query () {
+      await this.route.$ready
+      if (this.route.pks.length === 0) throw new PrimaryKeyError()
+      return this.route.pks.reduce((q, pk) => {
+        if (this.resetCache[pk] === undefined || this.resetCache[pk] === null) {
+          throw new PrimaryKeyError(pk)
+        }
+        q[pk + '.eq'] = this.resetCache[pk]
+        return q
+      }, {})
     },
     setData (data, keepDiff = false) {
       this.resetCache = cloneDeep(data)
@@ -133,25 +127,15 @@ const GenericModelTemplate = Vue.extend({
 })
 
 class GenericModel extends GenericModelTemplate {
-  constructor (data, { route, schema, request, select }) {
+  constructor (data, { route, select }) {
     super()
     this.setData(cloneDeep(data))
     this.route = route
-    this.schema = schema
-    this.request = request
     this.select = select
+    this.get = new ObservableFunction(this._get)
     this.post = new ObservableFunction(this._post)
-    this.$watch('primaryKeys', {
-      deep: false,
-      immediate: true,
-      handler (newPrimaryKeys) {
-        if (newPrimaryKeys && newPrimaryKeys.length > 0) {
-          this.patch = new ObservableFunction(this._patch)
-          this.delete = new ObservableFunction(this._delete)
-          this.get = new ObservableFunction(this._get)
-        }
-      }
-    })
+    this.patch = new ObservableFunction(this._patch)
+    this.delete = new ObservableFunction(this._delete)
     this.$watch('data', {
       deep: true,
       immediate: true,

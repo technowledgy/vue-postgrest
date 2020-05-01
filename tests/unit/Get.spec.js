@@ -201,8 +201,8 @@ describe('Get', () => {
         wrapper.destroy()
       })
 
-      it('returns generic models with correct properties', async () => {
-        expect.assertions(4)
+      it('returns generic models', async () => {
+        expect.assertions(2)
         let wrapper
         await new Promise((resolve, reject) => {
           wrapper = shallowMount(Postgrest, {
@@ -216,14 +216,11 @@ describe('Get', () => {
               default (props) {
                 try {
                   if (!props.get.isPending) {
-                    expect(props.item instanceof GenericModel).toBe(true)
-                    expect(typeof props.item.request).toBe('function')
+                    expect(props.item).toBeInstanceOf(GenericModel)
                     expect(props.item.data).toEqual({
                       id: 1,
                       name: 'Test Client 1'
                     })
-                    // primary keys as defined by docs above
-                    expect(props.item.primaryKeys).toEqual(['id'])
                     resolve()
                   }
                 } catch (e) {

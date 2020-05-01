@@ -1,4 +1,5 @@
-import Vue from 'vue'
+import Route from '@/Route'
+import request from '@/request'
 import { throwWhenStatusNotOk, SchemaNotFoundError } from '@/errors'
 
 let schemaCache = {}
@@ -8,25 +9,55 @@ export function resetSchemaCache () {
   schemaCache = {}
 }
 
-export default class Schema {
+export default class Schema extends Function {
+  #apiRoot
+  #token
+
   constructor (apiRoot, token) {
+    super('', 'return arguments.callee._call.apply(arguments.callee, arguments)')
     const cached = schemaCache[apiRoot] && schemaCache[apiRoot][token]
     if (cached) return cached
     // create new Instance
-    Object.defineProperties(this, Object.getOwnPropertyDescriptors(Vue.observable({})))
+    this.#apiRoot = apiRoot
+    this.#token = token
     if (!schemaCache[apiRoot]) {
       schemaCache[apiRoot] = {}
     }
     schemaCache[apiRoot][token] = this
-    const ready = this._fetchSchema(apiRoot, token)
-      .then(schema => {
-        Object.assign(this, this._extractPrimaryKeys(schema))
-        return schema
-      })
-    // non-enumerable _ready prop returning the promise, just for tests
-    Object.defineProperty(this, '_ready', {
+    // eslint-disable-next-line no-async-promise-executor
+    const ready = new Promise(async (resolve, reject) => {
+      try {
+        const schema = await this._fetchSchema(apiRoot, token)
+        for (const [route, def] of Object.entries(schema.definitions)) {
+          this._createRoute(route, def)
+        }
+        resolve()
+      } catch (e) {
+        reject(e)
+      }
+    })
+    // non-enumerable $ready prop returning the promise, just for tests
+    Object.defineProperty(this, '$ready', {
       value: ready
     })
+  }
+
+  _call (apiRoot = this.#apiRoot, token = this.#token) {
+    return new Schema(apiRoot, token)
+  }
+
+  $route (route) {
+    return this._createRoute(route)
+  }
+
+  _createRoute (route, def) {
+    if (!this[route]) {
+      this[route] = new Route(request.bind(null, this.#apiRoot, this.#token, route), this.$ready)
+    }
+    if (def) {
+      this[route]._extractPrimaryKeys(def)
+    }
+    return this[route]
   }
 
   async _fetchSchema (apiRoot, token) {
@@ -45,15 +76,5 @@ export default class Schema {
     } catch (err) {
       throw new SchemaNotFoundError(apiRoot, err)
     }
-  }
-
-  _extractPrimaryKeys (schema) {
-    return Object.entries(schema.definitions).reduce((acc, [table, tableDef]) => {
-      const pks = Object.entries(tableDef.properties)
-        .filter(([field, fieldDef]) => fieldDef.description && fieldDef.description.includes('<pk/>'))
-        .map(([field]) => field)
-      acc[table] = { pks }
-      return acc
-    }, {})
   }
 }

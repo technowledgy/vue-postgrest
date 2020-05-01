@@ -1,17 +1,8 @@
-import Postgrest from './Postgrest'
-
-const plugin = {
-  install (Vue, options = {}) {
-    if (options.apiRoot) {
-      Postgrest.props.apiRoot.default = options.apiRoot
-    }
-    Vue.component('postgrest', Postgrest)
-  }
-}
+import Plugin from './Plugin'
 
 // Auto-install when vue is found (eg. in browser via <script> tag)
 if (typeof window !== 'undefined' && window.Vue) {
-  window.Vue.use(plugin)
+  window.Vue.use(Plugin)
 }
 
-export default plugin
+export default Plugin

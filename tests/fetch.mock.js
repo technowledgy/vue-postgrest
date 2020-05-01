@@ -70,6 +70,7 @@ const pkSchema = {
 export default async req => {
   const url = req.url.replace('http://localhost', '')
   switch (url) {
+    case '/nested/path':
     case '/api':
     case '/api/':
     case '/another-api':

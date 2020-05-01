@@ -53,6 +53,7 @@ export default {
       range: undefined,
       get: new ObservableFunction(this._get),
       schema: null,
+      routeHandler: null,
       rpc: new ObservableFunction(this._rpc)
     }
   },
@@ -76,7 +77,7 @@ export default {
         if (!this.query) {
           return
         }
-        const resp = await request(this.apiRoot, this.token, this.route, 'GET', this.query, {
+        const resp = await this.routeHandler.get(this.query, {
           accept: this.accept,
           limit: this.limit,
           offset: this.offset,
@@ -87,18 +88,14 @@ export default {
           this.items = null
           body = await resp.json()
           this.item = new GenericModel(body, {
-            route: this.route,
-            schema: this.schema,
-            request: request.bind(null, this.apiRoot, this.token, this.route),
+            route: this.routeHandler,
             select: this.query.select
           })
         } else if (!this.accept) {
           this.item = null
           body = await resp.json()
           this.items = body.map(data => new GenericModel(data, {
-            route: this.route,
-            schema: this.schema,
-            request: request.bind(null, this.apiRoot, this.token, this.route),
+            route: this.routeHandler,
             select: this.query.select
           }))
         } else {
@@ -138,12 +135,11 @@ export default {
     },
     loadSchema () {
       this.schema = new Schema(this.apiRoot, this.token)
+      this.routeHandler = this.schema.$route(this.route)
     },
     resetNewItem () {
       this.newItem = new GenericModel(this.create, {
-        route: this.route,
-        schema: this.schema,
-        request: request.bind(null, this.apiRoot, this.token, this.route),
+        route: this.routeHandler,
         select: (this.query || {}).select
       })
     }
@@ -159,6 +155,7 @@ export default {
       this.get()
     })
     this.$watch('route', () => {
+      this.loadSchema()
       this.get()
     })
     this.$watch('query', this.get, { deep: true })
@@ -166,9 +163,7 @@ export default {
     this.$watch('limit', this.get)
     this.$watch('create', (newData) => {
       this.newItem = new GenericModel(newData, {
-        route: this.route,
-        schema: this.schema,
-        request: request.bind(null, this.apiRoot, this.token, this.route),
+        route: this.routeHandler,
         select: (this.query || {}).select
       })
     }, { immediate: true })

@@ -21,25 +21,22 @@ class ObservableFunction extends Function {
         return this.nPending > 0
       }
     })))
-    return this
   }
 
-  call (...args) {
+  async call (...args) {
     this.nPending++
-    return Promise.resolve(this.#fn(...args))
-      .then(ret => {
-        this.errors = []
-        return ret
-      })
-      .catch((e) => {
-        this.errors.push(e)
-        if (e instanceof EmittedError === false) {
-          throw e
-        }
-      })
-      .finally(() => {
-        this.nPending--
-      })
+    try {
+      const ret = await this.#fn(...args)
+      this.errors = []
+      return ret
+    } catch (e) {
+      this.errors.push(e)
+      if (e instanceof EmittedError === false) {
+        throw e
+      }
+    } finally {
+      this.nPending--
+    }
   }
 }
 

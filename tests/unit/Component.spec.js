@@ -398,7 +398,7 @@ describe('Module', () => {
           scopedSlots: {
             default (props) {
               try {
-                expect(props.newItem instanceof GenericModel).toBeTruthy()
+                expect(props.newItem).toBeInstanceOf(GenericModel)
                 resolve()
               } catch (e) {
                 reject(e)
