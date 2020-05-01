@@ -140,7 +140,7 @@ export default {
     resetNewItem () {
       this.newItem = new GenericModel(this.create, {
         route: this.routeHandler,
-        select: (this.query || {}).select
+        select: (this.query ?? {}).select
       })
     }
   },
@@ -164,7 +164,7 @@ export default {
     this.$watch('create', (newData) => {
       this.newItem = new GenericModel(newData, {
         route: this.routeHandler,
-        select: (this.query || {}).select
+        select: (this.query ?? {}).select
       })
     }, { immediate: true })
     this.get()

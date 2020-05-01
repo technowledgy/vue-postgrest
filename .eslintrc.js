@@ -24,5 +24,8 @@ module.exports = {
         jest: true
       }
     }
-  ]
+  ],
+  globals: {
+    globalThis: false
+  }
 }

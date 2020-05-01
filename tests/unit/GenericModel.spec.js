@@ -5,6 +5,7 @@ import cloneDeep from 'lodash.clonedeep'
 
 import request from '@/request'
 jest.mock('@/request')
+request.mockReturnValue({})
 
 const data = {
   id: 123,

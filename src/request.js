@@ -11,10 +11,10 @@ const acceptHeaderMap = {
 async function request (apiRoot, token, route, method, query = {}, options = {}, body) {
   const headers = new Headers()
 
-  headers.set('Accept', acceptHeaderMap[options.accept || ''] || options.accept)
+  headers.set('Accept', acceptHeaderMap[options.accept ?? ''] || options.accept)
 
   if (options.limit || options.offset) {
-    const lower = options.offset || 0
+    const lower = options.offset ?? 0
     const upper = options.limit ? lower + options.limit - 1 : ''
     headers.set('Range-Unit', 'items')
     headers.set('Range', [lower, upper].join('-'))
@@ -48,7 +48,7 @@ async function request (apiRoot, token, route, method, query = {}, options = {},
       body
     }).then(throwWhenStatusNotOk)
   } catch (err) {
-    if (err.resp && err.resp.headers.get('WWW-Authenticate')) {
+    if (err.resp?.headers.get('WWW-Authenticate')) {
       const authError = splitToObject(err.resp.headers.get('WWW-Authenticate').replace(/^Bearer /, ''))
       throw new AuthError(authError)
     } else {

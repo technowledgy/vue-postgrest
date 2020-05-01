@@ -3,7 +3,7 @@ function isLogicalOperator (k) {
 }
 
 function quoteValue (str) {
-  str = (str || '') && str.toString()
+  str = str?.toString() ?? ''
   if ([',', '.', ':', '(', ')'].find(r => str.includes(r)) || ['null', 'true', 'false'].includes(str)) {
     return `"${str}"`
   } else {
@@ -13,7 +13,7 @@ function quoteValue (str) {
 
 // conditional concat - only if str is set
 function cc (prefix, str, suffix = '') {
-  str = str && str.toString()
+  str = str?.toString()
   return str ? `${prefix}${str}${suffix}` : ''
 }
 
@@ -60,7 +60,7 @@ class Query extends URL {
       // ignore falsy values - will be filtered out
       if (!v) return
       // embedding resources with sub queries
-      if (v && v.select) {
+      if (v?.select) {
         const alias = k.split(':', 1)[0].split('!', 1)[0]
         const subQuery = new Query(this.#apiRoot, alias, v)
         this.subQueries[alias] = subQuery
@@ -135,7 +135,7 @@ class Query extends URL {
     return Object.entries(obj).map(([key, value]) => {
       // throw away alias - just used to allow the same condition more than once on one object
       const aliasKey = key.split(':')
-      key = aliasKey[1] || aliasKey[0]
+      key = aliasKey[1] ?? aliasKey[0]
       if (isLogicalOperator(key)) {
         if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('no object for logical operator')
         if (jsonPrefix) throw new Error('logical operators can\'t be nested with json operators')

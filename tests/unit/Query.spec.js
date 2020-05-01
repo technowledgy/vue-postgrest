@@ -18,7 +18,7 @@ describe('Query', () => {
   itt('returns empty query string with empty input', {}, '')
 
   it('returns path of URI properly', () => {
-    // jsdom is configured in jest.config to have window.location at localhost/nested/path
+    // jsdom is configured in jest.config to have globalThis.location at localhost/nested/path
     expect((new Query('api', 'test', {})).toString()).toBe('http://localhost/nested/api/test')
     expect((new Query('/api', 'test', {})).toString()).toBe('http://localhost/api/test')
     expect((new Query('/api/', 'test', {})).toString()).toBe('http://localhost/api/test')

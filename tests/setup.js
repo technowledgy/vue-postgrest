@@ -4,8 +4,8 @@ enableFetchMocks()
 fetch.mockResponse(postgrestMock)
 
 // only mock global Vue instance for index file
-if (window.jasmine.testPath.includes('index.spec.js')) {
-  Object.defineProperty(window, 'Vue', {
+if (globalThis.jasmine.testPath.includes('index.spec.js')) {
+  Object.defineProperty(globalThis, 'Vue', {
     writable: true,
     value: {
       use: jest.fn()

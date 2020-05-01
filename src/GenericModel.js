@@ -32,7 +32,7 @@ const GenericModelTemplate = Vue.extend({
       }
       const ret = await this.route.get(query, { ...options, accept: 'single' })
 
-      if (ret && ret.body) {
+      if (ret.body) {
         this.setData(ret.body, keepChanges)
       }
       return ret
@@ -50,7 +50,7 @@ const GenericModelTemplate = Vue.extend({
       }
 
       const ret = await this.route.post(query, { ...options, accept: 'single' }, cloneDeep(this.data))
-      if (options.return === 'representation' && ret && ret.body) {
+      if (options.return === 'representation' && ret.body) {
         this.setData(ret.body[0])
       } else {
         this.reset()
@@ -84,7 +84,7 @@ const GenericModelTemplate = Vue.extend({
       }
 
       const ret = await this.route.patch(query, { ...options, accept: 'single' }, cloneDeep(patchData))
-      if (options.return === 'representation' && ret && ret.body) {
+      if (options.return === 'representation' && ret.body) {
         this.setData(ret.body[0])
       } else {
         this.reset()

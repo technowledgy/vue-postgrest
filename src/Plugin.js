@@ -8,6 +8,6 @@ export default {
     }
     Vue.component('postgrest', Postgrest)
 
-    Vue.prototype.$postgrest = new Schema(options.apiRoot || '')
+    Vue.prototype.$postgrest = new Schema(options.apiRoot ?? '')
   }
 }
