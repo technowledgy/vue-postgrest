@@ -13,7 +13,11 @@ async function request (apiRoot, token, route, method, query = {}, options = {},
 
   headers.set('Accept', acceptHeaderMap[options.accept ?? ''] || options.accept)
 
-  if (options.limit || options.offset) {
+  if (options.limit === 0) {
+    // this will be an unsatisfiable range, but the user wanted it!
+    headers.set('Range-Unit', 'items')
+    headers.set('Range', '-0')
+  } else if (options.limit || options.offset !== undefined) {
     const lower = options.offset ?? 0
     const upper = options.limit ? lower + options.limit - 1 : ''
     headers.set('Range-Unit', 'items')

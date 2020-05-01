@@ -30,12 +30,11 @@ const GenericModelTemplate = Vue.extend({
       if (this.select) {
         query.select = this.select
       }
-      const ret = await this.route.get(query, { ...options, accept: 'single' })
+      const resp = await this.route.get(query, { ...options, accept: 'single' })
+      const body = await resp.json()
 
-      if (ret.body) {
-        this.setData(ret.body, keepChanges)
-      }
-      return ret
+      this.setData(body, keepChanges)
+      return body
     },
     async _post (opts) {
       const defaultOptions = { return: 'representation', columns: Object.keys(this.data) }
@@ -49,13 +48,15 @@ const GenericModelTemplate = Vue.extend({
         query.columns = columns
       }
 
-      const ret = await this.route.post(query, { ...options, accept: 'single' }, cloneDeep(this.data))
-      if (options.return === 'representation' && ret.body) {
-        this.setData(ret.body[0])
+      const resp = await this.route.post(query, { ...options, accept: 'single' }, cloneDeep(this.data))
+      const body = await resp.json()
+
+      if (options.return === 'representation') {
+        this.setData(body)
       } else {
         this.reset()
       }
-      return ret
+      return body
     },
     async _patch (data = {}, opts) {
       if (!isObject(data) || Array.isArray(data)) {
@@ -83,13 +84,15 @@ const GenericModelTemplate = Vue.extend({
         return
       }
 
-      const ret = await this.route.patch(query, { ...options, accept: 'single' }, cloneDeep(patchData))
-      if (options.return === 'representation' && ret.body) {
-        this.setData(ret.body[0])
+      const resp = await this.route.patch(query, { ...options, accept: 'single' }, cloneDeep(patchData))
+      const body = await resp.json()
+
+      if (options.return === 'representation') {
+        this.setData(body)
       } else {
         this.reset()
       }
-      return ret
+      return body
     },
     async _delete (options = {}) {
       const query = await this._query()
@@ -97,7 +100,8 @@ const GenericModelTemplate = Vue.extend({
         query.select = this.select
       }
 
-      return await this.route.delete(query, { ...options, accept: 'single' })
+      const resp = await this.route.delete(query, { ...options, accept: 'single' })
+      return await resp.json()
     },
     async _query () {
       await this.route.$ready

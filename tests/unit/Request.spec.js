@@ -1,116 +1,261 @@
 import request from '@/request'
 
-describe('Request', () => {
+describe('request method', () => {
   beforeEach(() => {
     // just reset .mock data, but not .mockResponse
     fetch.mockClear()
   })
 
-  it('sends a request with the specified method', async () => {
-    expect.assertions(4)
+  it('sends a request with method GET, POST, PUT, PATCH or DELETE', async () => {
     await request('/api', '', 'clients', 'GET', {})
-    expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients' && args[1].method === 'GET').length).toBe(1)
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      method: 'GET'
+    }))
 
     await request('/api', '', 'clients', 'POST', {})
-    expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients' && args[1].method === 'POST').length).toBe(1)
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      method: 'POST'
+    }))
 
-    await request('/api', '', 'clients', 'DELETE', {})
-    expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients' && args[1].method === 'DELETE').length).toBe(1)
+    await request('/api', '', 'clients', 'PUT', {})
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      method: 'PUT'
+    }))
 
     await request('/api', '', 'clients', 'PATCH', {})
-    expect(fetch.mock.calls.filter(args => args[0] === 'http://localhost/api/clients' && args[1].method === 'PATCH').length).toBe(1)
-  })
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      method: 'PATCH'
+    }))
 
-  it('it sends passed select part of query', async () => {
-    await request('/api', '', 'clients', 'GET', { select: ['id', 'name'] })
-    expect(decodeURIComponent(fetch.mock.calls[0][0])).toBe('http://localhost/api/clients?select=id,name')
-  })
-
-  it('it parses "accept" option correctly', async () => {
-    await request('/api', '', 'clients', 'GET', {}, { accept: 'single' })
-    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Accept')).toBe('application/vnd.pgrst.object+json')
-    fetch.mockClear()
-
-    await request('/api', '', 'clients', 'GET', {}, { accept: 'binary' })
-    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Accept')).toBe('application/octet-stream')
-    fetch.mockClear()
-
-    await request('/api', '', 'clients', 'GET', {}, { accept: undefined })
-    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Accept')).toBe('application/json')
-    fetch.mockClear()
-
-    await request('/api', '', 'clients', 'GET', {}, { accept: 'custom-accept-header' })
-    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Accept')).toBe('custom-accept-header')
-  })
-
-  it('it parses "return" option correctly', async () => {
-    await request('/api', '', 'clients', 'GET', {}, {})
-    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Prefer')).toBe(null)
-    fetch.mockClear()
-
-    await request('/api', '', 'clients', 'GET', {}, { return: 'representation' })
-    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Prefer')).toBe('return=representation')
-  })
-
-  it('it parses "count" option correctly', async () => {
-    await request('/api', '', 'clients', 'GET', {}, {})
-    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Prefer')).toBe(null)
-    fetch.mockClear()
-
-    await request('/api', '', 'clients', 'GET', {}, { count: 'exact' })
-    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Prefer')).toBe('count=exact')
-  })
-
-  it('it parses "params" option correctly', async () => {
-    await request('/api', '', 'clients', 'GET', {}, {})
-    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Prefer')).toBe(null)
-    fetch.mockClear()
-
-    await request('/api', '', 'clients', 'GET', {}, { params: 'single-object' })
-    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Prefer')).toBe('params=single-object')
-    fetch.mockClear()
-
-    await request('/api', '', 'clients', 'GET', {}, { params: 'multiple-objects' })
-    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Prefer')).toBe('params=multiple-objects')
-  })
-
-  it('it parses "headers" option correctly', async () => {
-    const headers = { prefer: 'custom-prefer-header', accept: 'custom-accept-header', 'x-header': 'custom-x-header' }
-
-    await request('/api', '', 'clients', 'GET', {}, { headers })
-    const getHeaders = fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers
-    expect(getHeaders.get('Prefer')).toBe(headers.prefer)
-    expect(getHeaders.get('Accept')).toBe(headers.accept)
-    expect(getHeaders.get('X-Header')).toBe(headers['x-header'])
-    fetch.mockClear()
-
-    await request('/api', '', 'clients', 'POST', {}, { accept: 'binary', return: 'minimal', headers })
-    const postHeaders = fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers
-    expect(postHeaders.get('Prefer')).toBe(headers.prefer)
-    expect(postHeaders.get('Accept')).toBe(headers.accept)
-    expect(postHeaders.get('X-Header')).toBe(headers['x-header'])
-  })
-
-  it('it combines return and count options correctly', async () => {
-    await request('/api', '', 'clients', 'POST', {}, { count: 'exact', return: 'minimal' })
-    expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Prefer')).toBe('return=minimal,count=exact')
+    await request('/api', '', 'clients', 'DELETE', {})
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      method: 'DELETE'
+    }))
   })
 
   it('does not throw if query argument is undefined', async () => {
-    expect.assertions(1)
     await expect(request('/api', '', 'clients', 'GET')).resolves.toBeTruthy()
   })
 
-  it('does not send authorization header if prop "token" is not set', async () => {
-    expect.assertions(1)
-    await request('/api', '', 'clients', 'GET', {})
-    expect(fetch.mock.calls[0][1].headers.get('Authorization')).toBe(null)
+  it('appends query to URL', async () => {
+    await request('/api', '', 'clients', 'GET', { select: ['id', 'name'] })
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients?select=' + encodeURIComponent('id,name'), expect.anything())
+
+    await request('/api', '', 'clients', 'POST', { 'id.eq': 1 })
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients?id=' + encodeURIComponent('eq.1'), expect.anything())
+
+    await request('/api', '', 'clients', 'PATCH', { order: 'name.asc' })
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients?order=' + encodeURIComponent('name.asc'), expect.anything())
+
+    await request('/api', '', 'clients', 'DELETE', { limit: 1, offset: 2 })
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients?limit=1&offset=2', expect.anything())
+  })
+
+  it('parses "accept" option', async () => {
+    await request('/api', '', 'clients', 'GET', {}, { accept: 'single' })
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      headers: new Headers({
+        Accept: 'application/vnd.pgrst.object+json'
+      })
+    }))
+
+    await request('/api', '', 'clients', 'POST', {}, { accept: 'binary' })
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      headers: new Headers({
+        Accept: 'application/octet-stream'
+      })
+    }))
+
+    await request('/api', '', 'clients', 'PATCH', {}, { accept: undefined })
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      headers: new Headers({
+        Accept: 'application/json'
+      })
+    }))
+
+    await request('/api', '', 'clients', 'DELETE', {}, { accept: 'custom-accept-header' })
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      headers: new Headers({
+        Accept: 'custom-accept-header'
+      })
+    }))
+  })
+
+  describe('set range headers for "offset" and "limit" options', () => {
+    it('offset 0', async () => {
+      await request('/api', '', 'clients', 'GET', {}, { offset: 0 })
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+        headers: new Headers({
+          Accept: 'application/json',
+          'Range-Unit': 'items',
+          Range: '0-'
+        })
+      }))
+    })
+
+    it('offset 1', async () => {
+      await request('/api', '', 'clients', 'GET', {}, { offset: 1 })
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+        headers: new Headers({
+          Accept: 'application/json',
+          'Range-Unit': 'items',
+          Range: '1-'
+        })
+      }))
+    })
+
+    it('offset > 1', async () => {
+      await request('/api', '', 'clients', 'GET', {}, { offset: 5 })
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+        headers: new Headers({
+          Accept: 'application/json',
+          'Range-Unit': 'items',
+          Range: '5-'
+        })
+      }))
+    })
+
+    it('limit 0', async () => {
+      await request('/api', '', 'clients', 'GET', {}, { limit: 0 })
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+        headers: new Headers({
+          Accept: 'application/json',
+          'Range-Unit': 'items',
+          Range: '-0'
+        })
+      }))
+    })
+
+    it('limit 1', async () => {
+      await request('/api', '', 'clients', 'GET', {}, { limit: 1 })
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+        headers: new Headers({
+          Accept: 'application/json',
+          'Range-Unit': 'items',
+          Range: '0-0'
+        })
+      }))
+    })
+
+    it('limit > 1', async () => {
+      await request('/api', '', 'clients', 'GET', {}, { limit: 10 })
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+        headers: new Headers({
+          Accept: 'application/json',
+          'Range-Unit': 'items',
+          Range: '0-9'
+        })
+      }))
+    })
+
+    it('offset > 0 and limit 0', async () => {
+      await request('/api', '', 'clients', 'GET', {}, { offset: 5, limit: 0 })
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+        headers: new Headers({
+          Accept: 'application/json',
+          'Range-Unit': 'items',
+          Range: '-0'
+        })
+      }))
+    })
+
+    it('offset > 0 and limit 1', async () => {
+      await request('/api', '', 'clients', 'GET', {}, { offset: 5, limit: 1 })
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+        headers: new Headers({
+          Accept: 'application/json',
+          'Range-Unit': 'items',
+          Range: '5-5'
+        })
+      }))
+    })
+
+    it('offset > 0 and limit > 1', async () => {
+      await request('/api', '', 'clients', 'GET', {}, { offset: 5, limit: 10 })
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+        headers: new Headers({
+          Accept: 'application/json',
+          'Range-Unit': 'items',
+          Range: '5-14'
+        })
+      }))
+    })
+  })
+
+  it('parses "return" option', async () => {
+    await request('/api', '', 'clients', 'POST', {}, { return: 'representation' })
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      headers: new Headers({
+        Accept: 'application/json',
+        Prefer: 'return=representation'
+      })
+    }))
+  })
+
+  it('parses "count" option', async () => {
+    await request('/api', '', 'clients', 'GET', {}, { count: 'exact' })
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      headers: new Headers({
+        Accept: 'application/json',
+        Prefer: 'count=exact'
+      })
+    }))
+  })
+
+  it('parses "params" option', async () => {
+    await request('/api', '', 'clients', 'POST', {}, { params: 'single-object' })
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      headers: new Headers({
+        Accept: 'application/json',
+        Prefer: 'params=single-object'
+      })
+    }))
+
+    await request('/api', '', 'clients', 'POST', {}, { params: 'multiple-objects' })
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      headers: new Headers({
+        Accept: 'application/json',
+        Prefer: 'params=multiple-objects'
+      })
+    }))
+  })
+
+  it('combines multiple prefer options', async () => {
+    await request('/api', '', 'clients', 'PATCH', {}, { count: 'exact', return: 'minimal' })
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      headers: new Headers({
+        Accept: 'application/json',
+        Prefer: 'return=minimal,count=exact'
+      })
+    }))
+  })
+
+  it('passes "headers" option as override', async () => {
+    const headers = {
+      Prefer: 'custom-prefer-header',
+      Accept: 'custom-accept-header',
+      'x-header': 'custom-x-header'
+    }
+
+    await request('/api', '', 'clients', 'GET', {}, { headers })
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      headers: new Headers(headers)
+    }))
+
+    await request('/api', '', 'clients', 'POST', {}, { accept: 'binary', return: 'minimal', headers })
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      headers: new Headers(headers)
+    }))
   })
 
   it('sends authorization header if argument "token" is set', async () => {
     const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiamRvZSIsImV4cCI6MTQ3NTUxNjI1MH0.GYDZV3yM0gqvuEtJmfpplLBXSGYnke_Pvnl0tbKAjB'
-    expect.assertions(1)
     await request('/api', token, 'clients', 'GET', {})
-    expect(fetch.mock.calls[0][1].headers.get('Authorization')).toBe(`Bearer ${token}`)
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      headers: new Headers({
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`
+      })
+    }))
   })
 })

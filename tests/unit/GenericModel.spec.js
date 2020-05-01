@@ -5,7 +5,6 @@ import cloneDeep from 'lodash.clonedeep'
 
 import request from '@/request'
 jest.mock('@/request')
-request.mockReturnValue({})
 
 const data = {
   id: 123,
@@ -13,6 +12,16 @@ const data = {
   age: 50,
   level: 10
 }
+
+const mockReturn = {
+  ...data,
+  name: 'client321',
+  id: 321
+}
+
+request.mockReturnValue({
+  json: async () => mockReturn
+})
 
 describe('GenericModel', () => {
   const schema = new Schema('/api')
@@ -97,7 +106,7 @@ describe('GenericModel', () => {
     it('sends a get request', async () => {
       const model = new GenericModel(data, { route })
       await model.get()
-      expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 123 }, { accept: 'single' })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 123 }, { accept: 'single' })
     })
 
     it('passes options except accept and keepChanges', async () => {
@@ -108,74 +117,42 @@ describe('GenericModel', () => {
         accept: 'multiple'
       }
       await model.get(options)
-      expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 123 }, { headers: options.headers, accept: 'single' })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 123 }, { headers: options.headers, accept: 'single' })
     })
 
     it('sets select part of query', async () => {
       const select = ['id', 'name']
       const model = new GenericModel(data, { route, select })
       await model.get()
-      expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 123, select }, { accept: 'single' })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 123, select }, { accept: 'single' })
     })
 
     it('returns the request\'s return value and updates model data', async () => {
       const model = new GenericModel(data, { route })
       expect(model.data).toEqual(data)
-      const mockReturn = {
-        body: {
-          ...data,
-          name: 'client321',
-          id: 321
-        }
-      }
-      request.mockReturnValueOnce(mockReturn)
       const ret = await model.get()
       expect(ret).toEqual(mockReturn)
-      expect(model.data).toEqual(mockReturn.body)
+      expect(model.data).toEqual(mockReturn)
     })
 
     it('overwrites changes to the item data if option "keepChanges" is not set', async () => {
       const model = new GenericModel(data, { route })
-      const mockReturn = {
-        body: {
-          ...data,
-          name: 'client321',
-          id: 321
-        }
-      }
-      request.mockReturnValueOnce(mockReturn)
       model.data.name = 'localName'
       await model.$nextTick()
       await model.get()
-      expect(model.data.name).toBe(mockReturn.body.name)
+      expect(model.data.name).toBe(mockReturn.name)
     })
 
     it('overwrites changes to the item data if option "keepChanges" is false', async () => {
       const model = new GenericModel(data, { route })
-      const mockReturn = {
-        body: {
-          ...data,
-          name: 'client321',
-          id: 321
-        }
-      }
-      request.mockReturnValueOnce(mockReturn)
       model.data.name = 'localName'
       await model.$nextTick()
       await model.get({ keepChanges: false })
-      expect(model.data.name).toBe(mockReturn.body.name)
+      expect(model.data.name).toBe(mockReturn.name)
     })
 
     it('does not overwrite changes to the item data if option "keepChanges" is true', async () => {
       const model = new GenericModel(data, { route })
-      const mockReturn = {
-        body: {
-          ...data,
-          name: 'client321',
-          id: 321
-        }
-      }
-      request.mockReturnValueOnce(mockReturn)
       model.data.name = 'localName'
       await model.$nextTick()
       expect(model.data.name).toBe('localName')
@@ -195,7 +172,7 @@ describe('GenericModel', () => {
     it('sends a post request', async () => {
       const model = new GenericModel(data, { route })
       model.post()
-      expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'POST', { columns: ['id', 'name', 'age', 'level'] }, { return: 'representation', accept: 'single' }, data)
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { columns: ['id', 'name', 'age', 'level'] }, { return: 'representation', accept: 'single' }, data)
     })
 
     it('sends a post request with changed data included', async () => {
@@ -203,7 +180,7 @@ describe('GenericModel', () => {
       model.data.name = 'client321'
       await model.$nextTick()
       model.post()
-      expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'POST', { columns: ['id', 'name', 'age', 'level'] }, { return: 'representation', accept: 'single' }, {
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { columns: ['id', 'name', 'age', 'level'] }, { return: 'representation', accept: 'single' }, {
         ...data,
         name: 'client321'
       })
@@ -217,19 +194,11 @@ describe('GenericModel', () => {
         accept: 'multiple'
       }
       await model.post(options)
-      expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'POST', { columns: ['id', 'name', 'age', 'level'] }, { ...options, accept: 'single' }, data)
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { columns: ['id', 'name', 'age', 'level'] }, { ...options, accept: 'single' }, data)
     })
 
     it('returns the request\'s return value', async () => {
       const model = new GenericModel(data, { route })
-      const mockReturn = {
-        body: [{
-          ...data,
-          name: 'client321',
-          id: 321
-        }]
-      }
-      request.mockReturnValueOnce(mockReturn)
       const ret = await model.post()
       expect(ret).toEqual(mockReturn)
     })
@@ -238,55 +207,44 @@ describe('GenericModel', () => {
       const model = new GenericModel(data, { route })
       model.data.name = 'client321'
       await model.$nextTick()
-      request.mockReturnValueOnce({
-        body: [{
-          ...data,
-          name: 'client321',
-          id: 321
-        }]
-      })
       await model.post()
-      expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'POST', { columns: ['id', 'name', 'age', 'level'] }, { return: 'representation', accept: 'single' }, {
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { columns: ['id', 'name', 'age', 'level'] }, { return: 'representation', accept: 'single' }, {
         ...data,
         name: 'client321'
       })
-      expect(model.data).toEqual({
-        ...data,
-        name: 'client321',
-        id: 321
-      })
+      expect(model.data).toEqual(mockReturn)
     })
 
     it('sets select part of query if return is "representation"', async () => {
       const select = ['id', 'name']
       const model = new GenericModel(data, { route, select })
       model.post({ return: 'representation' })
-      expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'POST', { columns: ['id', 'name', 'age', 'level'], select }, { return: 'representation', accept: 'single' }, data)
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { columns: ['id', 'name', 'age', 'level'], select }, { return: 'representation', accept: 'single' }, data)
     })
 
     it('does not set select part of query if return is "minimal"', async () => {
       const select = ['id', 'name']
       const model = new GenericModel(data, { route, select })
       await model.post({ return: 'minimal' })
-      expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'POST', { columns: ['id', 'name', 'age', 'level'] }, { return: 'minimal', accept: 'single' }, data)
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { columns: ['id', 'name', 'age', 'level'] }, { return: 'minimal', accept: 'single' }, data)
     })
 
     it('does not set columns part of query if option "columns" is set to undefined', async () => {
       const model = new GenericModel(data, { route })
       await model.post({ columns: undefined })
-      expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single' }, data)
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single' }, data)
     })
 
     it('sets columns part of query to posted columns if option "columns" is not set', async () => {
       const model = new GenericModel(data, { route })
       await model.post()
-      expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'POST', { columns: ['id', 'name', 'age', 'level'] }, { return: 'representation', accept: 'single' }, data)
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { columns: ['id', 'name', 'age', 'level'] }, { return: 'representation', accept: 'single' }, data)
     })
 
     it('sets columns part of query to user-defined columns if option "columns" is set', async () => {
       const model = new GenericModel(data, { route })
       await model.post({ columns: ['age'] })
-      expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'POST', { columns: ['age'] }, { return: 'representation', accept: 'single' }, data)
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { columns: ['age'] }, { return: 'representation', accept: 'single' }, data)
     })
   })
 
@@ -329,7 +287,7 @@ describe('GenericModel', () => {
         model.data.name = 'client321'
         await model.$nextTick()
         await model.patch()
-        expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['name'] }, { return: 'representation', accept: 'single' }, {
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['name'] }, { return: 'representation', accept: 'single' }, {
           name: 'client321'
         })
       })
@@ -356,7 +314,7 @@ describe('GenericModel', () => {
           model.data.nestedField = cloneDeep(newNestedField)
           await model.$nextTick()
           await model.patch()
-          expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['nestedField'] }, { return: 'representation', accept: 'single' }, { nestedField: newNestedField })
+          expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['nestedField'] }, { return: 'representation', accept: 'single' }, { nestedField: newNestedField })
         })
 
         it('of whom only a subfield is changed', async () => {
@@ -367,7 +325,7 @@ describe('GenericModel', () => {
           model.data.nestedField.parent.child = 'new'
           await model.$nextTick()
           await model.patch()
-          expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['nestedField'] }, { return: 'representation', accept: 'single' }, {
+          expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['nestedField'] }, { return: 'representation', accept: 'single' }, {
             nestedField: {
               parent: {
                 child: 'new'
@@ -388,7 +346,7 @@ describe('GenericModel', () => {
           model.data.nestedField.push(20)
           await model.$nextTick()
           await model.patch()
-          expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['nestedField'] }, { return: 'representation', accept: 'single' }, {
+          expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['nestedField'] }, { return: 'representation', accept: 'single' }, {
             nestedField: [2, 5, 10, 20]
           })
           expect(request.mock.calls.length).toBe(1)
@@ -402,7 +360,7 @@ describe('GenericModel', () => {
           model.data.nestedField[0].child = 'new'
           await model.$nextTick()
           await model.patch()
-          expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['nestedField'] }, { return: 'representation', accept: 'single' }, {
+          expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['nestedField'] }, { return: 'representation', accept: 'single' }, {
             nestedField: [{ child: 'new' }, 5, 10]
           })
         })
@@ -422,7 +380,7 @@ describe('GenericModel', () => {
           name: 'client 222',
           newField: true
         })
-        expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['name', 'newField'] }, { return: 'representation', accept: 'single' }, {
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['name', 'newField'] }, { return: 'representation', accept: 'single' }, {
           name: 'client 222',
           newField: true
         })
@@ -443,7 +401,7 @@ describe('GenericModel', () => {
           name: 'client 222',
           newField: true
         })
-        expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['name', 'age', 'newField'] }, { return: 'representation', accept: 'single' }, {
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['name', 'age', 'newField'] }, { return: 'representation', accept: 'single' }, {
           name: 'client 222',
           age: 66,
           newField: true
@@ -462,7 +420,7 @@ describe('GenericModel', () => {
           accept: 'multiple'
         }
         await model.patch({}, options)
-        expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['name'] }, { ...options, accept: 'single' }, {
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['name'] }, { ...options, accept: 'single' }, {
           name: 'client321'
         })
       })
@@ -473,7 +431,7 @@ describe('GenericModel', () => {
         model.data.name = 'client321'
         await model.$nextTick()
         await model.patch({}, { return: 'representation' })
-        expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['name'], select }, { return: 'representation', accept: 'single' }, {
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['name'], select }, { return: 'representation', accept: 'single' }, {
           name: 'client321'
         })
       })
@@ -484,7 +442,7 @@ describe('GenericModel', () => {
         model.data.name = 'client321'
         await model.$nextTick()
         await model.patch({}, { return: 'minimal' })
-        expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['name'] }, { return: 'minimal', accept: 'single' }, {
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['name'] }, { return: 'minimal', accept: 'single' }, {
           name: 'client321'
         })
       })
@@ -494,7 +452,7 @@ describe('GenericModel', () => {
         model.data.name = 'client321'
         await model.$nextTick()
         await model.patch({}, { columns: undefined })
-        expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, {
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, {
           name: 'client321'
         })
       })
@@ -504,7 +462,7 @@ describe('GenericModel', () => {
         model.data.name = 'client321'
         await model.$nextTick()
         await model.patch()
-        expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['name'] }, { return: 'representation', accept: 'single' }, {
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['name'] }, { return: 'representation', accept: 'single' }, {
           name: 'client321'
         })
       })
@@ -514,7 +472,7 @@ describe('GenericModel', () => {
         model.data.name = 'client321'
         await model.$nextTick()
         await model.patch({}, { columns: ['age'] })
-        expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['age'] }, { return: 'representation', accept: 'single' }, {
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['age'] }, { return: 'representation', accept: 'single' }, {
           name: 'client321'
         })
       })
@@ -523,19 +481,10 @@ describe('GenericModel', () => {
         const model = new GenericModel(data, { route })
         model.data.name = 'client321'
         await model.$nextTick()
-        request.mockReturnValueOnce({
-          body: [{
-            ...data,
-            name: 'client321'
-          }]
-        })
         await model.patch({}, { return: 'representation' })
         expect(request).toHaveBeenCalled()
         model.reset()
-        expect(model.data).toEqual({
-          ...data,
-          name: 'client321'
-        })
+        expect(model.data).toEqual(mockReturn)
       })
 
       it('resets model when return is "minimal"', async () => {
@@ -544,10 +493,7 @@ describe('GenericModel', () => {
         await model.$nextTick()
         await model.patch({}, { return: 'minimal' })
         expect(request).toHaveBeenCalled()
-        expect(model.data).toEqual({
-          ...data,
-          name: 'client123'
-        })
+        expect(model.data).toEqual(data)
       })
     })
 
@@ -555,13 +501,6 @@ describe('GenericModel', () => {
       const model = new GenericModel(data, { route })
       model.data.name = 'client321'
       await model.$nextTick()
-      const mockReturn = {
-        body: [{
-          ...data,
-          name: 'client321'
-        }]
-      }
-      request.mockReturnValueOnce(mockReturn)
       const ret = await model.patch()
       expect(ret).toEqual(mockReturn)
     })
@@ -597,7 +536,7 @@ describe('GenericModel', () => {
     it('sends a delete request', async () => {
       const model = new GenericModel(data, { route })
       await model.delete()
-      expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123 }, { accept: 'single' })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123 }, { accept: 'single' })
     })
 
     it('passes options except accept', async () => {
@@ -608,14 +547,14 @@ describe('GenericModel', () => {
         accept: 'multiple'
       }
       await model.delete(options)
-      expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123 }, { ...options, accept: 'single' })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123 }, { ...options, accept: 'single' })
     })
 
     it('sets select part of query if return is "representation"', async () => {
       const select = ['id', 'name']
       const model = new GenericModel(data, { route, select })
       await model.delete({ return: 'representation' })
-      expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123, select }, { return: 'representation', accept: 'single' })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123, select }, { return: 'representation', accept: 'single' })
     })
 
     it('does not set select part of query if return is not "representation"', async () => {
@@ -629,14 +568,6 @@ describe('GenericModel', () => {
 
     it('returns the request\'s return value', async () => {
       const model = new GenericModel(data, { route })
-      const mockReturn = {
-        body: [{
-          ...data,
-          name: 'client321',
-          id: 321
-        }]
-      }
-      request.mockReturnValueOnce(mockReturn)
       const ret = await model.delete()
       expect(ret).toEqual(mockReturn)
     })
