@@ -6,13 +6,6 @@ class AuthError extends Error {
   }
 }
 
-class EmittedError extends Error {
-  constructor (msg) {
-    super(msg)
-    this.name = 'EmittedError'
-  }
-}
-
 class FetchError extends Error {
   constructor (resp) {
     super(resp.statusText)
@@ -47,7 +40,6 @@ function throwWhenStatusNotOk (resp) {
 
 export {
   AuthError,
-  EmittedError,
   FetchError,
   PrimaryKeyError,
   SchemaNotFoundError,

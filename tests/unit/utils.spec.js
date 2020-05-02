@@ -10,6 +10,7 @@ describe('utils', () => {
       })
     }
     function itIsEqualCombinations (values) {
+      /* eslint-disable camelcase */
       values.forEach((a, i_a) => {
         const str_a = JSON.stringify(a) === 'null' ? String(a) : JSON.stringify(a)
         values.forEach((b, i_b) => {
@@ -17,6 +18,7 @@ describe('utils', () => {
           if (i_b >= i_a) itIsEqual(`${str_a}, ${str_b}`, a, b, i_a === i_b)
         })
       })
+      /* eslint-enable camelcase */
     }
 
     describe('primitive values', () => {
@@ -32,13 +34,14 @@ describe('utils', () => {
         Infinity,
         '',
         'str',
-        Symbol(),
+        Symbol('sym'),
         {},
         []
       ])
     })
 
     describe('primitives wrapped in constructors', () => {
+      /* eslint-disable no-new-wrappers */
       itIsEqual('Boolean(true), true', new Boolean(true), true, true)
       itIsEqual('Boolean(true), false', new Boolean(true), false, false)
       itIsEqual('Boolean(false), true', new Boolean(false), true, false)
@@ -51,9 +54,10 @@ describe('utils', () => {
       itIsEqual('String(""), "str"', new String(''), 'str', false)
       itIsEqual('String("str"), ""', new String('str'), '', false)
       itIsEqual('String("str"), "str"', new String('str'), 'str', true)
+      /* eslint-enable no-new-wrappers */
     })
 
-    describe('Date',  () => {
+    describe('Date', () => {
       const date1 = new Date('December 17, 1995 03:24:00')
       const date2 = new Date('1995-12-17T03:24:00')
       const date3 = new Date('2000-01-01T00:00:00')
@@ -74,9 +78,9 @@ describe('utils', () => {
       itIsEqual('array and object with same values', arr1, { 0: 'a' }, false)
       itIsEqual('different array values', arr1, ['b'], false)
       itIsEqual('different object values', obj1, { a: 'b' }, false)
-      itIsEqual('different array keys, same values', arr1, [,'a'], false)
+      itIsEqual('different array keys, same values', arr1, [undefined, 'a'], false)
       itIsEqual('different object keys, same values', obj1, { b: 'a' }, false)
-      itIsEqual('different array keys, different values', arr1, [,'b'], false)
+      itIsEqual('different array keys, different values', arr1, [undefined, 'b'], false)
       itIsEqual('different object keys, different values', obj1, { b: 'b' }, false)
       itIsEqual('array missing keys', arr1, ['a', 'b'], false)
       itIsEqual('object missing keys', obj1, { a: 'a', b: 'b' }, false)
@@ -86,7 +90,7 @@ describe('utils', () => {
       itIsEqual('same', {
         a: {
           b: {
-            c: [ { e: 'f' }, 'g' ],
+            c: [{ e: 'f' }, 'g'],
             h: 'i'
           },
           j: 'k'
@@ -95,7 +99,7 @@ describe('utils', () => {
       }, {
         a: {
           b: {
-            c: [ { e: 'f' }, 'g' ],
+            c: [{ e: 'f' }, 'g'],
             h: 'i'
           },
           j: 'k'
@@ -105,7 +109,7 @@ describe('utils', () => {
       itIsEqual('different', {
         a: {
           b: {
-            c: [ { e: 'f' }, 'g' ],
+            c: [{ e: 'f' }, 'g'],
             h: 'i'
           },
           j: 'k'
@@ -114,7 +118,7 @@ describe('utils', () => {
       }, {
         a: {
           b: {
-            c: [ { e: 'F' }, 'g' ],
+            c: [{ e: 'F' }, 'g'],
             h: 'i'
           },
           j: 'k'
@@ -173,7 +177,7 @@ describe('utils', () => {
         keep1: {
           change2: 'b',
           new2: 'new',
-          replace2: [ 'a' ],
+          replace2: ['a'],
           keep2: {
             change3: 'b',
             new3: 'new',
@@ -233,7 +237,7 @@ describe('utils', () => {
 
       it('replaces strings and objects', () => {
         expect(obj1.replace1).toEqual({ a: 'a' })
-        expect(obj1.keep1.replace2).toEqual([ 'a' ])
+        expect(obj1.keep1.replace2).toEqual(['a'])
         expect(obj1).toHaveProperty('keep5.1', 'replaced-with-string')
       })
     })
@@ -286,7 +290,7 @@ describe('utils', () => {
         keep1: {
           change2: 'b',
           new2: 'new',
-          replace2: [ 'a' ],
+          replace2: ['a'],
           keep2: {
             change3: 'b',
             new3: 'new',
@@ -346,7 +350,7 @@ describe('utils', () => {
 
       it('replaces strings and objects', () => {
         expect(obj1.replace1).toEqual({ a: 'a' })
-        expect(obj1.keep1.replace2).toEqual([ 'a' ])
+        expect(obj1.keep1.replace2).toEqual(['a'])
         expect(obj1).toHaveProperty('keep5.1', 'replaced-with-string')
       })
     })

@@ -10,6 +10,7 @@ function isEqual (a, b) {
       return Object.keys(b).every(key => isEqual(a[key], b[key]))
     }
   }
+  // eslint-disable-next-line no-self-compare
   return a !== a && b !== b // both NaN
 }
 

@@ -278,7 +278,7 @@ describe('Module', () => {
     })
 
     it('provides observable function "rpc"', async () => {
-      expect.assertions(5)
+      expect.assertions(6)
       let wrapper
       await new Promise((resolve, reject) => {
         wrapper = shallowMount(Postgrest, {
@@ -303,6 +303,7 @@ describe('Module', () => {
           }
         })
       })
+      expect(wrapper.vm.rpc).not.toThrow()
       wrapper.destroy()
     })
 
@@ -475,31 +476,78 @@ describe('Module', () => {
   })
 
   it('emits "token-error" when server sets appropriate header', async () => {
-    expect.assertions(3)
+    expect.assertions(1)
     let wrapper
-    await new Promise((resolve, reject) => {
+    await new Promise(resolve => {
       wrapper = shallowMount(Postgrest, {
         propsData: {
           route: 'clients',
           query: {},
           token: 'expired-token'
         },
-        scopedSlots: {
-          default (props) {
-            try {
-              if (!props.get.isPending) {
-                expect(wrapper.emitted()['token-error']).toBeTruthy()
-                expect(wrapper.emitted()['token-error'].length).toBe(1)
-                expect(wrapper.emitted()['token-error'][0][0]).toMatchObject({ error: 'invalid_token', error_description: 'JWT expired' })
-                resolve()
-              }
-            } catch (e) {
-              reject(e)
-            }
+        listeners: {
+          'token-error': evt => {
+            expect(evt).toMatchObject({ error: 'invalid_token', error_description: 'JWT expired' })
+            resolve()
           }
+        },
+        scopedSlots: {
+          default () {}
         }
       })
     })
     wrapper.destroy()
+  })
+
+  describe('Request errors', () => {
+    it('set hasError to true', async () => {
+      expect.assertions(1)
+      let wrapper
+      await new Promise((resolve, reject) => {
+        wrapper = shallowMount(Postgrest, {
+          propsData: {
+            apiRoot: '/api',
+            route: '404',
+            query: {}
+          },
+          scopedSlots: {
+            default (props) {
+              try {
+                if (!props.get.isPending) {
+                  expect(props.get.hasError).toBe(true)
+                  resolve()
+                }
+              } catch (e) {
+                reject(e)
+              }
+            }
+          }
+        })
+      })
+      wrapper.destroy()
+    })
+    it('emits a "get-error" event', async () => {
+      expect.assertions(1)
+      let wrapper
+      await new Promise(resolve => {
+        wrapper = shallowMount(Postgrest, {
+          propsData: {
+            apiRoot: '/api',
+            route: '404',
+            query: {}
+          },
+          listeners: {
+            'get-error': evt => {
+              expect(evt).toMatchObject({ status: 404 })
+              resolve()
+            }
+          },
+          scopedSlots: {
+            default () {}
+          }
+        })
+      })
+      wrapper.destroy()
+    })
   })
 })

@@ -1,4 +1,5 @@
 import Route from '@/Route'
+import RPC from '@/RPC'
 import request from '@/request'
 import { throwWhenStatusNotOk, SchemaNotFoundError } from '@/errors'
 
@@ -28,6 +29,15 @@ export default class Schema extends Function {
     const ready = new Promise(async (resolve, reject) => {
       try {
         const schema = await this._fetchSchema(apiRoot, token)
+        for (const path of Object.keys(schema.paths)) {
+          if (path.startsWith('/rpc/')) {
+            const fn = path.substring(5)
+            this.rpc[fn] = this.rpc.bind(this, fn)
+          } else {
+            const route = path.substring(1)
+            this._createRoute(route)
+          }
+        }
         for (const [route, def] of Object.entries(schema.definitions)) {
           this._createRoute(route, def)
         }
@@ -40,6 +50,7 @@ export default class Schema extends Function {
     Object.defineProperty(this, '$ready', {
       value: ready
     })
+    this.rpc = new RPC(request.bind(null, this.#apiRoot, this.#token), this.$ready)
   }
 
   _call (apiRoot = this.#apiRoot, token = this.#token) {
@@ -69,7 +80,7 @@ export default class Schema extends Function {
       const url = new URL(apiRoot, window.location.href)
       const resp = await fetch(url.toString(), { headers }).then(throwWhenStatusNotOk)
       const body = await resp.json()
-      if (!resp.headers.get('Content-Type').startsWith('application/openapi+json') || !body.definitions) {
+      if (!resp.headers.get('Content-Type').startsWith('application/openapi+json') || !body.paths) {
         throw new Error('wrong body format')
       }
       return body

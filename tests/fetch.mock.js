@@ -1,4 +1,9 @@
 const apiSchema = {
+  paths: {
+    '/clients': {},
+    '/other': {},
+    '/rpc/authenticate': {}
+  },
   definitions: {
     clients: {
       properties: {
@@ -27,6 +32,7 @@ const clientsData = [
 ]
 
 const pkSchema = {
+  paths: {},
   definitions: {
     no_pk: {
       properties: {

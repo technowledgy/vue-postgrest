@@ -12,6 +12,21 @@ describe('Route', () => {
     request.mockClear()
   })
 
+  it('has proper primary keys set', async () => {
+    const schema = new Schema('/pk-api')
+    await schema.$ready
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/pk-api', expect.anything())
+
+    const no = schema.$route('no_pk')
+    expect(no.pks).toEqual([])
+
+    const simple = schema.$route('simple_pk')
+    expect(simple.pks).toEqual(['id'])
+
+    const composite = schema.$route('composite_pk')
+    expect(composite.pks).toEqual(['id', 'name'])
+  })
+
   describe('request methods', () => {
     it('has properly curried request method without token', () => {
       route()

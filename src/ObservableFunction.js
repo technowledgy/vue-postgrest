@@ -1,5 +1,4 @@
 import Vue from 'vue'
-import { EmittedError } from '@/errors'
 
 // function that exposes some vue reactive properties about it's current running state
 // use like observed_fn = new ObservableFunction(orig_fn)
@@ -32,9 +31,7 @@ class ObservableFunction extends Function {
       return ret
     } catch (e) {
       this.errors.push(e)
-      if (e instanceof EmittedError === false) {
-        throw e
-      }
+      throw e
     } finally {
       this.nPending--
     }
