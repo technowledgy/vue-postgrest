@@ -371,8 +371,8 @@ describe('GenericModel', () => {
     describe('called with data', () => {
       it('throws if argument is not an object', async () => {
         const model = new GenericModel(data, { route })
+        await expect(model.$patch(null)).rejects.toThrow()
         await expect(model.$patch(1)).rejects.toThrow()
-        await expect(model.$patch([])).rejects.toThrow()
       })
 
       it('sends a patch request with argument', async () => {

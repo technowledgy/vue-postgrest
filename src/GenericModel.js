@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import ObservableFunction from '@/ObservableFunction'
 import { PrimaryKeyError } from '@/errors'
-import { isEqual, isObject, syncObjects } from '@/utils'
+import { isEqual, syncObjects } from '@/utils'
 
 class TrackedFunction extends Function {
   constructor (fn, cb, arg) {
@@ -129,7 +129,7 @@ class GenericModel {
   }
 
   async _patch (data = {}, opts) {
-    if (!isObject(data) || Array.isArray(data)) {
+    if (!data || typeof data !== 'object') {
       throw new Error('Patch data must be an object.')
     }
     const patchData = Object.assign({}, this.#diff, Object.keys(data).reduce((acc, key) => {

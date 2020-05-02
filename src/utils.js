@@ -1,13 +1,16 @@
 import Vue from 'vue'
 
 function isEqual (a, b) {
-  if (a === b || a?.valueOf() === b?.valueOf()) return true
-  if (a?.toString?.() === '[object Object]' && b?.toString?.() === '[object Object]') {
+  if (a === null || a === undefined || b === null || b === undefined) return a === b
+  if (a === b || (a.valueOf() === b.valueOf() && a.constructor === b.constructor)) return true
+  if (a instanceof Date) return false
+  if (b instanceof Date) return false
+  if (a instanceof Object && b instanceof Object && Array.isArray(a) === Array.isArray(b)) {
     if (Object.keys(a).every(key => Object.prototype.hasOwnProperty.call(b, key))) {
       return Object.keys(b).every(key => isEqual(a[key], b[key]))
     }
   }
-  return false
+  return a !== a && b !== b // both NaN
 }
 
 // object, but not null
@@ -49,7 +52,6 @@ export default function splitToObject (str, fieldDelimiter = ',', kvDelimiter = 
 
 export {
   isEqual,
-  isObject,
   syncObjects,
   splitToObject
 }
