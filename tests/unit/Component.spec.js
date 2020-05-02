@@ -277,36 +277,6 @@ describe('Module', () => {
       wrapper.destroy()
     })
 
-    it('provides observable function "rpc"', async () => {
-      expect.assertions(6)
-      let wrapper
-      await new Promise((resolve, reject) => {
-        wrapper = shallowMount(Postgrest, {
-          propsData: {
-            route: 'missing',
-            query: {},
-            accept: 'single'
-          },
-          scopedSlots: {
-            default (props) {
-              try {
-                expect(typeof props.rpc).toBe('function')
-                expect(typeof props.rpc.__ob__).toBe('object')
-                expect(typeof props.rpc.call).toBe('function') // backwards compatibility
-                expect(typeof props.rpc.isPending).toBe('boolean')
-                expect(typeof props.rpc.hasError).toBe('boolean')
-                resolve()
-              } catch (e) {
-                reject(e)
-              }
-            }
-          }
-        })
-      })
-      expect(wrapper.vm.rpc).not.toThrow()
-      wrapper.destroy()
-    })
-
     it('does not provide "resetNewItem" if "create" is not set', async () => {
       expect.assertions(1)
       let wrapper

@@ -52,8 +52,7 @@ export default {
       range: undefined,
       get: new ObservableFunction(this._get),
       schema: null,
-      routeHandler: null,
-      rpc: new ObservableFunction(this._rpc)
+      routeHandler: null
     }
   },
   computed: {
@@ -65,7 +64,6 @@ export default {
         data: (this.query !== undefined && this.accept && this.accept !== 'single') ? this.data : undefined,
         newItem: this.create !== undefined ? this.newItem : undefined,
         range: this.range,
-        rpc: this.rpc,
         resetNewItem: this.create !== undefined ? this.resetNewItem : undefined
       }
     }
@@ -125,9 +123,6 @@ export default {
         this.range = undefined
       }
       return body
-    },
-    async _rpc () {
-      return this.schema.rpc(...arguments)
     },
     loadSchema () {
       this.schema = new Schema(this.apiRoot, this.token)
