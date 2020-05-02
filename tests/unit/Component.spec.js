@@ -374,13 +374,13 @@ describe('Module', () => {
           default (props) {}
         }
       })
-      expect(wrapper.vm.newItem.data.name).toBe(create.name)
-      wrapper.vm.newItem.data.name = 'client321'
+      expect(wrapper.vm.newItem.name).toBe(create.name)
+      wrapper.vm.newItem.name = 'client321'
       await wrapper.vm.$nextTick()
-      expect(wrapper.vm.newItem.data.name).toBe('client321')
+      expect(wrapper.vm.newItem.name).toBe('client321')
       wrapper.vm.resetNewItem()
       await wrapper.vm.$nextTick()
-      expect(wrapper.vm.newItem.data).toEqual(create)
+      expect(wrapper.vm.newItem).toEqual(create)
       wrapper.destroy()
     })
   })
@@ -426,7 +426,7 @@ describe('Module', () => {
           scopedSlots: {
             default (props) {
               try {
-                expect(props.newItem.data).toEqual(create)
+                expect(props.newItem).toEqual(create)
                 resolve()
               } catch (e) {
                 reject(e)

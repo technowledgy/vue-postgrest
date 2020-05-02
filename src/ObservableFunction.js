@@ -21,6 +21,7 @@ class ObservableFunction extends Function {
         return this.nPending > 0
       }
     })))
+    this.__ob__.value = this
   }
 
   async call (...args) {

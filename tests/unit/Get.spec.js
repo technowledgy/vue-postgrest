@@ -126,7 +126,7 @@ describe('Get', () => {
                 try {
                   if (!props.get.isPending) {
                     expect(props.items.length).toBe(3)
-                    expect(props.items[0].data.id).toBe(1)
+                    expect(props.items[0].id).toBe(1)
                     expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
                     expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Accept')).toBe('application/json')
                     resolve()
@@ -156,7 +156,7 @@ describe('Get', () => {
               default (props) {
                 try {
                   if (!props.get.isPending) {
-                    expect(props.item.data.id).toBe(1)
+                    expect(props.item.id).toBe(1)
                     expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')).toBeTruthy()
                     expect(fetch.mock.calls.find(args => args[0] === 'http://localhost/api/clients')[1].headers.get('Accept')).toBe('application/vnd.pgrst.object+json')
                     resolve()
@@ -217,7 +217,7 @@ describe('Get', () => {
                 try {
                   if (!props.get.isPending) {
                     expect(props.item).toBeInstanceOf(GenericModel)
-                    expect(props.item.data).toEqual({
+                    expect(props.item).toEqual({
                       id: 1,
                       name: 'Test Client 1'
                     })
