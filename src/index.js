@@ -1,4 +1,7 @@
-import Plugin from './Plugin'
+import Plugin from '@/Plugin'
+import pg from '@/mixin'
+
+export { pg }
 
 // Auto-install when vue is found (eg. in browser via <script> tag)
 if (typeof globalThis !== 'undefined' && globalThis.Vue) {

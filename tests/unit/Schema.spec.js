@@ -99,7 +99,7 @@ describe('Schema', () => {
       const calledSchema = schema('/api')
       await calledSchema.$ready
       expect(fetch).toHaveBeenLastCalledWith('http://localhost/api', expect.anything())
-      expect(schema.clients).toBe(undefined)
+      expect(schema.clients).toBeUndefined()
       expect(calledSchema.clients.pks).toEqual(['id'])
     })
 

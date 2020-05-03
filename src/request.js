@@ -5,7 +5,8 @@ import { throwWhenStatusNotOk, AuthError } from '@/errors'
 const acceptHeaderMap = {
   '': 'application/json',
   single: 'application/vnd.pgrst.object+json',
-  binary: 'application/octet-stream'
+  binary: 'application/octet-stream',
+  text: 'text/plain'
 }
 
 async function request (apiRoot, token, route, method, query = {}, options = {}, body) {

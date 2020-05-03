@@ -66,6 +66,13 @@ describe('request method', () => {
       })
     }))
 
+    await request('/api', '', 'clients', 'POST', {}, { accept: 'text' })
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      headers: new Headers({
+        Accept: 'text/plain'
+      })
+    }))
+
     await request('/api', '', 'clients', 'PATCH', {}, { accept: undefined })
     expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
       headers: new Headers({

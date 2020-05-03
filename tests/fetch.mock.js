@@ -164,9 +164,9 @@ export default async req => {
         }
       } else {
         const rangeHeaders = {}
-        if (req.headers.get('Range')) {
+        if (req.headers.get('Range') || req.headers.get('Prefer')?.includes('count=exact')) {
           rangeHeaders['Range-Units'] = 'items'
-          rangeHeaders['Content-Range'] = req.headers.get('Prefer')?.includes('count=exact') ? '0-1/3' : '0-1/*'
+          rangeHeaders['Content-Range'] = req.headers.get('Prefer')?.includes('count=exact') ? '0-/3' : '0-1/*'
         }
         return {
           body: JSON.stringify(clientsData),

@@ -1,0 +1,100 @@
+import ObservableFunction from '@/ObservableFunction'
+import GenericModel from '@/GenericModel'
+
+// this = component instance, will be bound
+async function get () {
+  const route = this.$postgrest(this.pgConfig?.apiRoot, this.pgConfig?.token).$route(this.pgConfig?.route)
+  const resp = await route.get(this.pgConfig?.query ?? {}, {
+    accept: this.pgConfig?.accept,
+    limit: this.pgConfig?.limit,
+    offset: this.pgConfig?.offset,
+    count: this.pgConfig?.count
+  })
+
+  let data
+  switch (this.pgConfig?.accept) {
+    case undefined: {
+      let range
+      if (resp.headers.get('Content-Range')) {
+        const [bounds, total] = resp.headers.get('Content-Range').split('/')
+        const [first, last] = bounds.split('-')
+        range = {
+          totalCount: total === '*' ? undefined : parseInt(total, 10),
+          first: parseInt(first, 10),
+          last: isNaN(parseInt(last, 10)) ? undefined : parseInt(last, 10)
+        }
+      }
+      data = await resp.json()
+      return {
+        items: data.map(item => new GenericModel(item, { route, select: this.pgConfig?.query?.select })),
+        range
+      }
+    }
+    case 'single':
+      data = await resp.json()
+      return {
+        item: new GenericModel(data, { route, select: this.pgConfig?.query?.select })
+      }
+    case 'binary':
+      data = await resp.blob()
+      return {
+        data
+      }
+    case 'text':
+    default:
+      data = await resp.text()
+      return {
+        data
+      }
+  }
+}
+
+const mixin = {
+  data () {
+    return {
+      pg: {}
+    }
+  },
+  watch: {
+    pgConfig: {
+      deep: true,
+      immediate: true,
+      handler () {
+        // get
+        if (this.pgConfig.route && !this.pg?.get) {
+          this.$set(this.pg, 'get', new ObservableFunction(async () => {
+            try {
+              const ret = await get.call(this)
+              this.pg = Object.assign({}, ret, {
+                get: this.pg.get,
+                newItem: this.pg.newItem
+              })
+              return ret
+            } catch (e) {
+              if (typeof this.$options.onError === 'function') {
+                this.$options.onError.call(this, e)
+              }
+              throw e
+            }
+          }))
+        } else if (!this.pgConfig.route && this.pg?.get) {
+          this.$delete(this.pg, 'get')
+        }
+        // newItem
+        if (this.pgConfig.newTemplate) {
+          if (!this.pg.newItem?.$isDirty) {
+            const route = this.$postgrest(this.pgConfig?.apiRoot, this.pgConfig?.token).$route(this.pgConfig?.route)
+            this.$set(this.pg, 'newItem', new GenericModel(this.pgConfig.newTemplate, { route, select: this.pgConfig?.query?.select }))
+          }
+        } else {
+          this.$delete(this.pg, 'newItem')
+        }
+        // refresh
+        // eslint-disable-next-line no-unused-expressions
+        this.pg?.get?.().catch(() => {})
+      }
+    }
+  }
+}
+
+export default mixin
