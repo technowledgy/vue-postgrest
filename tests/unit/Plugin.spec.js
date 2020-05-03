@@ -12,14 +12,6 @@ describe('Plugin', () => {
       expect(localVue.options.components.postgrest).toBeTruthy()
     })
 
-    it('uses api root path set in install options', () => {
-      const localVue = createLocalVue()
-      localVue.use(Plugin, {
-        apiRoot: '/api'
-      })
-      expect(localVue.options.components.postgrest.options.props.apiRoot.default).toBe('/api')
-    })
-
     describe('$postgrest', () => {
       resetSchemaCache()
       fetch.mockClear()
