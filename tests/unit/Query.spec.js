@@ -240,6 +240,12 @@ describe('Query', () => {
     itt('sets from array', { columns: ['source', 'publication_date', 'figure'] }, 'columns=source,publication_date,figure')
   })
 
+  describe('on_conflict', () => {
+    itt('sets string', { on_conflict: 'source' }, 'on_conflict=source')
+
+    itt('sets from array', { on_conflict: ['source', 'publication_date', 'figure'] }, 'on_conflict=source,publication_date,figure')
+  })
+
   describe('embedding resources', () => {
     itt('simple form', {
       select: {

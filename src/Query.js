@@ -25,7 +25,10 @@ class Query extends URL {
     const url = (apiRoot + '/' + route).replace(/\/+/g, '/')
     super(url, window.location.href)
     this.#apiRoot = apiRoot
-    const { columns, select, order, limit, offset, ...conditions } = queryObject
+    /* eslint-disable camelcase */
+    const { columns, select, order, limit, offset, on_conflict, ...conditions } = queryObject
+    if (on_conflict) this.searchParams.append('on_conflict', on_conflict)
+    /* eslint-enable camelcase */
     if (columns) this.searchParams.append('columns', columns)
     this._appendSelect(select)
     this._appendOrder(order)
