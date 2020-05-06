@@ -2,6 +2,7 @@ import Route from '@/Route'
 import RPC from '@/RPC'
 import request from '@/request'
 import { throwWhenStatusNotOk, SchemaNotFoundError } from '@/errors'
+import ObservableFunction from '@/ObservableFunction'
 
 let schemaCache = {}
 
@@ -32,7 +33,7 @@ export default class Schema extends Function {
         for (const path of Object.keys(schema.paths)) {
           if (path.startsWith('/rpc/')) {
             const fn = path.substring(5)
-            this.rpc[fn] = this.rpc.bind(this, fn)
+            this.rpc[fn] = new ObservableFunction(this.rpc.bind(this.rpc, fn))
           } else {
             const route = path.substring(1)
             this._createRoute(route)

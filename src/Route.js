@@ -2,6 +2,7 @@ class Route extends Function {
   constructor (request, ready) {
     super('', 'return arguments.callee.request.apply(arguments.callee, arguments)')
     this.request = request
+    // TODO: check if we can wrap this in an ObservableFunction
     this.options = request.bind(null, 'OPTIONS')
     this.get = request.bind(null, 'GET')
     this.head = request.bind(null, 'HEAD')
