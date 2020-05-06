@@ -8,9 +8,7 @@ describe('Plugin', () => {
     it('registers a global component', () => {
       const localVue = createLocalVue()
       expect(localVue.options.components.postgrest).toBeUndefined()
-      localVue.use(Plugin, {
-        apiRoot: '/api'
-      })
+      localVue.use(Plugin)
       expect(localVue.options.components.postgrest).toBeTruthy()
     })
 
