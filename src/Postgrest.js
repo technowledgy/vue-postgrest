@@ -50,11 +50,7 @@ export default {
     }
   },
   onError (err) {
-    if (err instanceof AuthError) {
-      this.$emit('token-error', err)
-    } else {
-      this.$emit('get-error', err)
-    }
+    this.$emit('error', err)
   },
   render (h) {
     return this.$scopedSlots.default(this.pg)

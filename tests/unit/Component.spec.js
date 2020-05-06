@@ -15,9 +15,7 @@ function createComponent (props, cb) {
     propsData: props,
     listeners: {
       /* eslint-disable standard/no-callback-literal */
-      'token-error': evt => cb('token-error', evt),
-      'get-error': evt => cb('get-error', evt)
-      /* eslint-enable standard/no-callback-literal */
+      'error': evt => cb('error', evt)
     },
     scopedSlots: {
       default: render
@@ -123,11 +121,11 @@ describe('Component', () => {
   })
 
   describe('error handling', () => {
-    it('emits "token-error" when using expired-token', async () => {
+    it('emits "error" with "invalid_token" when using expired-token', async () => {
       ({ render, wrapper } = await new Promise(resolve => {
         const cc = createComponent({ route: 'clients', token: 'expired-token' }, (evt, err) => {
           if (typeof evt === 'string') {
-            expect(evt).toBe('token-error')
+            expect(evt).toBe('error')
             expect(err).toMatchObject({ error: 'invalid_token', error_description: 'JWT expired' })
             resolve(cc)
           }
@@ -135,11 +133,11 @@ describe('Component', () => {
       }))
     })
 
-    it('emits "token-error" when using expired-token', async () => {
+    it('emits "error" with status "404" when failing with 404', async () => {
       ({ render, wrapper } = await new Promise(resolve => {
         const cc = createComponent({ route: '404' }, (evt, err) => {
           if (typeof evt === 'string') {
-            expect(evt).toBe('get-error')
+            expect(evt).toBe('error')
             expect(err).toMatchObject({ status: 404 })
             resolve(cc)
           }

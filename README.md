@@ -81,8 +81,7 @@ The api-response and following methods are available via slot-props:
 
 |Event                |Description|
 |---------------------|-----------|
-|get-error            |fires on error from get-requests|
-|token-error          |fires on token errors from requests|
+|error                |fires on errors|
 
 #### Models
 
