@@ -2,6 +2,7 @@ import Vue from 'vue'
 import GenericModel from '@/GenericModel'
 import Schema from '@/Schema'
 import ObservableFunction from '@/ObservableFunction'
+import { PrimaryKeyError } from '@/index'
 
 import request from '@/request'
 jest.mock('@/request')
@@ -92,7 +93,7 @@ describe('GenericModel', () => {
     it('throws for route without pks', async () => {
       const route = schema('/pk-api').$route('no_pk')
       const model = new GenericModel(data, { route })
-      await expect(model.$get()).rejects.toThrow()
+      await expect(model.$get()).rejects.toThrow(PrimaryKeyError)
     })
 
     it('throws if primary keys not available in data', async () => {
@@ -101,7 +102,7 @@ describe('GenericModel', () => {
         age: 50,
         level: 10
       }, { route })
-      await expect(model.$get()).rejects.toThrow()
+      await expect(model.$get()).rejects.toThrow(PrimaryKeyError)
     })
 
     it('sends a get request', async () => {
@@ -264,7 +265,7 @@ describe('GenericModel', () => {
     it('throws for route without pks', async () => {
       const route = schema('/pk-api').$route('no_pk')
       const model = new GenericModel(data, { route })
-      await expect(model.$patch()).rejects.toThrow()
+      await expect(model.$patch()).rejects.toThrow(PrimaryKeyError)
     })
 
     it('throws if primary keys not available in data', async () => {
@@ -273,7 +274,7 @@ describe('GenericModel', () => {
         age: 50,
         level: 10
       }, { route })
-      await expect(model.$patch()).rejects.toThrow()
+      await expect(model.$patch()).rejects.toThrow(PrimaryKeyError)
     })
 
     describe('called without data', () => {
@@ -522,7 +523,7 @@ describe('GenericModel', () => {
     it('throws for route without pks', async () => {
       const route = schema('/pk-api').$route('no_pk')
       const model = new GenericModel(data, { route })
-      await expect(model.$delete()).rejects.toThrow()
+      await expect(model.$delete()).rejects.toThrow(PrimaryKeyError)
     })
 
     it('throws if primary keys not available in data', async () => {
@@ -531,7 +532,7 @@ describe('GenericModel', () => {
         age: 50,
         level: 10
       }, { route })
-      await expect(model.$delete()).rejects.toThrow()
+      await expect(model.$delete()).rejects.toThrow(PrimaryKeyError)
     })
 
     it('sends a delete request', async () => {

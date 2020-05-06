@@ -4,6 +4,7 @@ import { shallowMount } from '@vue/test-utils'
 import Postgrest from '@/Postgrest'
 import GenericModel from '@/GenericModel'
 import ObservableFunction from '@/ObservableFunction'
+import { AuthError, FetchError } from '@/index'
 
 Vue.use(Plugin, {
   apiRoot: '/api'
@@ -121,11 +122,12 @@ describe('Component', () => {
   })
 
   describe('error handling', () => {
-    it('emits "error" with "invalid_token" when using expired-token', async () => {
+    fit('emits "error" with "invalid_token" when using expired-token', async () => {
       ({ render, wrapper } = await new Promise(resolve => {
         const cc = createComponent({ route: 'clients', token: 'expired-token' }, (evt, err) => {
           if (typeof evt === 'string') {
             expect(evt).toBe('error')
+            expect(err instanceof AuthError).toBe(true)
             expect(err).toMatchObject({ error: 'invalid_token', error_description: 'JWT expired' })
             resolve(cc)
           }
@@ -138,6 +140,7 @@ describe('Component', () => {
         const cc = createComponent({ route: '404' }, (evt, err) => {
           if (typeof evt === 'string') {
             expect(evt).toBe('error')
+            expect(err instanceof FetchError).toBe(true)
             expect(err).toMatchObject({ status: 404 })
             resolve(cc)
           }

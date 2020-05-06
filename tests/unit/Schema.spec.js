@@ -1,6 +1,7 @@
 import Schema, { resetSchemaCache } from '@/Schema'
 import Route from '@/Route'
 import RPC from '@/RPC'
+import { SchemaNotFoundError } from '@/index'
 
 import request from '@/request'
 jest.mock('@/request')
@@ -15,14 +16,17 @@ describe('Schema', () => {
   describe('ready method', () => {
     it('throws error if api does not exist', async () => {
       await expect((new Schema('/404')).$ready).rejects.toThrow('No openapi definition found for api-root: /404')
+      await expect((new Schema('/404')).$ready).rejects.toThrow(SchemaNotFoundError)
     })
 
     it('throws error if exists but is not json', async () => {
       await expect((new Schema('/text')).$ready).rejects.toThrow('No openapi definition found for api-root: /text')
+      await expect((new Schema('/text')).$ready).rejects.toThrow(SchemaNotFoundError)
     })
 
     it('throws error if exists but is regular json', async () => {
       await expect((new Schema('/json')).$ready).rejects.toThrow('No openapi definition found for api-root: /json')
+      await expect((new Schema('/json')).$ready).rejects.toThrow(SchemaNotFoundError)
     })
   })
 
