@@ -265,4 +265,51 @@ describe('request method', () => {
       })
     }))
   })
+
+  describe('body argument', () => {
+    it('is stringified when plain object', async () => {
+      const body = {
+        string: 'value',
+        number: 5
+      }
+      await request('/api', '', 'clients', 'POST', {}, {}, body)
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+        body: JSON.stringify(body)
+      }))
+    })
+
+    it('is stringified when generic model', async () => {
+      const body = new GenericModel({
+        string: 'value', number: 5
+      }, {})
+      await request('/api', '', 'clients', 'POST', {}, {}, body)
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+        body: JSON.stringify(body)
+      }))
+    })
+
+    it('is sent as-is when blob', async () => {
+      const body = new Blob()
+      await request('/api', '', 'clients', 'POST', {}, {}, body)
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+        body: body
+      }))
+    })
+
+    it('is sent as-is when form data', async () => {
+      const body = new FormData()
+      await request('/api', '', 'clients', 'POST', {}, {}, body)
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+        body: body
+      }))
+    })
+
+    it('is sent as-is when string', async () => {
+      const body = 'value'
+      await request('/api', '', 'clients', 'POST', {}, {}, body)
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+        body: 'value'
+      }))
+    })
+  })
 })

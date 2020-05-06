@@ -47,10 +47,28 @@ async function request (apiRoot, token, route, method, query = {}, options = {},
   const url = new Query(apiRoot, route, query)
 
   try {
+    // send all body types the fetch api recognizes as described here https://developer.mozilla.org/de/docs/Web/API/WindowOrWorkerGlobalScope/fetch as-is, stringify the rest
     return await fetch(url.toString(), {
       method,
       headers,
-      body
+      body: [
+        Blob,
+        FormData,
+        URLSearchParams,
+        // should implement ReadableStream here, but does not exist in node, so throws in tests
+        ArrayBuffer,
+        Int8Array,
+        Uint8Array,
+        Uint8ClampedArray,
+        Int16Array,
+        Uint16Array,
+        Int32Array,
+        Uint32Array,
+        Float32Array,
+        Float64Array,
+        DataView,
+        String,
+        undefined].includes(body?.constructor) ? body : JSON.stringify(body)
     }).then(throwWhenStatusNotOk)
   } catch (err) {
     if (err.resp?.headers.get('WWW-Authenticate')) {
