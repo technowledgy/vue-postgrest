@@ -1,6 +1,6 @@
 {
   "name": "vue-postgrest",
-  "version": "0.7.4",
+  "version": "1.0.0-alpha",
   "description": "Vue.js Component providing PostgREST integration",
   "bugs": {
     "url": "https://github.com/technowledgy/vue-postgrest/issues"
