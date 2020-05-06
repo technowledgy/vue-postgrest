@@ -1,4 +1,5 @@
 import request from '@/request'
+import GenericModel from '@/GenericModel'
 
 describe('request method', () => {
   beforeEach(() => {
@@ -223,6 +224,24 @@ describe('request method', () => {
       headers: new Headers({
         Accept: 'application/json',
         Prefer: 'params=multiple-objects'
+      })
+    }))
+  })
+
+  it('parses "resolution" option', async () => {
+    await request('/api', '', 'clients', 'POST', {}, { resolution: 'merge-duplicates' })
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      headers: new Headers({
+        Accept: 'application/json',
+        Prefer: 'resolution=merge-duplicates'
+      })
+    }))
+
+    await request('/api', '', 'clients', 'POST', {}, { resolution: 'ignore-duplicates' })
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      headers: new Headers({
+        Accept: 'application/json',
+        Prefer: 'resolution=ignore-duplicates'
       })
     }))
   })

@@ -25,7 +25,7 @@ async function request (apiRoot, token, route, method, query = {}, options = {},
     headers.set('Range', [lower, upper].join('-'))
   }
 
-  const prefer = ['return', 'count', 'params']
+  const prefer = ['return', 'count', 'params', 'resolution']
     .filter(key => options[key])
     .map(key => `${key}=${options[key]}`)
     .join(',')
