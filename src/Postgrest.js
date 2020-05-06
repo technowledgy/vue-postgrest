@@ -1,5 +1,4 @@
 import pg from '@/mixin'
-import { AuthError } from '@/errors'
 
 export default {
   name: 'Postgrest',

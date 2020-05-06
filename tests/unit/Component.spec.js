@@ -15,7 +15,7 @@ function createComponent (props, cb) {
     propsData: props,
     listeners: {
       /* eslint-disable standard/no-callback-literal */
-      'error': evt => cb('error', evt)
+      error: evt => cb('error', evt)
     },
     scopedSlots: {
       default: render
