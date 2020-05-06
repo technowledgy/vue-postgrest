@@ -12,6 +12,30 @@ const acceptHeaderMap = {
 async function request (apiRoot, token, route, method, query = {}, options = {}, body) {
   const headers = new Headers()
 
+  const isJSONBody = !([
+    Blob,
+    FormData,
+    URLSearchParams,
+    // should implement ReadableStream here, but does not exist in node, so throws in tests
+    ArrayBuffer,
+    Int8Array,
+    Uint8Array,
+    Uint8ClampedArray,
+    Int16Array,
+    Uint16Array,
+    Int32Array,
+    Uint32Array,
+    Float32Array,
+    Float64Array,
+    DataView,
+    String,
+    undefined
+  ].includes(body?.constructor))
+
+  if (isJSONBody) {
+    headers.set('Content-Type', 'application/json')
+  }
+
   headers.set('Accept', acceptHeaderMap[options.accept ?? ''] || options.accept)
 
   if (options.limit === 0) {
@@ -51,24 +75,7 @@ async function request (apiRoot, token, route, method, query = {}, options = {},
     return await fetch(url.toString(), {
       method,
       headers,
-      body: [
-        Blob,
-        FormData,
-        URLSearchParams,
-        // should implement ReadableStream here, but does not exist in node, so throws in tests
-        ArrayBuffer,
-        Int8Array,
-        Uint8Array,
-        Uint8ClampedArray,
-        Int16Array,
-        Uint16Array,
-        Int32Array,
-        Uint32Array,
-        Float32Array,
-        Float64Array,
-        DataView,
-        String,
-        undefined].includes(body?.constructor) ? body : JSON.stringify(body)
+      body: isJSONBody ? JSON.stringify(body) : body
     }).then(throwWhenStatusNotOk)
   } catch (err) {
     if (err.resp?.headers.get('WWW-Authenticate')) {

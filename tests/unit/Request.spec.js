@@ -286,23 +286,31 @@ describe('request method', () => {
   })
 
   describe('body argument', () => {
-    it('is stringified when plain object', async () => {
+    it('is stringified when plain object and sets content-type header to application/json', async () => {
       const body = {
         string: 'value',
         number: 5
       }
       await request('/api', '', 'clients', 'POST', {}, {}, body)
       expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+        headers: new Headers({
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        }),
         body: JSON.stringify(body)
       }))
     })
 
-    it('is stringified when generic model', async () => {
+    it('is stringified when generic model and sets content-type header to application/json', async () => {
       const body = new GenericModel({
         string: 'value', number: 5
       }, {})
       await request('/api', '', 'clients', 'POST', {}, {}, body)
       expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+        headers: new Headers({
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        }),
         body: JSON.stringify(body)
       }))
     })
