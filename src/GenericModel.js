@@ -87,7 +87,7 @@ class GenericModel {
   }
 
   $reset () {
-    this._setData(this.#resetCache)
+    syncObjects(this, this.#resetCache)
   }
 
   async _get (opts = {}) {
