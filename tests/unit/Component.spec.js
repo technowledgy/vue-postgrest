@@ -122,7 +122,7 @@ describe('Component', () => {
   })
 
   describe('error handling', () => {
-    fit('emits "error" with "invalid_token" when using expired-token', async () => {
+    it('emits "error" with "invalid_token" when using expired-token', async () => {
       ({ render, wrapper } = await new Promise(resolve => {
         const cc = createComponent({ route: 'clients', token: 'expired-token' }, (evt, err) => {
           if (typeof evt === 'string') {
