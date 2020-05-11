@@ -4,7 +4,7 @@ module.exports = {
   productionSourceMap: false,
   configureWebpack: {
     output: {
-      libraryExport: 'default'
+      libraryExport: ''
     },
     externals: [nodeExternals()]
   }

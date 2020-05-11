@@ -127,7 +127,7 @@ describe('Component', () => {
         const cc = createComponent({ route: 'clients', token: 'expired-token' }, (evt, err) => {
           if (typeof evt === 'string') {
             expect(evt).toBe('error')
-            expect(err instanceof AuthError).toBe(true)
+            expect(err).toBeInstanceOf(AuthError)
             expect(err).toMatchObject({ error: 'invalid_token', error_description: 'JWT expired' })
             resolve(cc)
           }
@@ -140,7 +140,7 @@ describe('Component', () => {
         const cc = createComponent({ route: '404' }, (evt, err) => {
           if (typeof evt === 'string') {
             expect(evt).toBe('error')
-            expect(err instanceof FetchError).toBe(true)
+            expect(err).toBeInstanceOf(FetchError)
             expect(err).toMatchObject({ status: 404 })
             resolve(cc)
           }
