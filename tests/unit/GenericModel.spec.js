@@ -76,6 +76,15 @@ describe('GenericModel', () => {
       model.$reset()
       expect(model.name).toBe('client123')
     })
+
+    it('resets changes to arrays', async () => {
+      const model = new GenericModel({ ...data, arr: [] }, { route })
+      model.arr = ['a', 'b', 'c', 'd', 'e']
+      await Vue.nextTick()
+      expect(model.arr).toEqual(['a', 'b', 'c', 'd', 'e'])
+      model.$reset()
+      expect(model.arr).toEqual([])
+    })
   })
 
   describe('Get method', () => {

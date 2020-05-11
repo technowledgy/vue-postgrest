@@ -23,15 +23,21 @@ function isObject (obj) {
 // when del=true, top-level-keys on o1 that are not on o2 are removed
 function syncObjects (o1, o2, del = true) {
   if (del) {
-    for (const k1 in o1) {
-      if (o2[k1] === undefined) {
-        Vue.delete(o1, k1)
+    if (Array.isArray(o1) && Array.isArray(o2)) {
+      for (let i=o1.length; i>=o2.length; i--) {
+        Vue.delete(o1, i)
+      }
+    } else {
+      for (const k1 in o1) {
+        if (o2[k1] === undefined) {
+          Vue.delete(o1, k1)
+        }
       }
     }
   }
   for (const k2 in o2) {
     if (isObject(o2[k2])) {
-      if (!isObject(o1[k2])) {
+      if (!isObject(o1[k2]) || Array.isArray(o1[k2]) !== Array.isArray(o2[k2])) {
         Vue.set(o1, k2, Array.isArray(o2[k2]) ? [] : {})
       }
       syncObjects(o1[k2], o2[k2])

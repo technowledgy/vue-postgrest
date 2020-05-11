@@ -159,6 +159,13 @@ describe('utils', () => {
           {
             keep6: 'object-to-be-kept'
           }
+        ],
+        arr: [
+          'a',
+          'b',
+          'c',
+          'd',
+          'e'
         ]
       }
       // keep references to nested objects to check if references are kept intact
@@ -197,7 +204,8 @@ describe('utils', () => {
           {
             keep6: 'object-to-be-kept'
           }
-        ]
+        ],
+        arr: []
       }
       const ret = syncObjects(obj1, obj2)
 
@@ -239,6 +247,10 @@ describe('utils', () => {
         expect(obj1.replace1).toEqual({ a: 'a' })
         expect(obj1.keep1.replace2).toEqual(['a'])
         expect(obj1).toHaveProperty('keep5.1', 'replaced-with-string')
+      })
+
+      it('removes array items properly', () => {
+        expect(obj1.arr).toEqual([])
       })
     })
 
