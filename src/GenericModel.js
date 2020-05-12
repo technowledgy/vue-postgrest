@@ -118,14 +118,14 @@ class GenericModel {
     }
 
     const resp = await this.#route.post(query, { ...options, accept: 'single' }, syncObjects({}, this)) // syncObject clone needed for test env
-    const body = await resp.json()
 
     if (options.return === 'representation') {
+      const body = await resp.json()
       this._setData(body)
+      return body
     } else {
       this.$reset()
     }
-    return body
   }
 
   async _patch (data = {}, opts) {
@@ -155,14 +155,14 @@ class GenericModel {
     }
 
     const resp = await this.#route.patch(query, { ...options, accept: 'single' }, patchData)
-    const body = await resp.json()
 
     if (options.return === 'representation') {
+      const body = await resp.json()
       this._setData(body)
+      return body
     } else {
       this.$reset()
     }
-    return body
   }
 
   async _delete (options = {}) {
@@ -172,7 +172,12 @@ class GenericModel {
     }
 
     const resp = await this.#route.delete(query, { ...options, accept: 'single' })
-    return await resp.json()
+
+    if (options.return === 'representation') {
+      const body = await resp.json()
+      this._setData(body)
+      return body
+    }
   }
 
   async _createQueryFromPKs () {

@@ -208,24 +208,6 @@ describe('GenericModel', () => {
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { columns: ['id', 'name', 'age', 'level'] }, { ...options, accept: 'single' }, data)
     })
 
-    it('returns the request\'s return value', async () => {
-      const model = new GenericModel(data, { route })
-      const ret = await model.$post()
-      expect(ret).toEqual(mockReturn)
-    })
-
-    it('updates data after request', async () => {
-      const model = new GenericModel(data, { route })
-      model.name = 'client321'
-      await Vue.nextTick()
-      await model.$post()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { columns: ['id', 'name', 'age', 'level'] }, { return: 'representation', accept: 'single' }, {
-        ...data,
-        name: 'client321'
-      })
-      expect(model).toMatchObject(mockReturn)
-    })
-
     it('sets select part of query if return is "representation"', async () => {
       const select = ['id', 'name']
       const model = new GenericModel(data, { route, select })
@@ -256,6 +238,39 @@ describe('GenericModel', () => {
       const model = new GenericModel(data, { route })
       await model.$post({ columns: ['age'] })
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { columns: ['age'] }, { return: 'representation', accept: 'single' }, data)
+    })
+
+    it('updates data after request', async () => {
+      const model = new GenericModel(data, { route })
+      model.name = 'client321'
+      await Vue.nextTick()
+      await model.$post()
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { columns: ['id', 'name', 'age', 'level'] }, { return: 'representation', accept: 'single' }, {
+        ...data,
+        name: 'client321'
+      })
+      expect(model).toMatchObject(mockReturn)
+    })
+
+    it('resets model when return is "minimal"', async () => {
+      const model = new GenericModel(data, { route })
+      model.name = 'client321'
+      await Vue.nextTick()
+      await model.$post({ return: 'minimal' })
+      expect(request).toHaveBeenCalled()
+      expect(model).toMatchObject(data)
+    })
+
+    it('returns the request\'s return value', async () => {
+      const model = new GenericModel(data, { route })
+      const ret = await model.$post()
+      expect(ret).toEqual(mockReturn)
+    })
+
+    it('doesn\'t return the request\'s return value for return=minimal', async () => {
+      const model = new GenericModel(data, { route })
+      const ret = await model.$post({ return: 'minimal' })
+      expect(ret).toBeUndefined()
     })
   })
 
@@ -515,6 +530,14 @@ describe('GenericModel', () => {
       const ret = await model.$patch()
       expect(ret).toEqual(mockReturn)
     })
+
+    it('doesn\'t return the request\'s return value for return=minimal', async () => {
+      const model = new GenericModel(data, { route })
+      model.name = 'client321'
+      await Vue.nextTick()
+      const ret = await model.$patch({}, { return: 'minimal' })
+      expect(ret).toBeUndefined()
+    })
   })
 
   describe('Delete method', () => {
@@ -577,9 +600,15 @@ describe('GenericModel', () => {
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123 }, { accept: 'single' })
     })
 
-    it('returns the request\'s return value', async () => {
+    it('doesn\'t return the request\'s return value', async () => {
       const model = new GenericModel(data, { route })
       const ret = await model.$delete()
+      expect(ret).toBeUndefined()
+    })
+
+    it('returns the request\'s return value for return=representation', async () => {
+      const model = new GenericModel(data, { route })
+      const ret = await model.$delete({ return: 'representation' })
       expect(ret).toEqual(mockReturn)
     })
   })
