@@ -3,7 +3,7 @@ function isLogicalOperator (k) {
 }
 
 function quoteValue (str) {
-  str = str?.toString() ?? ''
+  str = str.toString()
   if ([',', '.', ':', '(', ')'].find(r => str.includes(r)) || ['null', 'true', 'false'].includes(str)) {
     return `"${str}"`
   } else {
@@ -150,6 +150,7 @@ class Query extends URL {
           value: `(${strValue})`
         }
       } else {
+        if (value === undefined) return
         const [field, ...ops] = key.split('.')
         let strValue
         switch (ops[ops.length - 1]) {
@@ -171,7 +172,7 @@ class Query extends URL {
           value: [...ops, strValue].join('.')
         }
       }
-    }).flat()
+    }).flat().filter(Boolean)
   }
 
   _valueToString (value, arrayBrackets = '{}') {

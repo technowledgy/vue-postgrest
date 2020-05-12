@@ -31,7 +31,7 @@ describe('Query', () => {
 
     itt('sets empty string', { str: '' }, 'str=')
 
-    itt('represents undefined as empty string', { str: undefined }, 'str=')
+    itt('ignores undefined values', { str: undefined }, '')
 
     itt('represents integer as string', { int: 1 }, 'int=1')
 
