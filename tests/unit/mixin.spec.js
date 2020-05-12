@@ -22,7 +22,7 @@ describe('Mixin', () => {
   const Component = {
     render () {},
     mixins: [pg],
-    data: () => ({ pgConfig: { route: 'clients' } })
+    data: () => ({ pgConfig: { route: 'clients', query: {} } })
   }
   let wrapper
 
@@ -157,8 +157,21 @@ describe('Mixin', () => {
       expect(wrapper.vm.pg.get).toBeInstanceOf(ObservableFunction)
     })
 
-    it('calls pg.get initially', async () => {
+    it('calls pg.get initially when query is set', async () => {
       await wrapper.vm.$nextTick()
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, {})
+    })
+
+    it('doesn\'t call pg.get initially when query is not set', async () => {
+      request.mockClear()
+      wrapper = shallowMount({
+        render () {},
+        mixins: [pg],
+        data: () => ({ pgConfig: { route: 'clients' } })
+      })
+      await wrapper.vm.$nextTick()
+      expect(request).not.toHaveBeenCalled()
+      await wrapper.vm.pg.get()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, {})
     })
 
@@ -299,7 +312,7 @@ describe('Mixin', () => {
         const Component = {
           render () {},
           mixins: [pg],
-          data: () => ({ pgConfig: { route: 'clients', token: 'expired-token' } }),
+          data: () => ({ pgConfig: { route: 'clients', query: {}, token: 'expired-token' } }),
           onError: e => {
             expect(e).toMatchObject({ error: 'invalid_token', error_description: 'JWT expired' })
             resolve(w)
@@ -314,7 +327,7 @@ describe('Mixin', () => {
         const Component = {
           render () {},
           mixins: [pg],
-          data: () => ({ pgConfig: { route: '404' } }),
+          data: () => ({ pgConfig: { route: '404', query: {} } }),
           onError: e => {
             expect(e).toMatchObject({ status: 404 })
             resolve(w)
@@ -329,7 +342,7 @@ describe('Mixin', () => {
         const Component = {
           render () {},
           mixins: [pg],
-          data: () => ({ pgConfig: { route: 'clients', token: 'expired-token' } }),
+          data: () => ({ pgConfig: { route: 'clients', query: {}, token: 'expired-token' } }),
           watch: {
             'pg.get.hasError' (hasError) {
               expect(hasError).toBe(true)

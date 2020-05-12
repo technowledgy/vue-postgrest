@@ -53,7 +53,7 @@ describe('Component', () => {
 
     it('provides items if accept is not set', async () => {
       ({ render, wrapper } = await new Promise(resolve => {
-        const cc = createComponent({ route: 'clients' }, scope => {
+        const cc = createComponent({ route: 'clients', query: {} }, scope => {
           if (scope.items) resolve(cc)
         })
       }))
@@ -64,7 +64,7 @@ describe('Component', () => {
 
     it('provides item if accept is "single"', async () => {
       ({ render, wrapper } = await new Promise(resolve => {
-        const cc = createComponent({ route: 'clients', accept: 'single' }, scope => {
+        const cc = createComponent({ route: 'clients', query: {}, accept: 'single' }, scope => {
           if (scope.item) resolve(cc)
         })
       }))
@@ -75,7 +75,7 @@ describe('Component', () => {
 
     it('provides data if accept is "text"', async () => {
       ({ render, wrapper } = await new Promise(resolve => {
-        const cc = createComponent({ route: 'clients', accept: 'text' }, scope => {
+        const cc = createComponent({ route: 'clients', query: {}, accept: 'text' }, scope => {
           if (scope.data) resolve(cc)
         })
       }))
@@ -86,7 +86,7 @@ describe('Component', () => {
 
     it('provides data if accept is "binary"', async () => {
       ({ render, wrapper } = await new Promise(resolve => {
-        const cc = createComponent({ route: 'clients', accept: 'binary' }, scope => {
+        const cc = createComponent({ route: 'clients', query: {}, accept: 'binary' }, scope => {
           if (scope.data) resolve(cc)
         })
       }))
@@ -97,7 +97,7 @@ describe('Component', () => {
 
     it('provides range if available', async () => {
       ({ render, wrapper } = await new Promise(resolve => {
-        const cc = createComponent({ route: 'clients', limit: 2 }, scope => {
+        const cc = createComponent({ route: 'clients', query: {}, limit: 2 }, scope => {
           if (scope.range) resolve(cc)
         })
       }))
@@ -124,7 +124,7 @@ describe('Component', () => {
   describe('error handling', () => {
     it('emits "error" with "invalid_token" when using expired-token', async () => {
       ({ render, wrapper } = await new Promise(resolve => {
-        const cc = createComponent({ route: 'clients', token: 'expired-token' }, (evt, err) => {
+        const cc = createComponent({ route: 'clients', query: {}, token: 'expired-token' }, (evt, err) => {
           if (typeof evt === 'string') {
             expect(evt).toBe('error')
             expect(err).toBeInstanceOf(AuthError)
@@ -137,7 +137,7 @@ describe('Component', () => {
 
     it('emits "error" with status "404" when failing with 404', async () => {
       ({ render, wrapper } = await new Promise(resolve => {
-        const cc = createComponent({ route: '404' }, (evt, err) => {
+        const cc = createComponent({ route: '404', query: {} }, (evt, err) => {
           if (typeof evt === 'string') {
             expect(evt).toBe('error')
             expect(err).toBeInstanceOf(FetchError)

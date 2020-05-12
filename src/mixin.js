@@ -87,9 +87,11 @@ const mixin = {
         } else {
           this.$delete(this.pg, 'newItem')
         }
-        // refresh
-        // eslint-disable-next-line no-unused-expressions
-        this.pg?.get?.().catch(() => {})
+        // auto-refresh only when query is set
+        if (this.pgConfig?.query) {
+          // eslint-disable-next-line no-unused-expressions
+          this.pg?.get?.().catch(() => {})
+        }
       }
     }
   }
