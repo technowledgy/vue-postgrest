@@ -71,9 +71,7 @@ const mixin = {
               })
               return ret
             } catch (e) {
-              if (typeof this.$options.onError === 'function') {
-                this.$options.onError.call(this, e)
-              }
+              this.$options.onError.forEach(hook => hook.call(this, e))
               throw e
             }
           }))
