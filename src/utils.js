@@ -24,7 +24,7 @@ function isObject (obj) {
 function syncObjects (o1, o2, del = true) {
   if (del) {
     if (Array.isArray(o1) && Array.isArray(o2)) {
-      for (let i=o1.length; i>=o2.length; i--) {
+      for (let i = o1.length; i >= o2.length; i--) {
         Vue.delete(o1, i)
       }
     } else {
