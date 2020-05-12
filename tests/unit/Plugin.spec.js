@@ -1,5 +1,5 @@
 import { createLocalVue } from '@vue/test-utils'
-import Plugin from '@/index'
+import Plugin, { setDefaultToken } from '@/index'
 import Schema, { resetSchemaCache } from '@/Schema'
 import Route from '@/Route'
 
@@ -49,6 +49,33 @@ describe('Plugin', () => {
             name: 'Test Client 3'
           }
         ])
+      })
+    })
+
+    describe('setDefaultToken', () => {
+      it('uses new default token', async () => {
+        fetch.mockClear()
+        const localVue = createLocalVue()
+        localVue.use(Plugin, {
+          apiRoot: '/api'
+        })
+        await localVue.prototype.$postgrest.$ready
+        await localVue.prototype.$postgrest.clients.get()
+        expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+          headers: new Headers({
+            Accept: 'application/json'
+          })
+        }))
+
+        setDefaultToken('token')
+        await localVue.prototype.$postgrest.$ready
+        await localVue.prototype.$postgrest.clients.get()
+        expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+          headers: new Headers({
+            Accept: 'application/json',
+            Authorization: 'Bearer token'
+          })
+        }))
       })
     })
   })

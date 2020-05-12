@@ -12,16 +12,21 @@ export function resetSchemaCache () {
 }
 
 let defaultApiRoot = '/'
+let defaultToken
 
 export function setDefaultRoot (apiRoot = defaultApiRoot) {
   defaultApiRoot = apiRoot
+}
+
+export function setDefaultToken (token) {
+  defaultToken = token
 }
 
 export default class Schema extends Function {
   #apiRoot
   #token
 
-  constructor (apiRoot = defaultApiRoot, token) {
+  constructor (apiRoot = defaultApiRoot, token = defaultToken) {
     super('', 'return arguments.callee._call.apply(arguments.callee, arguments)')
     const cached = schemaCache[apiRoot] && schemaCache[apiRoot][token]
     if (cached) return cached

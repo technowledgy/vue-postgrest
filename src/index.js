@@ -1,4 +1,5 @@
 import Plugin from '@/Plugin'
+import { setDefaultToken } from '@/Schema'
 import pg from '@/mixin'
 import { AuthError, FetchError, PrimaryKeyError, SchemaNotFoundError } from '@/errors'
 
@@ -7,4 +8,4 @@ if (typeof globalThis !== 'undefined' && globalThis.Vue) {
   globalThis.Vue.use(Plugin)
 }
 
-export { pg, AuthError, FetchError, PrimaryKeyError, SchemaNotFoundError, Plugin as default }
+export { pg, AuthError, FetchError, PrimaryKeyError, SchemaNotFoundError, setDefaultToken, Plugin as default }
