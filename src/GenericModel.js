@@ -123,8 +123,6 @@ class GenericModel {
       const body = await resp.json()
       this._setData(body)
       return body
-    } else {
-      this.$reset()
     }
   }
 
@@ -160,8 +158,6 @@ class GenericModel {
       const body = await resp.json()
       this._setData(body)
       return body
-    } else {
-      this.$reset()
     }
   }
 

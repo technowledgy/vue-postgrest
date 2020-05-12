@@ -252,13 +252,16 @@ describe('GenericModel', () => {
       expect(model).toMatchObject(mockReturn)
     })
 
-    it('resets model when return is "minimal"', async () => {
+    it('keeps data when return is "minimal"', async () => {
       const model = new GenericModel(data, { route })
       model.name = 'client321'
       await Vue.nextTick()
       await model.$post({ return: 'minimal' })
       expect(request).toHaveBeenCalled()
-      expect(model).toMatchObject(data)
+      expect(model).toMatchObject({
+        ...data,
+        name: 'client321'
+      })
     })
 
     it('returns the request\'s return value', async () => {
@@ -513,13 +516,16 @@ describe('GenericModel', () => {
         expect(model).toMatchObject(mockReturn)
       })
 
-      it('resets model when return is "minimal"', async () => {
+      it('keeps data when return is "minimal"', async () => {
         const model = new GenericModel(data, { route })
         model.name = 'client321'
         await Vue.nextTick()
         await model.$patch({}, { return: 'minimal' })
         expect(request).toHaveBeenCalled()
-        expect(model).toMatchObject(data)
+        expect(model).toMatchObject({
+          ...data,
+          name: 'client321'
+        })
       })
     })
 
