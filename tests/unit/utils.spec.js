@@ -171,12 +171,10 @@ describe('utils', () => {
       // keep references to nested objects to check if references are kept intact
       const ref1 = obj1.keep1
       const ref2 = obj1.keep1.keep2
-      const ref3 = obj1.keep1.keep2.keep3
       const ref4 = obj1.keep1.keep4
       const ref5 = obj1.keep5
       const ref50 = obj1.keep5[0]
       const ref52 = obj1.keep5[2]
-      const ref6 = obj1.keep5[2].keep6
       const obj2 = {
         change1: 'b',
         new1: 'new',
@@ -209,16 +207,14 @@ describe('utils', () => {
       }
       const ret = syncObjects(obj1, obj2)
 
-      it('keeps references in first object', () => {
+      it('keeps no references in first object', () => {
         expect(ret).toBe(obj1)
-        expect(obj1.keep1).toBe(ref1)
-        expect(obj1.keep1.keep2).toBe(ref2)
-        expect(obj1.keep1.keep2.keep3).toBe(ref3)
-        expect(obj1.keep1.keep4).toBe(ref4)
-        expect(obj1.keep5).toBe(ref5)
-        expect(obj1.keep5[0]).toBe(ref50)
-        expect(obj1.keep5[2]).toBe(ref52)
-        expect(obj1.keep5[2].keep6).toBe(ref6)
+        expect(obj1.keep1).not.toBe(ref1)
+        expect(obj1.keep1.keep2).not.toBe(ref2)
+        expect(obj1.keep1.keep4).not.toBe(ref4)
+        expect(obj1.keep5).not.toBe(ref5)
+        expect(obj1.keep5[0]).not.toBe(ref50)
+        expect(obj1.keep5[2]).not.toBe(ref52)
       })
 
       it('deletes keys at all levels', () => {
@@ -289,12 +285,10 @@ describe('utils', () => {
       // keep references to nested objects to check if references are kept intact
       const ref1 = obj1.keep1
       const ref2 = obj1.keep1.keep2
-      const ref3 = obj1.keep1.keep2.keep3
       const ref4 = obj1.keep1.keep4
       const ref5 = obj1.keep5
       const ref50 = obj1.keep5[0]
       const ref52 = obj1.keep5[2]
-      const ref6 = obj1.keep5[2].keep6
       const obj2 = {
         change1: 'b',
         new1: 'new',
@@ -326,16 +320,14 @@ describe('utils', () => {
       }
       const ret = syncObjects(obj1, obj2, false)
 
-      it('keeps references in first object', () => {
+      it('keeps no references in first object', () => {
         expect(ret).toBe(obj1)
-        expect(obj1.keep1).toBe(ref1)
-        expect(obj1.keep1.keep2).toBe(ref2)
-        expect(obj1.keep1.keep2.keep3).toBe(ref3)
-        expect(obj1.keep1.keep4).toBe(ref4)
-        expect(obj1.keep5).toBe(ref5)
-        expect(obj1.keep5[0]).toBe(ref50)
-        expect(obj1.keep5[2]).toBe(ref52)
-        expect(obj1.keep5[2].keep6).toBe(ref6)
+        expect(obj1.keep1).not.toBe(ref1)
+        expect(obj1.keep1.keep2).not.toBe(ref2)
+        expect(obj1.keep1.keep4).not.toBe(ref4)
+        expect(obj1.keep5).not.toBe(ref5)
+        expect(obj1.keep5[0]).not.toBe(ref50)
+        expect(obj1.keep5[2]).not.toBe(ref52)
       })
 
       it('deletes keys at all but first levels', () => {

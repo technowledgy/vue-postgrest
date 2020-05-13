@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import ObservableFunction from '@/ObservableFunction'
 import { PrimaryKeyError } from '@/errors'
-import { isEqual, syncObjects } from '@/utils'
+import { cloneDeep, isEqual, syncObjects } from '@/utils'
 
 class TrackedFunction extends Function {
   constructor (fn, cb, arg) {
@@ -78,11 +78,13 @@ class GenericModel {
   }
 
   _setData (data, keepDiff = false) {
-    syncObjects(this.#resetCache, data)
-    const diff = syncObjects({}, this.#diff)
-    syncObjects(this, data)
+    this.#resetCache = cloneDeep(data)
     if (keepDiff) {
+      const diff = cloneDeep(this.#diff)
+      syncObjects(this, data)
       syncObjects(this, diff, false)
+    } else {
+      syncObjects(this, data)
     }
   }
 

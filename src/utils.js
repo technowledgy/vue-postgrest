@@ -23,29 +23,30 @@ function isObject (obj) {
 // when del=true, top-level-keys on o1 that are not on o2 are removed
 function syncObjects (o1, o2, del = true) {
   if (del) {
-    if (Array.isArray(o1) && Array.isArray(o2)) {
-      for (let i = o1.length; i >= o2.length; i--) {
-        Vue.delete(o1, i)
-      }
-    } else {
-      for (const k1 in o1) {
-        if (o2[k1] === undefined) {
-          Vue.delete(o1, k1)
-        }
+    for (const k in o1) {
+      if (o2[k] === undefined) {
+        Vue.delete(o1, k)
       }
     }
   }
-  for (const k2 in o2) {
-    if (isObject(o2[k2])) {
-      if (!isObject(o1[k2]) || Array.isArray(o1[k2]) !== Array.isArray(o2[k2])) {
-        Vue.set(o1, k2, Array.isArray(o2[k2]) ? [] : {})
-      }
-      syncObjects(o1[k2], o2[k2])
-    } else {
-      Vue.set(o1, k2, o2[k2])
-    }
+  const copy = cloneDeep(o2)
+  for (const k in copy) {
+    Vue.set(o1, k, copy[k])
   }
-  return o1
+  return Object.assign(o1, )
+}
+
+function cloneDeep (source) {
+  if (Array.isArray(source)) {
+    return source.map(cloneDeep)
+  } else if (isObject(source)) {
+    return Object.entries(source).reduce((acc, [k, v]) => {
+      acc[k] = cloneDeep(v)
+      return acc
+    }, {})
+  } else {
+    return source
+  }
 }
 
 // split strings of the format key1=value1,key2=value2,... into object
@@ -58,6 +59,7 @@ export default function splitToObject (str, fieldDelimiter = ',', kvDelimiter = 
 }
 
 export {
+  cloneDeep,
   isEqual,
   syncObjects,
   splitToObject
