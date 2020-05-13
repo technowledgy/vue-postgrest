@@ -7,12 +7,12 @@ class AuthError extends Error {
 }
 
 class FetchError extends Error {
-  constructor (resp) {
+  constructor (resp, body) {
     super(resp.statusText)
     this.name = 'FetchError'
     this.resp = resp
     this.status = resp.status
-    resp.json().catch(() => ({})).then(body => Object.assign(this, body))
+    Object.assign(this, body)
   }
 }
 
@@ -31,9 +31,13 @@ class SchemaNotFoundError extends Error {
   }
 }
 
-function throwWhenStatusNotOk (resp) {
+async function throwWhenStatusNotOk (resp) {
   if (!resp.ok) {
-    throw new FetchError(resp)
+    let body = {}
+    try {
+      body = await resp.json()
+    } catch {}
+    throw new FetchError(resp, body)
   }
   return resp
 }
