@@ -33,7 +33,7 @@ function syncObjects (o1, o2, del = true) {
   for (const k in copy) {
     Vue.set(o1, k, copy[k])
   }
-  return Object.assign(o1, )
+  return Object.assign(o1)
 }
 
 function cloneDeep (source) {
