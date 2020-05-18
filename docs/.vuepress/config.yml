@@ -12,6 +12,7 @@ themeConfig:
     - /start/
     - /guide/
     - /api/
+    - /query/
   lastUpdated: Last Updated
   nextLinks: false
   prevLinks: false
