@@ -123,7 +123,6 @@ Global options can be set when initializing Vue-Postgrest with `Vue.use`.
   The URI used as the base for all requests to the API by the mixin, global and local components, as well as the global vue-postgrest instance. This should be the URI to your postgREST installation.
 
   ::: tip
-  <!-- TODO: add proper links to anchors here with markdown.slugify config or by splitting into seperate files -->
   You can override the base URI locally by setting the [component prop](./#component-props) or [mixin option](./#apiroot-2).
   :::
 
@@ -139,7 +138,6 @@ Global options can be set when initializing Vue-Postgrest with `Vue.use`.
 
 ## Mixin Options
 
-<!-- TODO: is this correct or should we say: set in data or computed? -->
 Mixin options are set in the component using the `pg` mixin by setting the `pgConfig` object on the component instance.
 
 ### apiRoot
@@ -477,42 +475,6 @@ Hooks are called on the component instance that uses the `pg` mixin.
 
 Using the `pg` mixin exposes `vm.pg` with the following properties.
 
-### pg.get
-
-- **Type:** `ObservableFunction`
-
-- **Provided if:** `query !== undefined`
-
-- **Details:**
-
-  An [ObservableFunction](./#observablefunction) for the get request.
-
-- **Example:**
-
-  ``` js
-  import { pg } from 'vue-postgrest'
-
-  export default {
-    name: 'Component',
-    mixins: [pg],
-    data () {
-      return {
-        pgConfig: {
-          route: 'inhabitants',
-          query: {}
-        }
-      }
-    },
-    updated () {
-      if (this.pg.get.isPending) {
-        console.log('Get still pending...')
-      } else {
-        console.log('Fetched inhabitants: ', this.pg.items)
-      }
-    }
-  }
-  ```
-
 ### pg.items
 
 - **Type:** `Array<GenericModel>`
@@ -677,30 +639,593 @@ Using the `pg` mixin exposes `vm.pg` with the following properties.
 
 ## Mixin Methods
 
-### pg.$ready
+### pg.get()
 
-### pg.$route
+- **Type:** `ObservableFunction`
 
-### pg.rpc
+- **Provided if:** `query !== undefined`
 
-### pg.$get
+- **Details:**
+
+  An [ObservableFunction](./#observablefunction) for re-sending the get request.
+
+- **Example:**
+
+  ``` js
+  import { pg } from 'vue-postgrest'
+
+  export default {
+    name: 'Component',
+    mixins: [pg],
+    data () {
+      return {
+        pgConfig: {
+          route: 'inhabitants',
+          query: {}
+        }
+      }
+    },
+    methods: {
+      refresh () {
+        this.pg.get()
+        if (this.pg.get.isPending) {
+          console.log('Get still pending...')
+        } else {
+          console.log('Fetched inhabitants: ', this.pg.items)
+        }
+      }
+    }
+  }
+  ```
 
 ## Instance Methods
 
-### $postgrest.$ready
+The instance method `vm.$postgrest` is available on your Vue Instance after installing the plugin.
 
-### $postgrest.$route
+### $postgrest[route]
 
-### $postgrest.rpc
+- **Type:** `Route`
+
+- **Usage:**
+
+  After the schema is [ready](./#postgrest-ready), all available routes are exposed on the $postgrest instance.
+  The exposed `Route` accepts the following arguments:
+    
+    - `{string} method` one of `'OPTIONS'`, `'GET'`, `'HEAD'`, `'POST'`, `'PATCH'`, `'PUT'` or `'DELETE'`
+    
+    - `{object} query` see [Query](/query)
+
+    - `{object} options` additional options, see below
+
+    - `{object} body` payload for post/patch/put requests
+
+  Available options are:
+
+    - `{string} accept` `Accept` header to set or one of the options 'single', 'binary' or 'text', which set the header automatically. Default header is 'application/json'.
+
+    - `{number} limit` Limit the response to no. of items
+
+    - `{number} offset` Offset the response by no. of items
+
+    - `{string} return` Set `return=[value]` part of `Prefer` header
+
+    - `{string} params` Set `params=[value]` part of `Prefer` header
+
+    - `{string} count` Set `count=[value]` part of `Prefer` header
+
+    - `{string} resolution` Set `resolution=[value]` part of `Prefer` header
+
+    - `{object} headers` Overwrite headers. Keys are header field names, values are strings.
+
+  The `Route` instance provides convencience methods for calling the following HTTP requests directly, omit the `method` argument in this case:
+
+    - `$postgrest.route.options([query, options])`
+
+    - `$postgrest[route].get([query, options])`
+
+    - `$postgrest[route].head([query, options])`
+
+    - `$postgrest[route].post([query, options, body])`
+
+    - `$postgrest[route].patch([query, options, body])`
+
+    - `$postgrest[route].put([query, options, body])`
+
+    - `$postgrest[route].delete([query, options])`
+
+- **Example:**
+
+  ``` js
+  export default {
+    name: 'Galaxy',
+    data () {
+      return {
+        planets: undefined,
+        cities: undefined
+      }
+    }
+    async mounted: {
+      // wait for the schema to be ready
+      await this.$postgrest.$ready()
+      this.planets = await this.$postgrest.planets('GET')
+      this.cities = await this.$postgrest.cities.get()
+    }
+  }
+  ```
+
+### $postgrest.$ready()
+
+- **Type:** `Function`
+
+- **Arguments:**
+
+- **Returns:** `Promise`
+
+- **Usage:**
+
+  The returned promise resolves, when the schema was successfully loaded and rejects if no valid schema was found.
+
+  ::: tip
+  This can also be called on a [route](./#pg-route) or a [rpc](./#pg-rpc).
+  :::
+
+- **Example:**
+
+  ``` js
+  export default {
+    name: 'Component',
+    async mounted: {
+      // wait for the schema to be ready
+      try {
+        await this.$postgrest.$ready() 
+      } catch (e) {
+        console.log('Could not connect to API...')
+      }
+    }
+  }
+  ```
+
+### $postgrest.$route(route)
+
+- **Type:** `Function`
+
+- **Arguments:**
+  
+  - `{string} route`
+
+- **Returns:** `Route`
+
+- **Usage:**
+
+  Use this function, if you have to access a route, before the schema is ready and the routes have been exposed on the $postgrest instance. Returns a `Route` for the specified route.
+
+- **Example:**
+
+  ``` js
+  export default {
+    name: 'Cities',
+    methods: {
+      async getCities () {
+        return this.$postgrest.$route('cities').get()
+      },
+      async addCity () {
+        await this.$postgrest.$route('cities').post({}, {}, { name: 'Galactic City' })
+      }
+    }
+  }
+  ```
+
+  - **See also:** [$postgrest[route]](./#postgrest-route)
+
+### $postgrest.rpc[function-name]
+
+- **Type:** `RPC`
+
+- **Usage:**
+
+  After the schema is [ready](./#postgrest-ready), all available stored procedures are exposed on $postgrest.rpc[function-name] and can be called like this: `$postgrest.rpc[function-name]([options, params])`.
+
+  The `params` object contains parameters that are passed to the stored procedure. Available `opts` are:
+
+  - `{boolean} get` set request method to 'GET' if true, otherwise 'POST'
+
+  - `{string} accept` `Accept` header to set or one of the options 'single', 'binary' or 'text', which set the header automatically. Default header is 'application/json'.
+
+  - `{object} headers` Properties of this object overwrite the specified header fields of the request.
+
+- **Example:**
+
+  ``` js
+  export default {
+    name: 'Component',
+    methods: {
+      async destroyAllPlanets () {
+        // wait till schema is loaded
+        await this.$postgrest.$ready()
+        const result = await this.$postgrest.rpc.destroyplanets({ 
+          accept: 'text',
+          headers: { 'Warning': 'Will cause problems!' }
+        }, { countdown: false })
+
+        if (result !== 'all gone!') {
+          this.$postgrest.rpc.destroyplanets({}, { force: true })
+        }
+      }
+    }
+  }
+  ```
+
+### $postgrest.rpc(function-name[, options, params])
+
+- **Type:** `Function`
+
+- **Arguments:**
+  
+  - `{string} function-name`
+
+  - `{object} options`
+
+  - `{object} params`
+
+- **Returns:** API response
+
+- **Usage:**
+
+  Calls a stored procedure on the API. `function-name` specifies the stored procedure to call. For `params` and `options` see [$postgrest.rpc](./#postgrest-rpc)
+
+- **Example:**
+
+  ``` js
+  export default {
+    name: 'Component',
+    methods: {
+      async destroyAllPlanets () {
+        const result = await this.$postgrest.rpc('destroyplanets', { 
+          accept: 'text',
+          headers: { 'Warning': 'Will cause problems!' }
+        }, { countdown: false })
+      }
+    }
+  }
+  ```
 
 ## Component Props
 
-The postgrest component accepts all [mixin options](./#mixin-options) as props, see above for details.
+The `<postgrest>` component accepts all [mixin options](./#mixin-options) as props, see above for details.
+
+- **Example**:
+
+``` html
+<template>
+  <postgrest
+    route="planets"
+    :query="{}"
+    accept="single"
+    limit="10">
+</template>
+```
 
 ## Component Slot-scope
 
+The `<postgrest>` component provides all [mixin properties](./#mixin-properties) as default slot scope, see above for details.
+
+- **Example**:
+  
+  ``` html
+  <template>
+    <postgrest
+      route="planets"
+      :query="{}">
+      <template v-slot:default={ planets: items, get }>
+        <loading v-if="get.isPending"/>
+        <ul v-else>
+          <li v-for="planet in planets" :key="planet.id">
+            {{ planet.name }}
+          </li>
+        </ul>
+      </template>
+  </template>
+  ```
+
 ## Component Events
+
+### error
+
+- **Type:** `Event`
+
+- **Payload:** `Error`
+
+- **Usage:**
+
+  This event is emitted when an error occurs. 
+
+  ::: tip
+  You can use the [error classes](./#module-exports) exported from the module to check for specific errors.
+  :::
+
+- **Example:**
+  
+    ``` vue
+    <template>
+      <postgrest
+        route="planets"
+        :query="{}"
+        @error="handleError">
+        <template v-slot:default={ planets: items, get }>
+          <loading v-if="get.isPending"/>
+          <ul v-else>
+            <li v-for="planet in planets" :key="planet.id">
+              {{ planet.name }}
+            </li>
+          </ul>
+        </template>
+    </template>
+
+    <script>
+    import { SchemaNotFoundError } from 'vue-postgrest'
+
+    export default {
+      name: 'PlanetsList',
+      methods: {
+        handleError (e) {
+          if (e instanceof SchemaNotFoundError) {
+            console.log('Schema "Planets" not found!')
+          } else {
+            throw e
+          }
+        }
+      }
+    }
+    </script>
+    ```
 
 ## GenericModel
 
+The data of a GenericModel is saved directly on the instance. Additionally, the following methods and getters are available.
+
+### $get([options])
+
+- **Type:** `ObservableFunction`
+
+- **Provided if:**
+
+- **Arguments:**
+
+  - `{object} options`
+
+- **Returns:** Response from the API
+
+- **Details:**
+
+  An [ObservableFunction](./#observablefunction) for a get request. Available `options` are:
+
+    - `{object} headers` Set or overwrite headers for this request. Keys are header field names, values are strings.
+
+    - `{boolean} keepChanges` If true, local changes to the item are protected from being overwriteten by fetched data and only unchanged fields are updated.
+
+- **Example:**
+
+  ``` js
+  import { pg } from 'vue-postgrest'
+
+  export default {
+    name: 'UserProfile',
+    mixins: [pg],
+    data () {
+      return {
+        pgConfig: {
+          route: 'users',
+          query: {
+            'id.eq': this.$store.getters.userId
+          },
+          accept: 'single'
+        }
+      }
+    },
+    methods: {
+      updateUser () {
+        this.pg.item.$get()
+      }
+    }
+  }
+  ```
+
+### $post([options])
+
+- **Type:** `ObservableFunction`
+
+- **Provided if:** Schema provides primary keys for the item
+
+- **Arguments:**
+
+  - `{object} options`
+
+- **Returns:** Response from the API
+
+- **Details:**
+
+  An [ObservableFunction](./#observablefunction) for a post request. Available `options` are:
+
+    - `{object} headers` Set or overwrite headers for this request. Keys are header field names, values are strings.
+
+    - `{array<string>} columns` Sets `columns` parameter on request to improve performance on updates/inserts
+
+    - `{string} return` Add `return=[value]` header to request. Possible values are `'representation'` (default) and `'minimal'`.
+
+  If option `return` is set to `'representation'`, which is the default value, the item is updated with the response from the server.
+
+- **Example:**
+
+  ``` js
+  import { pg } from 'vue-postgrest'
+
+  export default {
+    name: 'HeroesList',
+    mixins: [pg],
+    data () {
+      return {
+        pgConfig: {
+          route: 'heroes',
+          newTemplate: {
+            name: 'Yoda',
+            age: '999999999'
+          }
+        }
+      }
+    },
+    methods: {
+      addHero () {
+        this.pg.newItem.$post()
+      }
+    }
+  }
+  ```
+
+### $patch([data, options])
+
+- **Type:** `ObservableFunction`
+
+- **Provided if:** Schema provides primary keys for the item
+
+- **Arguments:**
+
+  - `{object} data`
+
+  - `{object} options`
+
+- **Returns:** Response from the API
+
+- **Details:**
+
+  An [ObservableFunction](./#observablefunction) for a patch request. The patch function also accepts an object as first argument with fields that should be patched, properties declared in this object take precedence over fields changed on the item directly. Available `options` are:
+
+    - `{object} headers` Set or overwrite headers for this request. Keys are header field names, values are strings.
+
+    - `{array<string>} columns` Sets `columns` parameter on request to improve performance on updates/inserts
+
+    - `{string} return` Add `return=[value]` header to request. Possible values are `'representation'` (default) and `'minimal'`.
+
+  If option `return` is set to `'representation'`, which is the default value, the item is updated with the response from the server.
+
+- **Example:**
+
+  ``` js
+  import { pg } from 'vue-postgrest'
+
+  export default {
+    name: 'HeroProfile',
+    mixins: [pg],
+    data () {
+      return {
+        pgConfig: {
+          route: 'heroes',
+          query: {
+            'name.eq': 'Yoda'
+          },
+          accept: 'single'
+        }
+      }
+    },
+    methods: {
+      updateHeroAge (age) {
+        this.pg.item.age = age
+        this.pg.item.$patch({ name: 'Younger Yoda '})
+        // sends a patch request with the data: { age: age, name: 'Younger Yoda' }
+      }
+    }
+  }
+  ```
+
+### $delete([options])
+
+- **Type:** `ObservableFunction`
+
+- **Provided if:** Schema provides primary keys for the item
+
+- **Arguments:**
+
+  - `{object} options`
+
+- **Returns:** Response from the API
+
+- **Details:**
+
+  An [ObservableFunction](./#observablefunction) for a delete request. Available `options` are:
+
+    - `{object} headers` Set or overwrite headers for this request. Keys are header field names, values are strings.
+
+    - `{string} return` Add `return=[value]` header to request. Possible values are `'representation'` (default) and `'minimal'`.
+
+  If option `return` is set to `'representation'`, which is the default value, the item is updated with the response from the server.
+
+- **Example:**
+
+  ``` js
+  import { pg } from 'vue-postgrest'
+
+  export default {
+    name: 'HeroProfile',
+    mixins: [pg],
+    data () {
+      return {
+        pgConfig: {
+          route: 'heroes',
+          query: {
+            'name.eq': 'Yoda'
+          },
+          accept: 'single'
+        }
+      }
+    },
+    methods: {
+      deleteYoda (age) {
+        // oh, no!
+        this.pg.item.$delete()
+      }
+    }
+  }
+  ```
+
+### $isDirty
+
+- **Type:** `Boolean`
+
+- **Details:**
+
+  Indicating wether the item data has changed from its inital state.
+
 ## ObservableFunction
+
+An ObservableFunction has the following properties indicating it's current status.
+
+### isPending
+
+- **Type:** `Boolean`
+
+- **Details:**
+
+  Indicating wether there are pending requests for this Function.
+
+### nPending
+
+- **Type:** `Number`
+
+- **Details:**
+
+  The number of currently pending requests for this Function.
+
+### hasError
+
+- **Type:** `Boolean`
+
+- **Details:**
+
+  Indicating wether there were errors during the request. This is cleared upon the next successful request.
+
+### errors
+
+- **Type:** `Array<Error>`
+
+- **Details:**
+
+  An Array of Errors that are associated with this Function. This is cleared upon the next successful request.
