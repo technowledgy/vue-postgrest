@@ -10,51 +10,68 @@ By default, all values are converted to their appropriate representation for Pos
 
 Undefined values are excluded from the query string.
 
+<Query>
+
 ``` js
 const query = {
-    'age.lt': 13,
-    'grade.gte': undefined
-  }
+  'age.lt': 13,
+  'grade.gte': undefined
 }
 ```
+
+</Query>
 
 ### Arrays
 
 Arrays are parsed depending on the used operator.
 
-``` js
-const query = {
-    'id.in': [1, 2, 3]
-  }
-}
-```
+<Query>
 
 ``` js
 const query = {
-    'tags.cs': ['example', 'new']
-  }
+  'id.in': [1, 2, 3]
 }
 ```
+
+</Query>
+
+<Query>
+
+``` js
+const query = {
+  'tags.cs': ['example', 'new']
+}
+```
+
+</Query>
 
 ### Range Objects
 
-``` js
-const query = {
-    'range.sl': { lower: 1, upper: 10}
-  }
-}
-```
+<Query>
 
 ``` js
 const query = {
-    'range.sl': { lower: 1, includeLower: false, upper: 10, includeUpper: true }
-  }
+  'range.sl': { lower: 1, upper: 10}
 }
 ```
 
-## [Horizontal Filtering (Rows)](http://postgrest.org/en/v7.0.0/api.html#horizontal-filtering-rows)
+</Query>
+
+<Query>
+
+``` js
+const query = {
+  'range.sl': { lower: 1, includeLower: false, upper: 10, includeUpper: true }
+}
+```
+
+</Query>
+
+## Horizontal Filtering (Rows) <PostgrestDocs href="http://postgrest.org/en/v7.0.0/api.html#horizontal-filtering-rows"/>
 
 ### Column Conditions
+
+<Query>
 
 ``` js
 const query = {
@@ -62,7 +79,11 @@ const query = {
 }
 ```
 
+</Query>
+
 ### Logical Conjoining
+
+<Query>
 
 ``` js
 const query = {
@@ -71,6 +92,10 @@ const query = {
 }
 ```
 
+</Query>
+
+<Query>
+
 ``` js
 const query = {
   'grade.gte': 90,
@@ -78,22 +103,60 @@ const query = {
 }
 ```
 
+</Query>
+
 ### Logical Disjoining
+
+<Query>
+
+``` js
+const query = {
+  adn: {
+    'grade.gte': 20,
+    'age.lte': 30,
+  }
+}
+```
+
+</Query>
+
+For setting two conditions on the same column, use aliases - these are stripped before creating the query string.
+
+<Query>
 
 ``` js
 const query = {
   or: {
+    '0:grade.eq': 20,
+    '1:grade.eq': 50,
+  }
+}
+```
+
+</Query>
+
+Negated logical operators and nesting:
+
+<Query>
+
+``` js
+const query = {
+  and: {
     'grade.gte': 90,
     'student.is': true,
-    or: {
-      'age.gte': 14,
-      'age.is': null
+    'not.or': {
+      'age.eq': 14,
+      'age.not.is': null
     }
   }
 }
 ```
 
+</Query>
+
 ### Full-Text Search
+
+<Query>
 
 ``` js
 const query = {
@@ -101,39 +164,59 @@ const query = {
 }
 ```
 
-## [Vertical Filtering (Columns)](http://postgrest.org/en/v7.0.0/api.html#vertical-filtering-columns)
+</Query>
+
+## Vertical Filtering (Columns) <PostgrestDocs href="http://postgrest.org/en/v7.0.0/api.html#vertical-filtering-columns"/>
 
 ### Selecting
+
+<Query>
 
 ``` js
 const query = {
   select: '*'
 }
-````
+```
+
+</Query>
+
+<Query>
 
 ``` js
 const query = {
   select: 'first_name,age'
 }
-````
+```
+
+</Query>
+
+<Query>
 
 ``` js
 const query = {
   select: ['first_name', 'age']
 }
-````
+```
+
+</Query>
+
+<Query>
 
 ``` js
 const query = {
   select: {
-    first_name: true,
+    'first_name': true,
     // NOTE: falsy values are ignored!
     age: 0
   }
 }
-````
+```
+
+</Query>
 
 ### Renaming Columns
+
+<Query>
 
 ``` js
 const query = {
@@ -141,7 +224,23 @@ const query = {
 }
 ```
 
+</Query>
+
+<Query>
+
+``` js
+const query = {
+  select: {
+    'firstName:first_name': true
+  }
+}
+```
+
+</Query>
+
 ### Casting Columns
+
+<Query>
 
 ``` js
 const query = {
@@ -149,7 +248,53 @@ const query = {
 }
 ```
 
+</Query>
+
+<Query>
+
+``` js
+const query = {
+  select: {
+    'full_name': true,
+    salary: 'text'
+  }
+}
+```
+
+</Query>
+
+<Query>
+
+``` js
+const query = {
+  select: {
+    'full_name': true,
+    salary: {
+      '::': 'text'
+    }
+  }
+}
+```
+
+</Query>
+
 ### JSON Columns
+
+<Query>
+
+``` js
+const query = {
+  select: ['id', 'json_data->>blood_type', 'json_data->phones']
+}
+```
+
+</Query>
+
+::: tip
+If a field of the `select` object has a `select` key itself, it is handled as an embed, otherwise as a JSON field.
+:::
+
+<Query>
 
 ``` js
 const query = {
@@ -159,9 +304,17 @@ const query = {
       blood_type: true,
       phones: true
     }
+  },
+  // Nested filter on JSON column
+  json_data: {
+    'age.gt': 20
   }
 }
 ```
+
+</Query>
+
+<Query>
 
 ``` js
 const query = {
@@ -178,21 +331,46 @@ const query = {
 }
 ```
 
-``` js
-const query = {
-  select: ['id', 'json_data->>blood_type', 'json_data->phones']
-}
-```
+</Query>
+
+If a JSON column is aliased or cast in object syntax, the json_data field is added to the query string. E.g.:
+
+<Query>
 
 ``` js
 const query = {
-  select: ['id', 'json_data->>blood_type', 'json_data->phones'],
-  'json_data->>blood_type.eq': 'A-',
-  'json_data->age.gte': 20
+  select: {
+    id: true,
+    'jd:json_data': {
+      blood_type: true,
+      phones: true
+    }
+  }
 }
 ```
 
-## Ordering
+</Query>
+
+<Query>
+
+``` js
+const query = {
+  select: {
+    id: true,
+    json_data: {
+      '::': 'json',
+      blood_type: true,
+      phones: true
+    }
+  }
+}
+```
+
+</Query>
+
+## Ordering <PostgrestDocs href="http://postgrest.org/en/v7.0.0/api.html#ordering"/>
+
+<Query>
 
 ``` js
 const query = {
@@ -200,12 +378,19 @@ const query = {
 }
 ```
 
+</Query>
+
+<Query>
 
 ``` js
 const query = {
   order: ['age.desc', 'height.asc']
 }
 ```
+
+</Query>
+
+<Query>
 
 ``` js
 const query = {
@@ -216,6 +401,9 @@ const query = {
 }
 ```
 
+</Query>
+
+<Query>
 
 ``` js
 const query = {
@@ -226,6 +414,10 @@ const query = {
 }
 ```
 
+</Query>
+
+<Query>
+
 ``` js
 const query = {
   order: {
@@ -234,7 +426,11 @@ const query = {
 }
 ```
 
-## Limits and Pagination
+</Query>
+
+## Limits and Pagination <PostgrestDocs href="http://postgrest.org/en/v7.0.0/api.html#limits-and-pagination"/>
+
+<Query>
 
 ``` js
 const query = {
@@ -243,9 +439,17 @@ const query = {
 }
 ```
 
-## Resource Embedding
+</Query>
+
+## Resource Embedding <PostgrestDocs href="http://postgrest.org/en/v7.0.0/api.html#resource-embedding"/>
+
+::: tip
+If a field of the `select` object has a `select` key itself, it is handled as an embed, otherwise as a JSON field.
+:::
 
 **Simple**
+
+<Query>
 
 ``` js
 const query = {
@@ -261,7 +465,11 @@ const query = {
 }
 ```
 
+</Query>
+
 **Aliases**
+
+<Query>
 
 ``` js
 const query = {
@@ -277,7 +485,11 @@ const query = {
 }
 ```
 
+</Query>
+
 **Full Example**
+
+<Query>
 
 ``` js
 const query = {
@@ -301,9 +513,13 @@ const query = {
 }
 ```
 
-## Insertions / Updates
+</Query>
+
+## Insertions / Updates <PostgrestDocs href="http://postgrest.org/en/v7.0.0/api.html#insertions-updates"/>
 
 ### Columns
+
+<Query>
 
 ``` js
 const query = {
@@ -311,13 +527,21 @@ const query = {
 }
 ```
 
+</Query>
+
+<Query>
+
 ``` js
 const query = {
   columns: ['source', 'publication_date', 'figure']
 }
 ```
 
+</Query>
+
 ### On Conflict
+
+<Query>
 
 ``` js
 const query = {
@@ -325,8 +549,14 @@ const query = {
 }
 ```
 
+</Query>
+
+<Query>
+
 ``` js
 const query = {
   on_conflict: ['source', 'publication_date', 'figure']
 }
 ```
+
+</Query>
