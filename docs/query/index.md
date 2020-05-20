@@ -1,42 +1,56 @@
 # Query
 
-The `Query` class converts an input object into a postgREST query string.
+The `Query` class converts an input object into a PostgREST query string.
 
-By default, all values are converted to their appropriate representation for postgREST query strings.
+By default, all values are converted to their appropriate representation for PostgREST query strings.
 
 ## Values & Operators
 
 ### Undefined
 
-Keys with value undefined are excluded from the query string. E.g.
+Undefined values are excluded from the query string.
 
 ``` js
-const config = {
-  route: 'people',
-  query: {
-    age.lt: 13,
-    grade.gte: undefined
+const query = {
+    'age.lt': 13,
+    'grade.gte': undefined
   }
 }
 ```
-
-creates the query string `/people?age=lt.13.`.
-:::
 
 ### Arrays
 
 Arrays are parsed depending on the used operator.
 
-- `'id.in': [1, 2, 3]` => `'id.in(1,2,3)'`
+``` js
+const query = {
+    'id.in': [1, 2, 3]
+  }
+}
+```
 
-- `'tags.cs': ['example', 'new']` => `'tags=cs.{example,new}'`
+``` js
+const query = {
+    'tags.cs': ['example', 'new']
+  }
+}
+```
 
 ### Range Objects
 
-- `'range.sl': { lower: 1, upper: 10 }` => `'range=sl.[1,10)'` 
+``` js
+const query = {
+    'range.sl': { lower: 1, upper: 10}
+  }
+}
+```
 
- `'range.sl': { lower: 1, includeLower: false, upper: 10, includeUpper: true }` => `'range=sl.(1,10]'`
-
+``` js
+const query = {
+    'range.sl': { lower: 1, includeLower: false, upper: 10, includeUpper: true }
+  }
+}
+```
 
 ## [Horizontal Filtering (Rows)](http://postgrest.org/en/v7.0.0/api.html#horizontal-filtering-rows)
 
@@ -48,7 +62,7 @@ const query = {
 }
 ```
 
-### Logical Conjoinig
+### Logical Conjoining
 
 ``` js
 const query = {
@@ -234,12 +248,14 @@ const query = {
 **Simple**
 
 ``` js
-const query = select: {
-  title: true,
-  directors: {
-    select: {
-      id: true,
-      last_name: true
+const query = {
+  select: {
+    title: true,
+    directors: {
+      select: {
+        id: true,
+        last_name: true
+      }
     }
   }
 }
@@ -248,7 +264,7 @@ const query = select: {
 **Aliases**
 
 ``` js
-const query = select: {
+const query = {
   select: {
     title: true,
     'director:directors': {
@@ -264,7 +280,7 @@ const query = select: {
 **Full Example**
 
 ``` js
-const query = select: {
+const query = {
   select: {
     '*': true,
     actors: {
@@ -290,13 +306,13 @@ const query = select: {
 ### Columns
 
 ``` js
-const query = select: {
+const query = {
   columns: 'source,publication_date,figure'
 }
 ```
 
 ``` js
-const query = select: {
+const query = {
   columns: ['source', 'publication_date', 'figure']
 }
 ```
@@ -304,13 +320,13 @@ const query = select: {
 ### On Conflict
 
 ``` js
-const query = select: {
+const query = {
   on_conflict: 'source'
 }
 ```
 
 ``` js
-const query = select: {
+const query = {
   on_conflict: ['source', 'publication_date', 'figure']
 }
 ```

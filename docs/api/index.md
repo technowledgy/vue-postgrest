@@ -120,7 +120,7 @@ Global options can be set when initializing Vue-Postgrest with `Vue.use`.
 
 - **Details:**
 
-  The URI used as the base for all requests to the API by the mixin, global and local components, as well as the global vue-postgrest instance. This should be the URI to your postgREST installation.
+  The URI used as the base for all requests to the API by the mixin, global and local components, as well as the global vue-postgrest instance. This should be the URI to your PostgREST installation.
 
   ::: tip
   You can override the base URI locally by setting the [component prop](./#component-props) or [mixin option](./#apiroot-2).
@@ -148,7 +148,7 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
 - **Details:**
 
-  The URI used as the base for all requests to the API by the mixin, global and local components, as well as the global vue-postgrest instance. This should be the URI to your postgREST installation.
+  The URI used as the base for all requests to the API by the mixin, global and local components, as well as the global vue-postgrest instance. This should be the URI to your PostgREST installation.
 
   ::: tip
   This overrides the global [plugin option](./#apiroot)!
@@ -208,6 +208,8 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
   The access token used for authorizing the connection to the API. This options sets the `Authorization` header for all requests.
 
+  See also [Client Auth](http://postgrest.org/en/v7.0.0/auth.html#client-auth) in the PostgREST documentation.
+
   ::: tip
   You can set this globally with the [setDefaultToken method](./#setdefaulttoken-token)!
   :::
@@ -239,7 +241,7 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
 - **Details:**
 
-  The query sent to the API is constructed from this option. See the [Query API](/query) for more details.
+  The query sent to the API is constructed from this option. See the [Query API](/query) as well as [API](http://postgrest.org/en/v7.0.0/api.html) in the PostgREST documentation for more details.
 
   ::: warning
   If this option is undefined, the instance will not provide methods and items related to get/patch/delete requests. Set query to `{}`
@@ -282,6 +284,8 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
   Accept header to set or one of the options 'single', 'binary' or 'text', which set the correct headers automatically. Default header is set to 'application/json'.
 
+  See also [Response Format](http://postgrest.org/en/v7.0.0/api.html#response-format) in the PostgREST documentation.
+
 - **Example:**
 
   ``` js
@@ -312,7 +316,9 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
 - **Details:**
 
-  Limits the count of response items.
+  Limits the count of response items by setting `Range-Unit` and `Range` headers.
+
+  See also [Limits and Pagination](http://postgrest.org/en/v7.0.0/api.html#limits-and-pagination) in the PostgREST documentation.
 
 - **Example:**
 
@@ -346,7 +352,9 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
 - **Details:**
 
-  Offset the response items, useful e.g. for pagination.
+  Offset the response items, useful e.g. for pagination, by setting `Range-Unit` and `Range` headers.
+
+  See also [Limits and Pagination](http://postgrest.org/en/v7.0.0/api.html#limits-and-pagination) in the PostgREST documentation.
 
 - **Example:**
 
@@ -379,7 +387,9 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
 - **Details:**
 
-  If set to `'exact'`, we request the total amount of items in the database that fit the filter query (disabled by default due to performance considerations).
+  If set to `'exact'`, we request the total amount of items in the database that fit the filter query (disabled by default due to performance considerations) by setting the `Prefer` header accordingly.
+
+  See also [Limits and Pagination](http://postgrest.org/en/v7.0.0/api.html#exact-count) in the PostgREST documentation.
 
 - **Example:**
 
@@ -444,9 +454,13 @@ Hooks are called on the component instance that uses the `pg` mixin.
 
 - **Type:** `Function`
 
+- **Arguments:** 
+  
+  - `{FetchError | AuthError} error`
+
 - **Details:**
 
-  Called when an error occurs. The Hook gets passed the error object.
+  Called when a FetchError or AuthError occurs. The Hook gets passed the error object.
 
 - **Example:**
 
@@ -746,24 +760,22 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
     }
     async mounted: {
       // wait for the schema to be ready
-      await this.$postgrest.$ready()
+      await this.$postgrest.$ready
       this.planets = await this.$postgrest.planets('GET')
       this.cities = await this.$postgrest.cities.get()
     }
   }
   ```
 
-### $postgrest.$ready()
+### $postgrest.$ready
 
-- **Type:** `Function`
+- **Type:** `Promise`
 
-- **Arguments:**
-
-- **Returns:** `Promise`
+- **Throws:** `SchemaNotFoundError`
 
 - **Usage:**
 
-  The returned promise resolves, when the schema was successfully loaded and rejects if no valid schema was found.
+  The promise resolves, when the schema was successfully loaded and rejects if no valid schema was found.
 
   ::: tip
   This can also be called on a [route](./#pg-route) or a [rpc](./#pg-rpc).
@@ -777,7 +789,7 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
     async mounted: {
       // wait for the schema to be ready
       try {
-        await this.$postgrest.$ready() 
+        await this.$postgrest.$ready 
       } catch (e) {
         console.log('Could not connect to API...')
       }
@@ -841,7 +853,7 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
     methods: {
       async destroyAllPlanets () {
         // wait till schema is loaded
-        await this.$postgrest.$ready()
+        await this.$postgrest.$ready
         const result = await this.$postgrest.rpc.destroyplanets({ 
           accept: 'text',
           headers: { 'Warning': 'Will cause problems!' }
@@ -916,7 +928,7 @@ The `<postgrest>` component provides all [mixin properties](./#mixin-properties)
     <postgrest
       route="planets"
       :query="{}">
-      <template v-slot:default={ planets: items, get }>
+      <template v-slot:default={ items: planets, get }>
         <loading v-if="get.isPending"/>
         <ul v-else>
           <li v-for="planet in planets" :key="planet.id">
@@ -933,15 +945,11 @@ The `<postgrest>` component provides all [mixin properties](./#mixin-properties)
 
 - **Type:** `Event`
 
-- **Payload:** `Error`
+- **Payload:** `AuthError | FetchError`
 
 - **Usage:**
 
-  This event is emitted when an error occurs. 
-
-  ::: tip
-  You can use the [error classes](./#module-exports) exported from the module to check for specific errors.
-  :::
+  This event is emitted when an AuthError or FetchError occurs. 
 
 - **Example:**
   
@@ -962,14 +970,14 @@ The `<postgrest>` component provides all [mixin properties](./#mixin-properties)
     </template>
 
     <script>
-    import { SchemaNotFoundError } from 'vue-postgrest'
+    import { AuthError } from 'vue-postgrest'
 
     export default {
       name: 'PlanetsList',
       methods: {
         handleError (e) {
-          if (e instanceof SchemaNotFoundError) {
-            console.log('Schema "Planets" not found!')
+          if (e instanceof AuthError) {
+            console.log('Something wrong with the token!')
           } else {
             throw e
           }
@@ -987,13 +995,13 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
 - **Type:** `ObservableFunction`
 
-- **Provided if:**
-
 - **Arguments:**
 
   - `{object} options`
 
 - **Returns:** Response from the API
+
+- **Throws:** `AuthError | FetchError`
 
 - **Details:**
 
@@ -1001,7 +1009,9 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
     - `{object} headers` Set or overwrite headers for this request. Keys are header field names, values are strings.
 
-    - `{boolean} keepChanges` If true, local changes to the item are protected from being overwriteten by fetched data and only unchanged fields are updated.
+    - `{boolean} keepChanges` If true, local changes to the item are protected from being overwritten by fetched data and only unchanged fields are updated.
+
+    - All Options described in [postgrest route](./#postgrest-route) are available here as well.
 
 - **Example:**
 
@@ -1034,13 +1044,13 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
 - **Type:** `ObservableFunction`
 
-- **Provided if:** Schema provides primary keys for the item
-
 - **Arguments:**
 
   - `{object} options`
 
 - **Returns:** Response from the API
+
+- **Throws:** `AuthError | FetchError`
 
 - **Details:**
 
@@ -1051,6 +1061,8 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
     - `{array<string>} columns` Sets `columns` parameter on request to improve performance on updates/inserts
 
     - `{string} return` Add `return=[value]` header to request. Possible values are `'representation'` (default) and `'minimal'`.
+
+    - All Options described in [postgrest route](./#postgrest-route) are available here as well.
 
   If option `return` is set to `'representation'`, which is the default value, the item is updated with the response from the server.
 
@@ -1085,8 +1097,6 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
 - **Type:** `ObservableFunction`
 
-- **Provided if:** Schema provides primary keys for the item
-
 - **Arguments:**
 
   - `{object} data`
@@ -1094,6 +1104,8 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
   - `{object} options`
 
 - **Returns:** Response from the API
+
+- **Throws:** `AuthError | FetchError`
 
 - **Details:**
 
@@ -1104,6 +1116,8 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
     - `{array<string>} columns` Sets `columns` parameter on request to improve performance on updates/inserts
 
     - `{string} return` Add `return=[value]` header to request. Possible values are `'representation'` (default) and `'minimal'`.
+
+    - All Options described in [postgrest route](./#postgrest-route) are available here as well.
 
   If option `return` is set to `'representation'`, which is the default value, the item is updated with the response from the server.
 
@@ -1140,13 +1154,13 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
 - **Type:** `ObservableFunction`
 
-- **Provided if:** Schema provides primary keys for the item
-
 - **Arguments:**
 
   - `{object} options`
 
 - **Returns:** Response from the API
+
+- **Throws:** `AuthError | FetchError`
 
 - **Details:**
 
@@ -1154,9 +1168,11 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
     - `{object} headers` Set or overwrite headers for this request. Keys are header field names, values are strings.
 
-    - `{string} return` Add `return=[value]` header to request. Possible values are `'representation'` (default) and `'minimal'`.
+    - `{string} return` Add `return=[value]` header to request. Possible values are `'representation'` and `'minimal'`.
 
-  If option `return` is set to `'representation'`, which is the default value, the item is updated with the response from the server.
+    - All Options described in [postgrest route](./#postgrest-route) are available here as well.
+
+  If option `return` is set to `'representation'`, the item is updated with the response from the server.
 
 - **Example:**
 
@@ -1192,11 +1208,78 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
 - **Details:**
 
-  Indicating wether the item data has changed from its inital state.
+  Indicating whether the item data has changed from its inital state.
+
+- **Example:**
+
+  ``` js
+  import { pg } from 'vue-postgrest'
+
+  export default {
+    name: 'HeroProfile',
+    mixins: [pg],
+    data () {
+      return {
+        pgConfig: {
+          route: 'heroes',
+          query: {
+            'name.eq': 'Yoda'
+          },
+          accept: 'single'
+        }
+      }
+    },
+    methods: {
+      updateHero () {
+        if (this.pg.item.$isDirty) {
+          this.pg.item.$patch()
+        }
+      }
+    }
+  }
+  ```
+
+### $reset()
+
+- **Type:** `Function`
+
+- **Details:**
+
+  Reset the item data to it's initial state.
+
+- **Example:**
+
+  ``` js
+  import { pg } from 'vue-postgrest'
+
+  export default {
+    name: 'HeroProfile',
+    mixins: [pg],
+    data () {
+      return {
+        pgConfig: {
+          route: 'heroes',
+          query: {
+            'name.eq': 'Yoda'
+          },
+          accept: 'single'
+        }
+      }
+    },
+    methods: {
+      changeAge (age) {
+        this.item.age = age
+      },
+      resetHero () {
+        this.item.$reset()
+      }
+    }
+  }
+  ```
 
 ## ObservableFunction
 
-An ObservableFunction has the following properties indicating it's current status.
+An ObservableFunction has the following Vue-reactive properties indicating it's current status.
 
 ### isPending
 
@@ -1204,7 +1287,7 @@ An ObservableFunction has the following properties indicating it's current statu
 
 - **Details:**
 
-  Indicating wether there are pending requests for this Function.
+  Indicating whether there are pending requests for this Function.
 
 ### nPending
 
@@ -1220,7 +1303,7 @@ An ObservableFunction has the following properties indicating it's current statu
 
 - **Details:**
 
-  Indicating wether there were errors during the request. This is cleared upon the next successful request.
+  Indicating whether there were errors during the request. This is cleared upon the next successful request.
 
 ### errors
 
