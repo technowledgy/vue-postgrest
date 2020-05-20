@@ -1,13 +1,13 @@
 # Quick Start
 
-Install it:
+To get started, install vue-postgrest via your package manager:
 
 ``` bash
 yarn add vue-postgrest
 # OR npm install -g vuepress
 ```
 
-Load it:
+Import and install the Plugin in your `main.js`:
 
 ``` javascript
 import Vue from 'vue'
@@ -16,17 +16,17 @@ import Postgrest from 'vue-postgrest'
 Vue.use(Postgrest)
 ```
 
-Use as component:
+You can use the `<postgrest>` component:
 
 ``` html
-<postgrest route="ROUTE">
+<postgrest route="ROUTE" query={}>
   <template #default="{ items }">
     {{ items }}
   </template>
 </postgrest>
 ```
 
-Use as mixin:
+Use the `pg` mixin:
 
 ``` vue
 <template>
@@ -41,7 +41,8 @@ export default {
   computed: {
     pgConfig () {
       return {
-        route: 'ROUTE'
+        route: 'ROUTE',
+        query: {}
       }
     }
   }
@@ -49,8 +50,10 @@ export default {
 </script>
 ```
 
-As instance method:
+Or you can directly use the instance method provided on your Vue instance:
 
 ``` javascript
 this.$postgrest.ROUTE.get()
 ```
+
+For in depth documentation see the [API](/api) and [Query](/query) documentation.
