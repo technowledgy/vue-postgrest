@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Query | vue-postgrest</title>
+    <meta name="generator" content="VuePress 1.4.1">
+    
+    <meta name="description" content="PostgREST integration for Vue.js">
+    <link rel="preload" href="/vue-postgrest/assets/css/0.styles.4532b76e.css" as="style"><link rel="preload" href="/vue-postgrest/assets/js/app.efc710c9.js" as="script"><link rel="preload" href="/vue-postgrest/assets/js/2.2a0a4dd3.js" as="script"><link rel="preload" href="/vue-postgrest/assets/js/10.4e940c90.js" as="script"><link rel="preload" href="/vue-postgrest/assets/js/5.5a2fce4d.js" as="script"><link rel="preload" href="/vue-postgrest/assets/js/4.8e295889.js" as="script"><link rel="prefetch" href="/vue-postgrest/assets/js/11.99da9152.js"><link rel="prefetch" href="/vue-postgrest/assets/js/12.527ec665.js"><link rel="prefetch" href="/vue-postgrest/assets/js/3.0c64f0d0.js"><link rel="prefetch" href="/vue-postgrest/assets/js/6.a8d612b3.js"><link rel="prefetch" href="/vue-postgrest/assets/js/7.ca5566a1.js"><link rel="prefetch" href="/vue-postgrest/assets/js/8.3427d611.js"><link rel="prefetch" href="/vue-postgrest/assets/js/9.3b3209c0.js">
+    <link rel="stylesheet" href="/vue-postgrest/assets/css/0.styles.4532b76e.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/vue-postgrest/" class="home-link router-link-active"><!----> <span class="site-name">vue-postgrest</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"> <a href="https://github.com/technowledgy/vue-postgrest" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"> <a href="https://github.com/technowledgy/vue-postgrest" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></nav>  <ul class="sidebar-links"><li><a href="/vue-postgrest/start/" class="sidebar-link">Quick Start</a></li><li><a href="/vue-postgrest/api/" class="sidebar-link">API</a></li><li><a href="/vue-postgrest/query/" class="active sidebar-link">Query</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/vue-postgrest/query/#values-operators" class="sidebar-link">Values &amp; Operators</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/vue-postgrest/query/#undefined" class="sidebar-link">Undefined</a></li><li class="sidebar-sub-header"><a href="/vue-postgrest/query/#arrays" class="sidebar-link">Arrays</a></li><li class="sidebar-sub-header"><a href="/vue-postgrest/query/#range-objects" class="sidebar-link">Range Objects</a></li></ul></li><li class="sidebar-sub-header"><a href="/vue-postgrest/query/#horizontal-filtering-rows" class="sidebar-link">Horizontal Filtering (Rows)</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/vue-postgrest/query/#column-conditions" class="sidebar-link">Column Conditions</a></li><li class="sidebar-sub-header"><a href="/vue-postgrest/query/#logical-conjoining" class="sidebar-link">Logical Conjoining</a></li><li class="sidebar-sub-header"><a href="/vue-postgrest/query/#logical-disjoining" class="sidebar-link">Logical Disjoining</a></li><li class="sidebar-sub-header"><a href="/vue-postgrest/query/#full-text-search" class="sidebar-link">Full-Text Search</a></li></ul></li><li class="sidebar-sub-header"><a href="/vue-postgrest/query/#vertical-filtering-columns" class="sidebar-link">Vertical Filtering (Columns)</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/vue-postgrest/query/#selecting" class="sidebar-link">Selecting</a></li><li class="sidebar-sub-header"><a href="/vue-postgrest/query/#renaming-columns" class="sidebar-link">Renaming Columns</a></li><li class="sidebar-sub-header"><a href="/vue-postgrest/query/#casting-columns" class="sidebar-link">Casting Columns</a></li><li class="sidebar-sub-header"><a href="/vue-postgrest/query/#json-columns" class="sidebar-link">JSON Columns</a></li></ul></li><li class="sidebar-sub-header"><a href="/vue-postgrest/query/#ordering" class="sidebar-link">Ordering</a></li><li class="sidebar-sub-header"><a href="/vue-postgrest/query/#limits-and-pagination" class="sidebar-link">Limits and Pagination</a></li><li class="sidebar-sub-header"><a href="/vue-postgrest/query/#resource-embedding" class="sidebar-link">Resource Embedding</a></li><li class="sidebar-sub-header"><a href="/vue-postgrest/query/#insertions-updates" class="sidebar-link">Insertions / Updates</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/vue-postgrest/query/#columns" class="sidebar-link">Columns</a></li><li class="sidebar-sub-header"><a href="/vue-postgrest/query/#on-conflict" class="sidebar-link">On Conflict</a></li></ul></li></ul></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="query"><a href="#query" class="header-anchor">#</a> Query</h1> <p>The <code>Query</code> class converts an input object into a PostgREST query string.</p> <p>By default, all values are converted to their appropriate representation for PostgREST query strings.</p> <h2 id="values-operators"><a href="#values-operators" class="header-anchor">#</a> Values &amp; Operators</h2> <h3 id="undefined"><a href="#undefined" class="header-anchor">#</a> Undefined</h3> <p>Undefined values are excluded from the query string.</p> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  <span class="token string" data-v-6fd32615>'age.lt'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>13</span><span class="token punctuation" data-v-6fd32615>,</span>
+  <span class="token string" data-v-6fd32615>'grade.gte'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token keyword" data-v-6fd32615>undefined</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <h3 id="arrays"><a href="#arrays" class="header-anchor">#</a> Arrays</h3> <p>Arrays are parsed depending on the used operator.</p> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  <span class="token string" data-v-6fd32615>'id.in'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>[</span><span class="token number" data-v-6fd32615>1</span><span class="token punctuation" data-v-6fd32615>,</span> <span class="token number" data-v-6fd32615>2</span><span class="token punctuation" data-v-6fd32615>,</span> <span class="token number" data-v-6fd32615>3</span><span class="token punctuation" data-v-6fd32615>]</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  <span class="token string" data-v-6fd32615>'tags.cs'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>[</span><span class="token string" data-v-6fd32615>'example'</span><span class="token punctuation" data-v-6fd32615>,</span> <span class="token string" data-v-6fd32615>'new'</span><span class="token punctuation" data-v-6fd32615>]</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <h3 id="range-objects"><a href="#range-objects" class="header-anchor">#</a> Range Objects</h3> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  <span class="token string" data-v-6fd32615>'range.sl'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span> lower<span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>1</span><span class="token punctuation" data-v-6fd32615>,</span> upper<span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>10</span><span class="token punctuation" data-v-6fd32615>}</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  <span class="token string" data-v-6fd32615>'range.sl'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span> lower<span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>1</span><span class="token punctuation" data-v-6fd32615>,</span> includeLower<span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>false</span><span class="token punctuation" data-v-6fd32615>,</span> upper<span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>10</span><span class="token punctuation" data-v-6fd32615>,</span> includeUpper<span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span> <span class="token punctuation" data-v-6fd32615>}</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <h2 id="horizontal-filtering-rows"><a href="#horizontal-filtering-rows" class="header-anchor">#</a> Horizontal Filtering (Rows) <a href="http://postgrest.org/en/v7.0.0/api.html#horizontal-filtering-rows" target="_blank" data-v-5230f96c>
+  PostgREST docs
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" data-v-5230f96c data-v-5230f96c><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></h2> <h3 id="column-conditions"><a href="#column-conditions" class="header-anchor">#</a> Column Conditions</h3> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  <span class="token string" data-v-6fd32615>'age.lt'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>13</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <h3 id="logical-conjoining"><a href="#logical-conjoining" class="header-anchor">#</a> Logical Conjoining</h3> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  <span class="token string" data-v-6fd32615>'age.lt'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>13</span><span class="token punctuation" data-v-6fd32615>,</span>
+  <span class="token string" data-v-6fd32615>'student.is'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  <span class="token string" data-v-6fd32615>'grade.gte'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>90</span><span class="token punctuation" data-v-6fd32615>,</span>
+  <span class="token string" data-v-6fd32615>'age.not.eq'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>14</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <h3 id="logical-disjoining"><a href="#logical-disjoining" class="header-anchor">#</a> Logical Disjoining</h3> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  adn<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+    <span class="token string" data-v-6fd32615>'grade.gte'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>20</span><span class="token punctuation" data-v-6fd32615>,</span>
+    <span class="token string" data-v-6fd32615>'age.lte'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>30</span><span class="token punctuation" data-v-6fd32615>,</span>
+  <span class="token punctuation" data-v-6fd32615>}</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <p>For setting two conditions on the same column, use aliases - these are stripped before creating the query string.</p> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  or<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+    <span class="token string" data-v-6fd32615>'0:grade.eq'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>20</span><span class="token punctuation" data-v-6fd32615>,</span>
+    <span class="token string" data-v-6fd32615>'1:grade.eq'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>50</span><span class="token punctuation" data-v-6fd32615>,</span>
+  <span class="token punctuation" data-v-6fd32615>}</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <p>Negated logical operators and nesting:</p> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  and<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+    <span class="token string" data-v-6fd32615>'grade.gte'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>90</span><span class="token punctuation" data-v-6fd32615>,</span>
+    <span class="token string" data-v-6fd32615>'student.is'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span><span class="token punctuation" data-v-6fd32615>,</span>
+    <span class="token string" data-v-6fd32615>'not.or'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+      <span class="token string" data-v-6fd32615>'age.eq'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>14</span><span class="token punctuation" data-v-6fd32615>,</span>
+      <span class="token string" data-v-6fd32615>'age.not.is'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token keyword" data-v-6fd32615>null</span>
+    <span class="token punctuation" data-v-6fd32615>}</span>
+  <span class="token punctuation" data-v-6fd32615>}</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <h3 id="full-text-search"><a href="#full-text-search" class="header-anchor">#</a> Full-Text Search</h3> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  <span class="token string" data-v-6fd32615>'my_tsv.fts(french)'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token string" data-v-6fd32615>'amusant'</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <h2 id="vertical-filtering-columns"><a href="#vertical-filtering-columns" class="header-anchor">#</a> Vertical Filtering (Columns) <a href="http://postgrest.org/en/v7.0.0/api.html#vertical-filtering-columns" target="_blank" data-v-5230f96c>
+  PostgREST docs
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" data-v-5230f96c data-v-5230f96c><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></h2> <h3 id="selecting"><a href="#selecting" class="header-anchor">#</a> Selecting</h3> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  select<span class="token operator" data-v-6fd32615>:</span> <span class="token string" data-v-6fd32615>'*'</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  select<span class="token operator" data-v-6fd32615>:</span> <span class="token string" data-v-6fd32615>'first_name,age'</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  select<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>[</span><span class="token string" data-v-6fd32615>'first_name'</span><span class="token punctuation" data-v-6fd32615>,</span> <span class="token string" data-v-6fd32615>'age'</span><span class="token punctuation" data-v-6fd32615>]</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  select<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+    <span class="token string" data-v-6fd32615>'first_name'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span><span class="token punctuation" data-v-6fd32615>,</span>
+    <span class="token comment" data-v-6fd32615>// NOTE: falsy values are ignored!</span>
+    age<span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>0</span>
+  <span class="token punctuation" data-v-6fd32615>}</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <h3 id="renaming-columns"><a href="#renaming-columns" class="header-anchor">#</a> Renaming Columns</h3> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  select<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>[</span><span class="token string" data-v-6fd32615>'firstName:first_name'</span><span class="token punctuation" data-v-6fd32615>,</span> <span class="token string" data-v-6fd32615>'age'</span><span class="token punctuation" data-v-6fd32615>]</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  select<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+    <span class="token string" data-v-6fd32615>'firstName:first_name'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span>
+  <span class="token punctuation" data-v-6fd32615>}</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <h3 id="casting-columns"><a href="#casting-columns" class="header-anchor">#</a> Casting Columns</h3> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  select<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>[</span><span class="token string" data-v-6fd32615>'full_name'</span><span class="token punctuation" data-v-6fd32615>,</span> <span class="token string" data-v-6fd32615>'salary::text'</span><span class="token punctuation" data-v-6fd32615>]</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  select<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+    <span class="token string" data-v-6fd32615>'full_name'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span><span class="token punctuation" data-v-6fd32615>,</span>
+    salary<span class="token operator" data-v-6fd32615>:</span> <span class="token string" data-v-6fd32615>'text'</span>
+  <span class="token punctuation" data-v-6fd32615>}</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  select<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+    <span class="token string" data-v-6fd32615>'full_name'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span><span class="token punctuation" data-v-6fd32615>,</span>
+    salary<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+      <span class="token string" data-v-6fd32615>'::'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token string" data-v-6fd32615>'text'</span>
+    <span class="token punctuation" data-v-6fd32615>}</span>
+  <span class="token punctuation" data-v-6fd32615>}</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <h3 id="json-columns"><a href="#json-columns" class="header-anchor">#</a> JSON Columns</h3> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  select<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>[</span><span class="token string" data-v-6fd32615>'id'</span><span class="token punctuation" data-v-6fd32615>,</span> <span class="token string" data-v-6fd32615>'json_data-&gt;&gt;blood_type'</span><span class="token punctuation" data-v-6fd32615>,</span> <span class="token string" data-v-6fd32615>'json_data-&gt;phones'</span><span class="token punctuation" data-v-6fd32615>]</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <div class="custom-block tip"><p class="custom-block-title">TIP</p> <p>If a field of the <code>select</code> object has a <code>select</code> key itself, it is handled as an embed, otherwise as a JSON field.</p></div> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  select<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+    id<span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span><span class="token punctuation" data-v-6fd32615>,</span>
+    json_data<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+      blood_type<span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span><span class="token punctuation" data-v-6fd32615>,</span>
+      phones<span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span>
+    <span class="token punctuation" data-v-6fd32615>}</span>
+  <span class="token punctuation" data-v-6fd32615>}</span><span class="token punctuation" data-v-6fd32615>,</span>
+  <span class="token comment" data-v-6fd32615>// Nested filter on JSON column</span>
+  json_data<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+    <span class="token string" data-v-6fd32615>'age.gt'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>20</span>
+  <span class="token punctuation" data-v-6fd32615>}</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  select<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+    id<span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span><span class="token punctuation" data-v-6fd32615>,</span>
+    json_data<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+      phones<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>[</span>
+        <span class="token punctuation" data-v-6fd32615>{</span>
+          number<span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span>
+        <span class="token punctuation" data-v-6fd32615>}</span>
+      <span class="token punctuation" data-v-6fd32615>]</span>
+    <span class="token punctuation" data-v-6fd32615>}</span>
+  <span class="token punctuation" data-v-6fd32615>}</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <p>If a JSON column is aliased or cast in object syntax, the json_data field is added to the query string. E.g.:</p> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  select<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+    id<span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span><span class="token punctuation" data-v-6fd32615>,</span>
+    <span class="token string" data-v-6fd32615>'jd:json_data'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+      blood_type<span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span><span class="token punctuation" data-v-6fd32615>,</span>
+      phones<span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span>
+    <span class="token punctuation" data-v-6fd32615>}</span>
+  <span class="token punctuation" data-v-6fd32615>}</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  select<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+    id<span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span><span class="token punctuation" data-v-6fd32615>,</span>
+    json_data<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+      <span class="token string" data-v-6fd32615>'::'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token string" data-v-6fd32615>'json'</span><span class="token punctuation" data-v-6fd32615>,</span>
+      blood_type<span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span><span class="token punctuation" data-v-6fd32615>,</span>
+      phones<span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span>
+    <span class="token punctuation" data-v-6fd32615>}</span>
+  <span class="token punctuation" data-v-6fd32615>}</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <h2 id="ordering"><a href="#ordering" class="header-anchor">#</a> Ordering <a href="http://postgrest.org/en/v7.0.0/api.html#ordering" target="_blank" data-v-5230f96c>
+  PostgREST docs
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" data-v-5230f96c data-v-5230f96c><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></h2> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  order<span class="token operator" data-v-6fd32615>:</span> <span class="token string" data-v-6fd32615>'age.desc,height.asc'</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  order<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>[</span><span class="token string" data-v-6fd32615>'age.desc'</span><span class="token punctuation" data-v-6fd32615>,</span> <span class="token string" data-v-6fd32615>'height.asc'</span><span class="token punctuation" data-v-6fd32615>]</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  order<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>[</span>
+    <span class="token punctuation" data-v-6fd32615>[</span><span class="token string" data-v-6fd32615>'age'</span><span class="token punctuation" data-v-6fd32615>,</span> <span class="token string" data-v-6fd32615>'desc'</span><span class="token punctuation" data-v-6fd32615>]</span><span class="token punctuation" data-v-6fd32615>,</span>
+    <span class="token punctuation" data-v-6fd32615>[</span><span class="token string" data-v-6fd32615>'height'</span><span class="token punctuation" data-v-6fd32615>,</span> <span class="token string" data-v-6fd32615>'asc'</span><span class="token punctuation" data-v-6fd32615>]</span>
+  <span class="token punctuation" data-v-6fd32615>]</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  order<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+    age<span class="token operator" data-v-6fd32615>:</span> <span class="token string" data-v-6fd32615>'desc'</span><span class="token punctuation" data-v-6fd32615>,</span>
+    height<span class="token operator" data-v-6fd32615>:</span> <span class="token string" data-v-6fd32615>'asc.nullslast'</span>
+  <span class="token punctuation" data-v-6fd32615>}</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  order<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+    age<span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span>
+  <span class="token punctuation" data-v-6fd32615>}</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <h2 id="limits-and-pagination"><a href="#limits-and-pagination" class="header-anchor">#</a> Limits and Pagination <a href="http://postgrest.org/en/v7.0.0/api.html#limits-and-pagination" target="_blank" data-v-5230f96c>
+  PostgREST docs
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" data-v-5230f96c data-v-5230f96c><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></h2> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  limit<span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>1</span><span class="token punctuation" data-v-6fd32615>,</span>
+  offset<span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>10</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <h2 id="resource-embedding"><a href="#resource-embedding" class="header-anchor">#</a> Resource Embedding <a href="http://postgrest.org/en/v7.0.0/api.html#resource-embedding" target="_blank" data-v-5230f96c>
+  PostgREST docs
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" data-v-5230f96c data-v-5230f96c><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></h2> <div class="custom-block tip"><p class="custom-block-title">TIP</p> <p>If a field of the <code>select</code> object has a <code>select</code> key itself, it is handled as an embed, otherwise as a JSON field.</p></div> <p><strong>Simple</strong></p> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  select<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+    title<span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span><span class="token punctuation" data-v-6fd32615>,</span>
+    directors<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+      select<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+        id<span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span><span class="token punctuation" data-v-6fd32615>,</span>
+        last_name<span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span>
+      <span class="token punctuation" data-v-6fd32615>}</span>
+    <span class="token punctuation" data-v-6fd32615>}</span>
+  <span class="token punctuation" data-v-6fd32615>}</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <p><strong>Aliases</strong></p> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  select<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+    title<span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span><span class="token punctuation" data-v-6fd32615>,</span>
+    <span class="token string" data-v-6fd32615>'director:directors'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+      select<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+        id<span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span><span class="token punctuation" data-v-6fd32615>,</span>
+        last_name<span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span>
+      <span class="token punctuation" data-v-6fd32615>}</span>
+    <span class="token punctuation" data-v-6fd32615>}</span>
+  <span class="token punctuation" data-v-6fd32615>}</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <p><strong>Full Example</strong></p> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  select<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+    <span class="token string" data-v-6fd32615>'*'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token boolean" data-v-6fd32615>true</span><span class="token punctuation" data-v-6fd32615>,</span>
+    actors<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+      select<span class="token operator" data-v-6fd32615>:</span> <span class="token string" data-v-6fd32615>'*'</span><span class="token punctuation" data-v-6fd32615>,</span>
+      order<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>[</span><span class="token string" data-v-6fd32615>'last_name'</span><span class="token punctuation" data-v-6fd32615>,</span> <span class="token string" data-v-6fd32615>'first_name'</span><span class="token punctuation" data-v-6fd32615>]</span><span class="token punctuation" data-v-6fd32615>,</span>
+      <span class="token string" data-v-6fd32615>'character.in'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>[</span><span class="token string" data-v-6fd32615>'Chico'</span><span class="token punctuation" data-v-6fd32615>,</span> <span class="token string" data-v-6fd32615>'Harpo'</span><span class="token punctuation" data-v-6fd32615>,</span> <span class="token string" data-v-6fd32615>'Groucho'</span><span class="token punctuation" data-v-6fd32615>]</span><span class="token punctuation" data-v-6fd32615>,</span>
+      limit<span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>10</span><span class="token punctuation" data-v-6fd32615>,</span>
+      offset<span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>2</span>
+    <span class="token punctuation" data-v-6fd32615>}</span><span class="token punctuation" data-v-6fd32615>,</span>
+    <span class="token string" data-v-6fd32615>'91_comps:competitions'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+      select<span class="token operator" data-v-6fd32615>:</span> <span class="token string" data-v-6fd32615>'name'</span><span class="token punctuation" data-v-6fd32615>,</span>
+      <span class="token string" data-v-6fd32615>'year.eq'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token number" data-v-6fd32615>1991</span>
+    <span class="token punctuation" data-v-6fd32615>}</span><span class="token punctuation" data-v-6fd32615>,</span>
+    <span class="token string" data-v-6fd32615>'central_addresses!billing_address'</span><span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>{</span>
+      select<span class="token operator" data-v-6fd32615>:</span> <span class="token string" data-v-6fd32615>'*'</span>
+    <span class="token punctuation" data-v-6fd32615>}</span>
+  <span class="token punctuation" data-v-6fd32615>}</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <h2 id="insertions-updates"><a href="#insertions-updates" class="header-anchor">#</a> Insertions / Updates <a href="http://postgrest.org/en/v7.0.0/api.html#insertions-updates" target="_blank" data-v-5230f96c>
+  PostgREST docs
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" data-v-5230f96c data-v-5230f96c><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></h2> <h3 id="columns"><a href="#columns" class="header-anchor">#</a> Columns</h3> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  columns<span class="token operator" data-v-6fd32615>:</span> <span class="token string" data-v-6fd32615>'source,publication_date,figure'</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  columns<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>[</span><span class="token string" data-v-6fd32615>'source'</span><span class="token punctuation" data-v-6fd32615>,</span> <span class="token string" data-v-6fd32615>'publication_date'</span><span class="token punctuation" data-v-6fd32615>,</span> <span class="token string" data-v-6fd32615>'figure'</span><span class="token punctuation" data-v-6fd32615>]</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <h3 id="on-conflict"><a href="#on-conflict" class="header-anchor">#</a> On Conflict</h3> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  on_conflict<span class="token operator" data-v-6fd32615>:</span> <span class="token string" data-v-6fd32615>'source'</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div> <div data-v-6fd32615><div class="slot-wrapper" data-v-6fd32615><div class="language-js extra-class" data-v-6fd32615><pre class="language-js" data-v-6fd32615><code data-v-6fd32615><span class="token keyword" data-v-6fd32615>const</span> query <span class="token operator" data-v-6fd32615>=</span> <span class="token punctuation" data-v-6fd32615>{</span>
+  on_conflict<span class="token operator" data-v-6fd32615>:</span> <span class="token punctuation" data-v-6fd32615>[</span><span class="token string" data-v-6fd32615>'source'</span><span class="token punctuation" data-v-6fd32615>,</span> <span class="token string" data-v-6fd32615>'publication_date'</span><span class="token punctuation" data-v-6fd32615>,</span> <span class="token string" data-v-6fd32615>'figure'</span><span class="token punctuation" data-v-6fd32615>]</span>
+<span class="token punctuation" data-v-6fd32615>}</span>
+</code></pre></div></div> <div class="language-none output-wrapper" data-v-6fd32615><pre class="language-none" data-v-6fd32615>      <code data-v-6fd32615>
+        <span data-v-6fd32615></span>
+      </code>
+    </pre></div></div></div> <footer class="page-edit"><div class="edit-link"><a href="https://github.com/technowledgy/vue-postgrest/edit/master/docs/query/index.md" target="_blank" rel="noopener noreferrer">Edit this page</a> <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></div> <div class="last-updated"><span class="prefix">Last Updated:</span> <span class="time">5/20/2020, 4:47:32 PM</span></div></footer> <!----> </main></div><div class="global-ui"><!----></div></div>
+    <script src="/vue-postgrest/assets/js/app.efc710c9.js" defer></script><script src="/vue-postgrest/assets/js/2.2a0a4dd3.js" defer></script><script src="/vue-postgrest/assets/js/10.4e940c90.js" defer></script><script src="/vue-postgrest/assets/js/5.5a2fce4d.js" defer></script><script src="/vue-postgrest/assets/js/4.8e295889.js" defer></script>
+  </body>
+</html>
