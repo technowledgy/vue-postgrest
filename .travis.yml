@@ -4,3 +4,12 @@ node_js:
   - 'lts/*'
 after_script:
   - cat ./coverage/lcov.info | coveralls
+  - yarn docs:build
+deploy:
+  provider: pages
+  skip_cleanup: true
+  local_dir: docs/.vuepress/dist
+  github_token: $GITHUB_TOKEN
+  keep_history: true
+  on:
+    branch: master

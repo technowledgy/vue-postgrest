@@ -1,4 +1,4 @@
-base: /vue-postgrest
+base: /vue-postgrest/
 title: vue-postgrest
 description: PostgREST integration for Vue.js
 host: localhost
@@ -10,7 +10,6 @@ themeConfig:
   sidebarDepth: 2
   sidebar:
     - /start/
-    - /guide/
     - /api/
     - /query/
   lastUpdated: Last Updated
