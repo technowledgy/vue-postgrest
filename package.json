@@ -26,7 +26,7 @@
     "@vue/eslint-config-standard": "^5.1.2",
     "@vue/test-utils": "1.0.3",
     "@vuepress/plugin-active-header-links": "^1.5.0",
-    "@vuepress/plugin-back-to-top": "^1.4.1",
+    "@vuepress/plugin-back-to-top": "^1.5.0",
     "babel-eslint": "^10.1.0",
     "core-js": "^3.6.5",
     "coveralls": "^3.1.0",
