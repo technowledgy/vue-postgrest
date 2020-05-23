@@ -259,6 +259,21 @@ describe('Query', () => {
       }
     }, 'select=title,directors(id,last_name)')
 
+    itt('nested', {
+      select: {
+        title: true,
+        directors: {
+          select: {
+            id: true,
+            last_name: true,
+            awards: {
+              select: '*'
+            }
+          }
+        }
+      }
+    }, 'select=title,directors(id,last_name,awards(*))')
+
     itt('with alias', {
       select: {
         title: true,
