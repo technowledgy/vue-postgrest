@@ -2,9 +2,10 @@ language: node_js
 node_js:
   - node
   - 'lts/*'
+script:
+  - yarn docs:build
 after_script:
   - cat ./coverage/lcov.info | coveralls
-  - yarn docs:build
 deploy:
   provider: pages
   skip_cleanup: true
