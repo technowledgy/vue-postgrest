@@ -81,7 +81,7 @@ const query = {
 
 </Query>
 
-### Logical Conjoining
+### Logical Conjoining (AND)
 
 <Query>
 
@@ -105,13 +105,13 @@ const query = {
 
 </Query>
 
-### Logical Disjoining
+### Logical Disjoining (OR)
 
 <Query>
 
 ``` js
 const query = {
-  adn: {
+  or: {
     'grade.gte': 20,
     'age.lte': 30,
   }
