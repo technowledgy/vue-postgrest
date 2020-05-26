@@ -761,8 +761,10 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
     async mounted: {
       // wait for the schema to be ready
       await this.$postgrest.$ready
-      this.planets = await this.$postgrest.planets('GET')
-      this.cities = await this.$postgrest.cities.get()
+      const planetsResp = await this.$postgrest.planets('GET')
+      const citiesResp = await this.$postgrest.cities.get()
+      this.planets = await planetsResp.json()
+      this.cities = await citiesResp.json()
     }
   }
   ```
@@ -778,7 +780,7 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
   The promise resolves, when the schema was successfully loaded and rejects if no valid schema was found.
 
   ::: tip
-  This can also be called on a [route](./#pg-route) or a [rpc](./#pg-rpc).
+  This can also be called on a [route](./#postgrest-route) or a [rpc](./#postgrest-rpc).
   :::
 
 - **Example:**

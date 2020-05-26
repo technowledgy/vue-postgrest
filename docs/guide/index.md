@@ -192,13 +192,13 @@ For monitoring the current status of the request, you can use `vm.pg.get` which 
 ...
 ```
 
-You can use the `get` function to rerun the get request, e.g. if you need to refresh your data manually. You can monitor the current number of pending requests with `pg.get.nPending`.
+You can call the `get` function to rerun the get request, e.g. if you need to refresh your data manually. The current number of pending requests is stored in `pg.get.nPending`.
 
 **Note:** The `get` function also exposes getters for information about failed requests, see [error handling](./#error-handling).
 
 ### Pagination
 
-Server side pagination can be achieved by setting the mixin options `limit` and `offset`. When used on the query object root level, these options set the appropriate request headers automatically. When used inside and embed object, limit and offset will be appended to the query string.
+Server side pagination can be achieved by setting the mixin options `limit` and `offset`. When used on the query object root level, these options set the appropriate request headers automatically. When used inside an embed object, limit and offset will be appended to the query string.
 
 ``` vue
 <template>
@@ -239,7 +239,12 @@ export default {
               lte: 200
             }
           },
-          'alive.is': true
+          'alive.is': true,
+          vehicles: {
+            select: ['*'],
+            'type.eq': 'car',
+            limit: 5
+          }
         },
         limit: 20,
         offset: this.offset
