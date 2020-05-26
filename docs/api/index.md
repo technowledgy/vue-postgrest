@@ -1009,11 +1009,9 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
   An [ObservableFunction](./#observablefunction) for a get request. Available `options` are:
 
-    - `{object} headers` Set or overwrite headers for this request. Keys are header field names, values are strings.
-
     - `{boolean} keepChanges` If true, local changes to the item are protected from being overwritten by fetched data and only unchanged fields are updated.
 
-    - All Options described in [postgrest route](./#postgrest-route) are available here as well.
+    - All Options described in [postgrest route](./#postgrest-route) are available here as well. **Note:** The `accept` option is not valid here - the `Accept` header will always be set to `'single'` if not overwritten via the `headers` object.
 
 - **Example:**
 
@@ -1058,13 +1056,11 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
   An [ObservableFunction](./#observablefunction) for a post request. Available `options` are:
 
-    - `{object} headers` Set or overwrite headers for this request. Keys are header field names, values are strings.
-
     - `{array<string>} columns` Sets `columns` parameter on request to improve performance on updates/inserts
 
     - `{string} return` Add `return=[value]` header to request. Possible values are `'representation'` (default) and `'minimal'`.
 
-    - All Options described in [postgrest route](./#postgrest-route) are available here as well.
+    - All Options described in [postgrest route](./#postgrest-route) are available here as well. **Note:** The `accept` option is not valid here - the `Accept` header will always be set to `'single'` if not overwritten via the `headers` object.
 
   If option `return` is set to `'representation'`, which is the default value, the item is updated with the response from the server.
 
@@ -1113,13 +1109,11 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
   An [ObservableFunction](./#observablefunction) for a patch request. The patch function also accepts an object as first argument with fields that should be patched, properties declared in this object take precedence over fields changed on the item directly. Available `options` are:
 
-    - `{object} headers` Set or overwrite headers for this request. Keys are header field names, values are strings.
-
     - `{array<string>} columns` Sets `columns` parameter on request to improve performance on updates/inserts
 
     - `{string} return` Add `return=[value]` header to request. Possible values are `'representation'` (default) and `'minimal'`.
 
-    - All Options described in [postgrest route](./#postgrest-route) are available here as well.
+    - All Options described in [postgrest route](./#postgrest-route) are available here as well. **Note:** The `accept` option is not valid here - the `Accept` header will always be set to `'single'` if not overwritten via the `headers` object.
 
   If option `return` is set to `'representation'`, which is the default value, the item is updated with the response from the server.
 
@@ -1168,11 +1162,9 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
   An [ObservableFunction](./#observablefunction) for a delete request. Available `options` are:
 
-    - `{object} headers` Set or overwrite headers for this request. Keys are header field names, values are strings.
-
     - `{string} return` Add `return=[value]` header to request. Possible values are `'representation'` and `'minimal'`.
 
-    - All Options described in [postgrest route](./#postgrest-route) are available here as well.
+    - All Options described in [postgrest route](./#postgrest-route) are available here as well. **Note:** The `accept` option is not valid here - the `Accept` header will always be set to `'single'` if not overwritten via the `headers` object.
 
   If option `return` is set to `'representation'`, the item is updated with the response from the server.
 
