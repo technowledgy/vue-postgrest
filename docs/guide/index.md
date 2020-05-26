@@ -27,22 +27,7 @@ When installed, the plugin registers a global `postgrest` component on your vue 
 
 ## Retrieving Data
 
-The `pg` mixin is an easy way to equip your components with the power to communicate with your postgREST API. First, let's import it and add it to the component's mixins:
-
-``` vue
-<script>
-import { pg } from 'vue-postgrest'
-
-export default {
-  name: 'HerosList',
-  mixins: [pg]
-}
-</script>
-```
-
-### Querying
-
-We have to tell the mixin, what table/view it should query. For configuration, your component has to provide an object called `pgConfig`. For now, let's provide this via `data`:
+To use the `pg` mixin, provide a `pgConfig` object on your component instance with the `route` option set to the table/view you want to query:
 
 ``` vue
 <script>
@@ -62,20 +47,20 @@ export default {
 </script>
 ```
 
-When our `HeroesList` component is loaded, the mixin will send a GET request to `/api/v2/heroes`, since we specified `'/api/v1/'` as our base URI when installing the plugin. What if we want to use the next API-version to fetch our heroes without changing the base URI for the rest of the app? No problem, we specify the apiRoot option here and it will change the baseUri for this specific component only:
+When loaded, the mixin will send a GET request to your postgREST server. You can change the base URI the mixin uses, without affecting the URI set via the apiRoot plugin option:
 
 ``` vue
 ...
       pgConfig: {
-        apiRoot: '/api/v2/'
+        apiRoot: '/api/v2/',
         route: 'heroes'
       }
 ...
 ```
 
-### Filtering & Accessing Response Data
+### Column Filtering
 
-We can access the data that returned by the server via the `pg` attribute that the mixin added to our component instance. By default, an array of response items is provided in `pg.items`. Let's render a list with the names of all our heros:
+To access the data sent by the server, use `pg.items`, which is an array holding the server response by default.
 
 ``` vue
 ...
@@ -87,82 +72,114 @@ We can access the data that returned by the server via the `pg` attribute that t
 ...
 ```
 
-Nice! Now, let's add a profile component for our heroes. To filter rows in our DB, we have to tell postgREST about column conditions. We do this by providing the mixin option `query`. Let's fetch the hero with `id === 1` by using the postgREST operator `eq`:
+Using the mixin option `accept = 'single'` will set the `Accept` header to tell postgREST to return a single item unenclosed by an array. If `accept === 'single'` you can use `pg.item` to access the returned item.
+
+**Note:** The `accept` option can be set to `'text'` or `'binary'` as well, which are shortcuts to setting the appropriate header to tell postgREST to return text or binary data. Additionally you can set the `Accept` header directly by `accept = 'CUSTOM_HEADER_VALUE'`.
+
+The mixin option `query` is used to construct the postgREST query string. Use `query.select` for column filtering like this:
 
 ``` vue
-<template>
-  <h1>{{ pg.items[0].name }}</h1>
-  <span>{{ pg.items[0].id }}</span>
-  <ul>
-    <li v-for="superpower in pg.items[0].superpowers" :key="superpower">{{ superpower }}</li>
-  </ul>
-</template>
+...
+  pgConfig: {
+    query: {
+      select: ['id', 'name']
+    }
+  }
+...
 
-<script>
-import { pg } from 'vue-postgrest'
+```
 
-export default {
-  name: 'HeroProfile',
-  mixins: [pg],
-  data () {
-    return {
-      pgConfig: {
-        apiRoot: '/api/v2/'
-        route: 'heroes',
-        query: {
-          'id.eq': 1
-        }
+The select key alternatively accepts an object with column names as keys. You can use aliasing, hints and casting like this:
+
+``` vue
+...
+  pgConfig: {
+    query: {
+      select: {
+        id: true,
+        'fullName:name': true
       }
     }
   }
-}
-</script>
+...
+
 ```
 
-If we want to request a single hero, we can tell postgREST to directly return an object instead of the array via `pgConfig.accept = 'single'`. While we are at it, let's query the server only for columns that we need for our profile and clean up our template a bit. Our hero profile now looks like this:
+### Ordering
+
+To order your response, you can either pass an array of strings or an object to `pgConfig.order`. E.g.:
 
 ``` vue
-<template>
-  <h1>{{ hero.name }}</h1>
-  <span>{{ hero.id }}</span>
-  <ul>
-    <li v-for="superpower in hero.superpowers" :key="superpower">{{ superpower }}</li>
-  </ul>
-</template>
+...
+    query: {
+      select: ['*'],
+      order: ['id.asc', 'name.desc']
+    }
+...
 
-<script>
-import { pg } from 'vue-postgrest'
+// or
 
-export default {
-  name: 'HeroProfile',
-  mixins: [pg],
-  data () {
-    return {
-      pgConfig: {
-        apiRoot: '/api/v2/'
-        route: 'heroes',
-        query: {
-          select: ['id', 'name', 'superpowers'],
-          'id.eq': 1
+...
+    query: {
+      select: ['*'],
+      order: {
+        id: 'asc',
+        name: 'desc'
+      }
+    }
+...
+```
+
+### Row Filtering
+
+The `query` constructs column conditions from it's keys. Operators can either be dot-appendend to the key or passed via an object.
+E.g. to use multiple conditions on one column:
+
+``` vue
+...
+    query: {
+      select: ['*'],
+      'id.in': [1, 2, 3],
+      age: {
+        gte: 50,
+        lte: 100
+      }
+    }
+...
+```
+
+When passing arrays, the resulting query string is constructed based on the used operator! See [Arrays]((/query/#arrays)). Furthermore, `undefined` values will exclude the column condition from the query string - this can be useful if you create your query object dynamically.
+
+
+::: tip
+For convenient creation of range objects see [Range Objects](/query/range-objects)!
+:::
+
+### Embedding
+
+PostgREST offers an easy way to handle relationships between tables/views. You can leverage this by using the embed syntax in your queries. The syntax to filter, order or select embeds corresponds to the root level of the query object: 
+
+``` vue
+...
+    query: {
+      select: {
+        id: true,
+        name: true,
+        superpowers: true,
+        'cars:vehicles': {
+          select: '*',
+          'type.eq': 'car'
         },
-        accept: 'single'
-      }
+      'id.eq': 1
     }
-  },
-  computed: {
-    hero () {
-      return this.pg.item
-    }
-  }
-}
-</script>
+...
 ```
 
-**Note:** When using `accept: 'single'`, the server reponse is provided via the `vm.pg.item` (instead of `vm.pg.items`).
+**Important:** If you omit the `select` key in an embed object, it is assumed that you want to access a JSON-field instead of embedding a resource! See [JSON Columns](/query/#json-columns) for details.
 
-### Request State
+### Loading / Refreshing
 
-Back to our list of heroes. Retrieving data from the server is an async operation, so we should wait for the request to finish before using the reponse. For this, we can use `vm.pg.get` which is an [ObservableFunction](/api/#observable-function) representing the GET request. Let's add a loading spinner to our component, so the user knows that the heroes are on their way.
+For monitoring the current status of the request, you can use `vm.pg.get` which is an [ObservableFunction](/api/#observable-function). `pg.get.isPending` tells you, if a request is still pending:
 
 ``` vue
 ...
@@ -175,9 +192,13 @@ Back to our list of heroes. Retrieving data from the server is an async operatio
 ...
 ```
 
-### Advanced Filtering & Pagination
+You can use the `get` function to rerun the get request, e.g. if you need to refresh your data manually. You can monitor the current number of pending requests with `pg.get.nPending`.
 
-Say we have a lot of heroes in our DB - we want to tell the server to filter the results based on some more advanced conditions and limit the response to only 20 heroes at once, while giving the user the possibility to choose a offset.
+**Note:** The `get` function also exposes getters for information about failed requests, see [error handling](./#error-handling).
+
+### Pagination
+
+Server side pagination can be achieved by setting the mixin options `limit` and `offset`. When used on the query object root level, these options set the appropriate request headers automatically. When used inside and embed object, limit and offset will be appended to the query string.
 
 ``` vue
 <template>
@@ -232,43 +253,34 @@ export default {
 </script>
 ```
 
-::: tip
-See [Query](/query) for the available query syntax!
-:::
+**Range**
 
-### Embedding
+To get information about the paginated response, the mixin provides the `pg.range` object, based on the response's `Content-Range` header. To get the total count of available rows, use the mixin option `count = 'exact'` which sets the corresponding `Prefer` header.
 
-PostgREST offers an easy way to handle relationships between tables/views. We can leverage this by using the embed syntax in our queries. In our case, the `vehicles` table has a column `hero_id` which references our hero and one hero can have many vehicles (1:N). To embed the data from the `vehicles` table that belongs to our hero, we can modify our query like this:
-
-``` js
-query: {
-  select: ['id', 'name', 'superpowers', 'vehicles(*)'],
-  'id.eq': 1
-},
-```
-
-This query embeds all rows in `vehicles` referenced by the hero's id and returns them as entries in the `vehicles` array in our response. To be able to filter the vehicles for our hero, we modify our query syntax a little bit:
-
-
-``` js
-query: {
-  select: {
-    id: true,
-    name: true,
-    superpowers: true,
-    'cars:vehicles': {
-      select: '*',
-      'type.eq': 'car'
+``` vue
+...
+  computed: {
+    firstItem () {
+      // the first retrieved item
+      return this.pg.range.first
     },
-  'id.eq': 1
-},
+    lastItem () {
+      // the last retrieved item
+      return this.pg.range.last
+    },
+    totalCount () {
+      //
+      return this.pg.range.totalCount
+    }
+  }
+...
 ```
 
 ### Multiple Requests
 
-Sometimes it may be neccessary to access multiple tables/views or query the same route twice the from the same component. In our case, we want to show the two latest entries to our heroes table on top of our list of heroes while still letting the server handle the pagination. Since this a very simple request, we don't want to create another component with another `pg` mixin, but handle this in our `HeroesList` component directly. Let's see how we can use the `postgrest` component to solve this.
+Sometimes it may be neccessary to access multiple tables/views or query the same route twice the from the same component. You can use the `postgrest` component for this.
 
-The `postgrest` component takes the same options as the `pg` mixin as props and provides its scope as slot props, so wen can use it in our template like this:
+The component takes the same options as the `pg` mixin as props and provides it's scope as slot props, so you can use it in your template like this:
 
 ``` vue
 <template>
@@ -303,7 +315,7 @@ The `postgrest` component takes the same options as the `pg` mixin as props and 
 ....
 ```
 
-**Note:** If you encounter situations where it is more convenient to do this programmatically, you can also use instance methods! The `vm.$postgrest` exposes a `Route` for each table/view that is available in your schema. We could rewrite the above example like this:
+**Note:** If you encounter situations where it is more convenient to do this programmatically, you can also use instance methods! The `vm.$postgrest` exposes a `Route` for each table/view that is available in your schema. We could then rewrite the above example like this:
 
 ``` vue
 <template>
