@@ -363,7 +363,7 @@ The component takes the same options as the `pg` mixin as props and provides it'
       limit: 2
     })
     // convert fetch response to json
-    this.latestHeroes = resp.json()
+    this.latestHeroes = await resp.json()
   }
 }
 </script>
@@ -372,7 +372,73 @@ The component takes the same options as the `pg` mixin as props and provides it'
 
 ## Modifying Data
 
-how to work with the models, modifying data and patching, resetting, isDirty
+Each item provided by the mixin or the component is a [Generic Model](/api/#genericmodel), which basically is a wrapper for the entity received from the server with some added methods and getters. 
+
+**Note:** The instance methods do not wrap the response in GenericModels but return the fetch `Response` directly.
+
+Getting an item, modifying it's data and patching it on the server can be as simple as:
+
+``` vue
+...
+  <input type="text" v-model="hero.name" @blur="hero.$patch"/>
+...
+  computed: {
+    pgConfig () {
+      return {
+        route: 'heroes',
+        query: {
+          'id.eq': 1
+        },
+        accept: 'single'
+      }
+    },
+    hero () {
+      return this.pg.item
+    }
+...
+```
+
+Just like the mixin method `pg.get`, the request-specific methods provided by a GenericModel are [ObservableFunctions](/api/#observablefunction). This means, you can check on the status of pending requests or errors via the respective getters. In addition, GenericModels provide the getter `item.$isDirty`, which indicates if the item's data changed from it's initial state, as well as a `$reset` method, which resets the data to it's initial state.
+
+**Note:** The initial state is set to the response from the server after $patch requests by default. If you want to preserve the local changes while patching, e.g. when doing a partial patch, set the $patch option `return='minimal'`.
+
+The first argument to the `item.$patch` method is an optional object with patch data. The second argument to `$patch` is an options object. If you want to improve the performance on updates, you can set the `columns` option here. See [$patch](/api/#patch-data-options) for details.
+
+A more extensive example could look like this:
+
+``` vue
+...
+  <input type="text" v-model="hero.name"/>
+  <button @click="powerUp">Make Superhero!</button>
+  <button @click="patch">Update</button>
+  <button @click="hero.$delete">Delete</button>
+  <button @click="hero.$reset">Reset</button>
+...
+  computed: {
+    pgConfig () {
+      return {
+        route: 'heroes',
+        query: {
+          'id.eq': 1
+        },
+        accept: 'single'
+      }
+    },
+    hero () {
+      return this.pg.item
+    },
+  methods () {
+    async patch () {
+      if (this.hero.$isDirty) {
+        await this.hero.$patch({}, { columns: ['name'] })
+      }
+    },
+    async powerUp () {
+      await this.hero.$patch({ superhero: true })
+    }
+  }
+...
+```
 
 ## Creating Models
 
