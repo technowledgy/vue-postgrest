@@ -4,7 +4,7 @@ To get started, install vue-postgrest via your package manager:
 
 ``` bash
 yarn add vue-postgrest
-# OR npm install -g vuepress
+# OR npm install vue-postgrest
 ```
 
 Import and install the Plugin in your `main.js`:
