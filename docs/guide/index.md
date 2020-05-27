@@ -398,6 +398,8 @@ Getting an item, modifying it's data and patching it on the server can be as sim
 ...
 ```
 
+### Model State
+
 Just like the mixin method `pg.get`, the request-specific methods provided by a GenericModel are [ObservableFunctions](/api/#observablefunction). This means, you can check on the status of pending requests or errors via the respective getters. In addition, GenericModels provide the getter `item.$isDirty`, which indicates if the item's data changed from it's initial state, as well as a `$reset` method, which resets the data to it's initial state.
 
 **Note:** The initial state is set to the response from the server after $patch requests by default. If you want to preserve the local changes while patching, e.g. when doing a partial patch, set the $patch option `return='minimal'`.
@@ -440,9 +442,102 @@ A more extensive example could look like this:
 ...
 ```
 
+Using the `postgrest` component and it's slot scope for patching:
+
+``` vue
+...
+  <postgrest
+    route="heroes"
+    query = "{
+      select: ['id', name'],
+      'age.gt': 25
+    }"
+    />
+    <template #default="{ get, items: heroes }">
+      <loading-spinner v-if="get.isPending"/>
+      <div v-else>
+        <div v-for="hero in heroes" :key="hero.id">
+          <input type="text" v-model="hero.name"/>
+          <button @click="update(hero)">Update</button>
+        </div>
+      </div>
+    </template>
+  </postgrest>
+...
+  methods: {
+    async update (item) {
+      if (item.$isDirty) {
+        await item.$patch({ 'updated_by': this.$store.getters.userId })
+      }
+    }
+  }
+```
+
 ## Creating Models
 
-creating newTemplates and posting etc.
+When the mixin option `pg.newTemplate` is set, a new [GenericModel](/api/#genericmodel) is provided on `pg.newItem` (or the `postgrest` component slot scope). You can use it's `$post` method to send a post request on the specified `route`. Creating a new item, modifying it's data and posting it to the server could look like this:
+
+``` vue
+...
+  <input type="text" v-model="hero.name"/>
+  <button @click="post"/>Create Hero</button>
+...
+  computed: {
+    pgConfig () {
+      return {
+        route: 'heroes',
+        newTemplate: {
+          name: 'New Hero'
+        }
+      }
+    },
+    hero () {
+      return this.pg.newItem
+    }
+  },
+  methods: {
+    async post () {
+      await this.hero.$post()
+    }
+  }
+...
+```
+
+The `$post` method accepts a options object as it's first argument to set the `columns` option as well as the `Accept` header via the `return` option. See [patching](./#modifying-data) for more details.
+
+### Upserts
+
+As with all GenericModel methods, you can use all options that a [route](/api/#postgrest-route) offers. To perform an upsert, you can pass the `resolution` option, which sets the resolution part of the `Prefer` header. To set the `on_conflict` querry string parameter, see [Query](/query/#on-conflict).
+
+``` vue
+...
+  <input type="text" v-model="hero.name"/>
+  <button @click="post"/>Create Hero</button>
+...
+  computed: {
+    pgConfig () {
+      return {
+        route: 'heroes',
+        newTemplate: {
+          name: 'New Hero',
+
+        },
+        query: {
+          'on_conflict': name
+        }
+      }
+    },
+    hero () {
+      return this.pg.newItem
+    }
+  },
+  methods: {
+    async post () {
+      await this.hero.$post({ resolution: 'merge-duplicates' })
+    }
+  }
+...
+```
 
 ## Handling Errors
 
