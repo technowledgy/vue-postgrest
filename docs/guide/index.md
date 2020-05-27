@@ -337,7 +337,6 @@ The component takes the same options as the `pg` mixin as props and provides it'
     <div v-if="latestHeroes.length">
       Our new heroes are {{ latestHeroes[0].name }} and {{ latestHeroes[1].name }}!
     </div>
-    </postgrest>
     <!-- display the heroes list fetched by the mixin -->
     ...
   </div>
@@ -714,8 +713,20 @@ If you want to call a RPC before the schema is loaded, you can call `$postgrest.
 
 ## Authentication
 
-how to work with token, setDefaultToken, AuthError
+The most convenient way to set the `Authorization` header to include your jwt token is to use the [setDefaultToken](/api/#setdefaulttoken) method exported by the module. This method sets the token to use for all subsequent communication with the postgREST server.
 
-## Full Example
+``` vue
+import { setDefaultToken } from 'vue-postgrest'
 
-a full example, demonstrating the single steps
+<script>
+  name: 'App',
+  mounted () {
+    setDefaultToken(this.$store.getters.authToken)
+  }
+}
+</script>
+```
+
+**Note:** If you want to overwrite the token used for specific requests, you can either use the mixin option `token` or the component prop, respectively.
+
+To handle rejected requests due to token errors, use the `AuthError` that is thrown when the server rejects your token, see [Handling Errors](./#handling-errors) for details.
