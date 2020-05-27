@@ -50,12 +50,14 @@ export default {
 When loaded, the mixin will send a GET request to your postgREST server. You can change the base URI the mixin uses, without affecting the URI set via the apiRoot plugin option:
 
 ``` vue
+<script>
 ...
-      pgConfig: {
-        apiRoot: '/api/v2/',
-        route: 'heroes'
-      }
+  pgConfig: {
+    apiRoot: '/api/v2/',
+    route: 'heroes'
+  }
 ...
+</script>
 ```
 
 ### Column Filtering
@@ -63,13 +65,11 @@ When loaded, the mixin will send a GET request to your postgREST server. You can
 To access the data sent by the server, use `pg.items`, which is an array holding the server response by default.
 
 ``` vue
-...
 <template>
   <ul>
     <li v-for="hero in pg.items" :key="hero.id">{{ hero.name }}</li>
   </ul>
 </template>
-...
 ```
 
 Using the mixin option `accept = 'single'` will set the `Accept` header to tell postgREST to return a single item unenclosed by an array. If `accept === 'single'` you can use `pg.item` to access the returned item.
@@ -79,6 +79,7 @@ Using the mixin option `accept = 'single'` will set the `Accept` header to tell 
 The mixin option `query` is used to construct the postgREST query string. Use `query.select` for column filtering like this:
 
 ``` vue
+<script>
 ...
   pgConfig: {
     query: {
@@ -86,12 +87,13 @@ The mixin option `query` is used to construct the postgREST query string. Use `q
     }
   }
 ...
-
+</script>
 ```
 
 The select key alternatively accepts an object with column names as keys. You can use aliasing, hints and casting like this:
 
 ``` vue
+<script>
 ...
   pgConfig: {
     query: {
@@ -102,7 +104,7 @@ The select key alternatively accepts an object with column names as keys. You ca
     }
   }
 ...
-
+</script>
 ```
 
 ### Ordering
@@ -110,15 +112,18 @@ The select key alternatively accepts an object with column names as keys. You ca
 To order your response, you can either pass an array of strings or an object to `pgConfig.order`. E.g.:
 
 ``` vue
+<script>
 ...
     query: {
       select: ['*'],
       order: ['id.asc', 'name.desc']
     }
 ...
+</script>
 
 // or
 
+<script>
 ...
     query: {
       select: ['*'],
@@ -128,6 +133,7 @@ To order your response, you can either pass an array of strings or an object to 
       }
     }
 ...
+</script>
 ```
 
 ### Row Filtering
@@ -136,6 +142,7 @@ The `query` constructs column conditions from it's keys. Operators can either be
 E.g. to use multiple conditions on one column:
 
 ``` vue
+<script>
 ...
     query: {
       select: ['*'],
@@ -146,6 +153,7 @@ E.g. to use multiple conditions on one column:
       }
     }
 ...
+</script>
 ```
 
 When passing arrays, the resulting query string is constructed based on the used operator! See [Arrays]((/query/#arrays)). Furthermore, `undefined` values will exclude the column condition from the query string - this can be useful if you create your query object dynamically.
@@ -160,6 +168,7 @@ For convenient creation of range objects see [Range Objects](/query/range-object
 PostgREST offers an easy way to handle relationships between tables/views. You can leverage this by using the embed syntax in your queries. The syntax to filter, order or select embeds corresponds to the root level of the query object: 
 
 ``` vue
+<script>
 ...
     query: {
       select: {
@@ -173,6 +182,7 @@ PostgREST offers an easy way to handle relationships between tables/views. You c
       'id.eq': 1
     }
 ...
+</script>
 ```
 
 **Important:** If you omit the `select` key in an embed object, it is assumed that you want to access a JSON-field instead of embedding a resource! See [JSON Columns](/query/#json-columns) for details.
@@ -182,14 +192,12 @@ PostgREST offers an easy way to handle relationships between tables/views. You c
 For monitoring the current status of the request, you can use `vm.pg.get` which is an [ObservableFunction](/api/#observable-function). `pg.get.isPending` tells you, if a request is still pending:
 
 ``` vue
-...
 <template>
   <loading-spinner v-if="pg.get.isPending"/>
   <ul v-else>
     <li v-for="hero in pg.items" :key="hero.id">{{ hero.name }}</li>
   </ul>
 </template>
-...
 ```
 
 You can call the `get` function to rerun the get request, e.g. if you need to refresh your data manually. The current number of pending requests is stored in `pg.get.nPending`.
@@ -263,6 +271,7 @@ export default {
 To get information about the paginated response, the mixin provides the `pg.range` object, based on the response's `Content-Range` header. To get the total count of available rows, use the mixin option `count = 'exact'` which sets the corresponding `Prefer` header.
 
 ``` vue
+<script>
 ...
   computed: {
     firstItem () {
@@ -279,6 +288,7 @@ To get information about the paginated response, the mixin provides the `pg.rang
     }
   }
 ...
+</script>
 ```
 
 ### Multiple Requests
@@ -316,8 +326,6 @@ The component takes the same options as the `pg` mixin as props and provides it'
     </ul>
   </div>
 </template>
-
-....
 ```
 
 **Note:** If you encounter situations where it is more convenient to do this programmatically, you can also use instance methods! The `vm.$postgrest` exposes a `Route` for each table/view that is available in your schema. We could then rewrite the above example like this:
@@ -379,8 +387,13 @@ Each item provided by the mixin or the component is a [Generic Model](/api/#gene
 Getting an item, modifying it's data and patching it on the server can be as simple as:
 
 ``` vue
+<template>
 ...
   <input type="text" v-model="hero.name" @blur="hero.$patch"/>
+...
+</template>
+
+<script>
 ...
   computed: {
     pgConfig () {
@@ -396,6 +409,7 @@ Getting an item, modifying it's data and patching it on the server can be as sim
       return this.pg.item
     }
 ...
+</script>
 ```
 
 ### Model State
@@ -409,6 +423,7 @@ The first argument to the `item.$patch` method is an optional object with patch 
 A more extensive example could look like this:
 
 ``` vue
+<template>
 ...
   <div v-if="hero in heroes" :key="hero.id">
     <input type="text" v-model="hero.name"/>
@@ -417,6 +432,10 @@ A more extensive example could look like this:
     <button @click="delete(hero)">Delete</button>
     <button @click="hero.$reset">Reset</button>
   </div>
+...
+</template>
+
+<script>
 ...
   computed: {
     pgConfig () {
@@ -444,11 +463,13 @@ A more extensive example could look like this:
     }
   }
 ...
+</script>
 ```
 
 Using the `postgrest` component and it's slot scope for patching:
 
 ``` vue
+<template>
 ...
   <postgrest
     route="heroes"
@@ -468,6 +489,10 @@ Using the `postgrest` component and it's slot scope for patching:
     </template>
   </postgrest>
 ...
+</template>
+
+<script>
+...
   methods: {
     async update (item) {
       if (item.$isDirty) {
@@ -475,6 +500,8 @@ Using the `postgrest` component and it's slot scope for patching:
       }
     }
   }
+...
+</script>
 ```
 
 ## Creating Models
@@ -482,9 +509,14 @@ Using the `postgrest` component and it's slot scope for patching:
 When the mixin option `pg.newTemplate` is set, a new [GenericModel](/api/#genericmodel) is provided on `pg.newItem` (or the `postgrest` component slot scope). You can use it's `$post` method to send a post request on the specified `route`. Creating a new item, modifying it's data and posting it to the server could look like this:
 
 ``` vue
+<template>
 ...
   <input type="text" v-model="hero.name"/>
   <button @click="post"/>Create Hero</button>
+...
+</template>
+
+<script>
 ...
   computed: {
     pgConfig () {
@@ -505,6 +537,7 @@ When the mixin option `pg.newTemplate` is set, a new [GenericModel](/api/#generi
     }
   }
 ...
+</script>
 ```
 
 The `$post` method accepts a options object as it's first argument to set the `columns` option as well as the `Accept` header via the `return` option. See [patching](./#modifying-data) for more details.
@@ -514,9 +547,14 @@ The `$post` method accepts a options object as it's first argument to set the `c
 As with all GenericModel methods, you can use all options that a [route](/api/#postgrest-route) offers. To perform an upsert, you can pass the `resolution` option, which sets the resolution part of the `Prefer` header. To set the `on_conflict` querry string parameter, see [Query](/query/#on-conflict).
 
 ``` vue
+<template>
 ...
   <input type="text" v-model="hero.name"/>
   <button @click="post"/>Create Hero</button>
+...
+</template>
+
+<script>
 ...
   computed: {
     pgConfig () {
@@ -541,6 +579,7 @@ As with all GenericModel methods, you can use all options that a [route](/api/#p
     }
   }
 ...
+</script>
 ```
 
 ## Handling Errors
