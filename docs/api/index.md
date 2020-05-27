@@ -94,7 +94,7 @@ The `vue-postgrest` module exports a plugin, a mixin and several helper function
 
 ### AuthError
 
-Instances of AuthError are thrown when authentication fails.
+Instances of AuthError are thrown when the server rejects the authentication token.
 
 ### SchemaNotFoundError
 
@@ -106,7 +106,7 @@ Instances of FetchError are thrown on generic errors from Fetch that don't trigg
 
 ### PrimaryKeyError
 
-Instances of PrimaryKeyError are thrown, when no primary keys are found for the specified `route`.
+Instances of PrimaryKeyError are thrown, when no primary keys are found for the specified `route` on the schema or no valid primary key is found on a [GenericModel](./#genericmodel).
 
 ## Plugin Options
 
@@ -700,6 +700,8 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
 
 - **Type:** `Route`
 
+- **Throws:** `AuthError | FetchError`
+
 - **Usage:**
 
   After the schema is [ready](./#postgrest-ready), all available routes are exposed on the $postgrest instance.
@@ -873,6 +875,8 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
 
 - **Type:** `Function`
 
+- **Throws:** `AuthError | FetchError`
+
 - **Arguments:**
   
   - `{string} function-name`
@@ -1003,7 +1007,7 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
 - **Returns:** Response from the API
 
-- **Throws:** `AuthError | FetchError`
+- **Throws:** `AuthError | FetchError | PrimaryKeyError`
 
 - **Details:**
 
@@ -1050,7 +1054,7 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
 - **Returns:** Response from the API
 
-- **Throws:** `AuthError | FetchError`
+- **Throws:** `AuthError | FetchError | PrimaryKeyError`
 
 - **Details:**
 
@@ -1103,7 +1107,7 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
 - **Returns:** Response from the API
 
-- **Throws:** `AuthError | FetchError`
+- **Throws:** `AuthError | FetchError | PrimaryKeyError`
 
 - **Details:**
 
@@ -1156,7 +1160,7 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
 - **Returns:** Response from the API
 
-- **Throws:** `AuthError | FetchError`
+- **Throws:** `AuthError | FetchError | PrimaryKeyError`
 
 - **Details:**
 
