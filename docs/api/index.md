@@ -94,7 +94,7 @@ The `vue-postgrest` module exports a plugin, a mixin and several helper function
 
 ### AuthError
 
-Instances of AuthError are thrown when authentication fails.
+Instances of AuthError are thrown when the server rejects the authentication token.
 
 ### SchemaNotFoundError
 
@@ -106,7 +106,7 @@ Instances of FetchError are thrown on generic errors from Fetch that don't trigg
 
 ### PrimaryKeyError
 
-Instances of PrimaryKeyError are thrown, when no primary keys are found for the specified `route`.
+Instances of PrimaryKeyError are thrown, when no primary keys are found for the specified `route` on the schema or no valid primary key is found on a [GenericModel](./#genericmodel).
 
 ## Plugin Options
 
@@ -282,7 +282,7 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
 - **Details:**
 
-  Accept header to set or one of the options 'single', 'binary' or 'text', which set the correct headers automatically. Default header is set to 'application/json'.
+  Accept header to set or one of the options 'single', 'binary' or 'text', which set the correct headers automatically. Default header is set to 'application/json'. If setting 'text' or 'binary' the response data will be available via `pg.data` or the slot prop `data`, respectively.
 
   See also [Response Format](http://postgrest.org/en/v7.0.0/api.html#response-format) in the PostgREST documentation.
 
@@ -696,9 +696,29 @@ Using the `pg` mixin exposes `vm.pg` with the following properties.
 
 The instance method `vm.$postgrest` is available on your Vue Instance after installing the plugin.
 
+### $postgrest
+
+- **Type:** `Route`
+
+- **Arguments:**
+  
+  - `{string} apiRoot`
+
+  - `{string} token`
+
+- **Returns:** `Schema`
+
+- **Throws:** `SchemaNotFoundError`
+
+- **Usage:**
+
+  Used to create a new schema for the specified baseUri with the specified default auth token. If `apiRoot` is undefined, the apiRoot of the existing Schema is used.
+
 ### $postgrest[route]
 
 - **Type:** `Route`
+
+- **Throws:** `AuthError | FetchError`
 
 - **Usage:**
 
@@ -717,9 +737,9 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
 
     - `{string} accept` `Accept` header to set or one of the options 'single', 'binary' or 'text', which set the header automatically. Default header is 'application/json'.
 
-    - `{number} limit` Limit the response to no. of items
+    - `{number} limit` Limit the response to no. of items by setting the `Range` and `Range-Unit` headers
 
-    - `{number} offset` Offset the response by no. of items
+    - `{number} offset` Offset the response by no. of items by setting the `Range` and `Range-Unit` headers
 
     - `{string} return` Set `return=[value]` part of `Prefer` header
 
@@ -761,8 +781,10 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
     async mounted: {
       // wait for the schema to be ready
       await this.$postgrest.$ready
-      this.planets = await this.$postgrest.planets('GET')
-      this.cities = await this.$postgrest.cities.get()
+      const planetsResp = await this.$postgrest.planets('GET')
+      const citiesResp = await this.$postgrest.cities.get()
+      this.planets = await planetsResp.json()
+      this.cities = await citiesResp.json()
     }
   }
   ```
@@ -778,7 +800,7 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
   The promise resolves, when the schema was successfully loaded and rejects if no valid schema was found.
 
   ::: tip
-  This can also be called on a [route](./#pg-route) or a [rpc](./#pg-rpc).
+  This can also be called on a [route](./#postgrest-route) or a [rpc](./#postgrest-rpc).
   :::
 
 - **Example:**
@@ -859,7 +881,7 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
           headers: { 'Warning': 'Will cause problems!' }
         }, { countdown: false })
 
-        if (result !== 'all gone!') {
+        if (await result.text() !== 'all gone!') {
           this.$postgrest.rpc.destroyplanets({}, { force: true })
         }
       }
@@ -870,6 +892,8 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
 ### $postgrest.rpc(function-name[, options, params])
 
 - **Type:** `Function`
+
+- **Throws:** `AuthError | FetchError`
 
 - **Arguments:**
   
@@ -892,7 +916,7 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
     name: 'Component',
     methods: {
       async destroyAllPlanets () {
-        const result = await this.$postgrest.rpc('destroyplanets', { 
+        await this.$postgrest.rpc('destroyplanets', { 
           accept: 'text',
           headers: { 'Warning': 'Will cause problems!' }
         }, { countdown: false })
@@ -1001,17 +1025,15 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
 - **Returns:** Response from the API
 
-- **Throws:** `AuthError | FetchError`
+- **Throws:** `AuthError | FetchError | PrimaryKeyError`
 
 - **Details:**
 
   An [ObservableFunction](./#observablefunction) for a get request. Available `options` are:
 
-    - `{object} headers` Set or overwrite headers for this request. Keys are header field names, values are strings.
-
     - `{boolean} keepChanges` If true, local changes to the item are protected from being overwritten by fetched data and only unchanged fields are updated.
 
-    - All Options described in [postgrest route](./#postgrest-route) are available here as well.
+    - All Options described in [postgrest route](./#postgrest-route) are available here as well. **Note:** The `accept` option is not valid here - the `Accept` header will always be set to `'single'` if not overwritten via the `headers` object.
 
 - **Example:**
 
@@ -1050,19 +1072,17 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
 - **Returns:** Response from the API
 
-- **Throws:** `AuthError | FetchError`
+- **Throws:** `AuthError | FetchError | PrimaryKeyError`
 
 - **Details:**
 
   An [ObservableFunction](./#observablefunction) for a post request. Available `options` are:
 
-    - `{object} headers` Set or overwrite headers for this request. Keys are header field names, values are strings.
-
     - `{array<string>} columns` Sets `columns` parameter on request to improve performance on updates/inserts
 
     - `{string} return` Add `return=[value]` header to request. Possible values are `'representation'` (default) and `'minimal'`.
 
-    - All Options described in [postgrest route](./#postgrest-route) are available here as well.
+    - All Options described in [postgrest route](./#postgrest-route) are available here as well. **Note:** The `accept` option is not valid here - the `Accept` header will always be set to `'single'` if not overwritten via the `headers` object.
 
   If option `return` is set to `'representation'`, which is the default value, the item is updated with the response from the server.
 
@@ -1105,19 +1125,17 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
 - **Returns:** Response from the API
 
-- **Throws:** `AuthError | FetchError`
+- **Throws:** `AuthError | FetchError | PrimaryKeyError`
 
 - **Details:**
 
   An [ObservableFunction](./#observablefunction) for a patch request. The patch function also accepts an object as first argument with fields that should be patched, properties declared in this object take precedence over fields changed on the item directly. Available `options` are:
 
-    - `{object} headers` Set or overwrite headers for this request. Keys are header field names, values are strings.
-
     - `{array<string>} columns` Sets `columns` parameter on request to improve performance on updates/inserts
 
     - `{string} return` Add `return=[value]` header to request. Possible values are `'representation'` (default) and `'minimal'`.
 
-    - All Options described in [postgrest route](./#postgrest-route) are available here as well.
+    - All Options described in [postgrest route](./#postgrest-route) are available here as well. **Note:** The `accept` option is not valid here - the `Accept` header will always be set to `'single'` if not overwritten via the `headers` object.
 
   If option `return` is set to `'representation'`, which is the default value, the item is updated with the response from the server.
 
@@ -1160,17 +1178,15 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
 - **Returns:** Response from the API
 
-- **Throws:** `AuthError | FetchError`
+- **Throws:** `AuthError | FetchError | PrimaryKeyError`
 
 - **Details:**
 
   An [ObservableFunction](./#observablefunction) for a delete request. Available `options` are:
 
-    - `{object} headers` Set or overwrite headers for this request. Keys are header field names, values are strings.
-
     - `{string} return` Add `return=[value]` header to request. Possible values are `'representation'` and `'minimal'`.
 
-    - All Options described in [postgrest route](./#postgrest-route) are available here as well.
+    - All Options described in [postgrest route](./#postgrest-route) are available here as well. **Note:** The `accept` option is not valid here - the `Accept` header will always be set to `'single'` if not overwritten via the `headers` object.
 
   If option `return` is set to `'representation'`, the item is updated with the response from the server.
 

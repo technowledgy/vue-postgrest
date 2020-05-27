@@ -10,6 +10,7 @@ themeConfig:
   sidebarDepth: 2
   sidebar:
     - /start/
+    - /guide/
     - /api/
     - /query/
   lastUpdated: Last Updated
