@@ -282,7 +282,7 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
 - **Details:**
 
-  Accept header to set or one of the options 'single', 'binary' or 'text', which set the correct headers automatically. Default header is set to 'application/json'.
+  Accept header to set or one of the options 'single', 'binary' or 'text', which set the correct headers automatically. Default header is set to 'application/json'. If setting 'text' or 'binary' the response data will be available via `pg.data` or the slot prop `data`, respectively.
 
   See also [Response Format](http://postgrest.org/en/v7.0.0/api.html#response-format) in the PostgREST documentation.
 
@@ -696,6 +696,24 @@ Using the `pg` mixin exposes `vm.pg` with the following properties.
 
 The instance method `vm.$postgrest` is available on your Vue Instance after installing the plugin.
 
+### $postgrest
+
+- **Type:** `Route`
+
+- **Arguments:**
+  
+  - `{string} apiRoot`
+
+  - `{string} token`
+
+- **Returns:** `Schema`
+
+- **Throws:** `SchemaNotFoundError`
+
+- **Usage:**
+
+  Used to create a new schema for the specified baseUri with the specified default auth token. If `apiRoot` is undefined, the apiRoot of the existing Schema is used.
+
 ### $postgrest[route]
 
 - **Type:** `Route`
@@ -719,9 +737,9 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
 
     - `{string} accept` `Accept` header to set or one of the options 'single', 'binary' or 'text', which set the header automatically. Default header is 'application/json'.
 
-    - `{number} limit` Limit the response to no. of items
+    - `{number} limit` Limit the response to no. of items by setting the `Range` and `Range-Unit` headers
 
-    - `{number} offset` Offset the response by no. of items
+    - `{number} offset` Offset the response by no. of items by setting the `Range` and `Range-Unit` headers
 
     - `{string} return` Set `return=[value]` part of `Prefer` header
 
@@ -863,7 +881,7 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
           headers: { 'Warning': 'Will cause problems!' }
         }, { countdown: false })
 
-        if (result !== 'all gone!') {
+        if (await result.text() !== 'all gone!') {
           this.$postgrest.rpc.destroyplanets({}, { force: true })
         }
       }
@@ -898,7 +916,7 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
     name: 'Component',
     methods: {
       async destroyAllPlanets () {
-        const result = await this.$postgrest.rpc('destroyplanets', { 
+        await this.$postgrest.rpc('destroyplanets', { 
           accept: 'text',
           headers: { 'Warning': 'Will cause problems!' }
         }, { countdown: false })
