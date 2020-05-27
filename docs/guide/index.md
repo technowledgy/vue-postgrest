@@ -410,33 +410,37 @@ A more extensive example could look like this:
 
 ``` vue
 ...
-  <input type="text" v-model="hero.name"/>
-  <button @click="powerUp">Make Superhero!</button>
-  <button @click="patch">Update</button>
-  <button @click="hero.$delete">Delete</button>
-  <button @click="hero.$reset">Reset</button>
+  <div v-if="hero in heroes" :key="hero.id">
+    <input type="text" v-model="hero.name"/>
+    <button @click="powerUp(hero)">Make Superhero!</button>
+    <button @click="patch(hero)">Update</button>
+    <button @click="delete(hero)">Delete</button>
+    <button @click="hero.$reset">Reset</button>
+  </div>
 ...
   computed: {
     pgConfig () {
       return {
         route: 'heroes',
-        query: {
-          'id.eq': 1
-        },
-        accept: 'single'
+        query: {}
       }
     },
-    hero () {
-      return this.pg.item
+    heroes () {
+      return this.pg.items
     },
   methods () {
-    async patch () {
+    async patch (hero) {
       if (this.hero.$isDirty) {
-        await this.hero.$patch({}, { columns: ['name'] })
+        await hero.$patch({}, { columns: ['name'] })
       }
     },
-    async powerUp () {
-      await this.hero.$patch({ superhero: true })
+    async powerUp (hero) {
+      await hero.$patch({ superhero: true })
+    },
+    async delete (hero) {
+      await hero.$delete()
+      // refresh the heroes list after delete
+      this.pg.get()
     }
   }
 ...
@@ -541,11 +545,133 @@ As with all GenericModel methods, you can use all options that a [route](/api/#p
 
 ## Handling Errors
 
-catching component events and the onError hook, what kind of errors are emitted and when to use them
+### Mixin / Component
+
+The mixin registers a `onError` hook on your component instance, which is called whenever a [FetchError](/api/#fetcherror) or an [AuthError](/api/#autherror) is thrown. To react to errors from the `postgrest` component, use the `error` event. The error object is passed to the hook/event.
+
+### GenericModel / Instance Methods / Stored Procedures
+
+All request-specific methods from [GenericModels](/api/#genericmodel), as well as the [instance methods](/api/#instancemethods) and [stored procedure calls](/api/#postgrest-rpc-function-name-options-params) throw [AuthErrors](/api/#autherror) and [FetchErrors](/api/#fetcherror).
+Additionally, the generic model methods throw [PrimaryKeyErrors](/api/#primarykeyerror).
+
+::: tip
+You can test whether a schema was found for the base URI by catching [SchemaNotFoundErrors](/api/#schemanotfounderror) on [$postgrest.$ready](/api/#postgrest-ready).
+:::
+
+### Full Example
+
+``` vue
+<template>
+  <div>
+    <postgrest
+      route="vehicles"
+      query="{}"
+      @error="handleError">
+      <div #default="{ get, items }">
+        <span v-if="get.hasErrors">Could not load vehicles...</span>
+        <div v-else>
+          <div v-for="item in items" :key="item.id">
+            <input type="text" v-model="item.type" @blur="updateVehicle(item)"/>
+          </div>
+        </div>
+      </div>
+    </postgrest>
+    <button @click="deleteHero">Delete Hero!</button>
+    <button @click="destroyPlanets">Destroy all Planets!</button>
+  </div>
+</template>
+
+<script>
+import { pg, AuthError, FetchError, PrimaryKeyError, SchemaNotFoundError } from 'vue-postgrest'
+
+export default {
+  name: 'Component',
+  mixins: [pg],
+  data () {
+    return {
+      pgConfig: {
+        route: 'heroes',
+        query: {
+          'id.eq': 1
+        }
+      }
+    }
+  },
+  async mounted () {
+    try {
+      await this.$postgrest.$ready
+    } catch (e) {
+      this.handleError(e)
+    }
+  },
+  onError (err) {
+    this.handleError(err)
+  },
+  methods: {
+    async destroyPlanets () {
+      try {
+        await this.$postgrest.rpc.destroyAllPlanets()
+      } catch (e) {
+        this.handleError(e)
+      }
+    },
+    async deleteHero () {
+      try {
+        await this.pg.item.$delete()
+      } catch (e) {
+        this.handleError(e)
+      }
+    },
+    async updateVehicle (item) {
+      try {
+        await item.$patch()
+      } catch (e) {
+        this.handleError(e)
+      }
+    },
+    handleError (err) {
+      if (err instanceof AuthError) {
+        // handle token error
+      } else if (err instanceof FetchError) {
+        // handle error from fetch
+      } else if (err instanceof PrimaryKeyError) {
+        // handle primary key error
+      } else if (err instanceof SchemaNotFoundError) {
+        // handle schema not found error
+      }
+    }
+  }
+}
+</script>
+```
 
 ## Stored Procedures
 
-how to call stored procedures and their return values
+For calling stored procedures, the instance method `$postgrest.rpc` is provided. On loading the schema, all available stored procedures are registered here. The stored procedure call accepts an options object and an object containing the parameters that are passed to the stored procedure. By default, RPCs are called with the request method `POST`, you can set the rpc option `get=true` if you want to call a RPC with `GET` instead. For setting the `Accept` header, use the option `accept`.
+
+``` vue
+export default {
+  name: 'Component',
+  methods: {
+    async destroyAllPlanets () {
+      // wait till schema is loaded
+      await this.$postgrest.$ready
+      const result = await this.$postgrest.rpc.destroyplanets({ 
+        accept: 'text',
+        headers: { 'Warning': 'Will cause problems!' }
+      }, { countdown: false })
+
+      if (result !== 'all gone!') {
+        this.$postgrest.rpc.destroyplanets({}, { force: true })
+      }
+    }
+  }
+}
+```
+
+::: tip
+If you want to call a RPC before the schema is loaded, you can call `$postgrest.rpc` directly by passing the name of the stored procedure that should be called as the first argument, followed by the options and rpc parameters. See [RPC](/api/#postgrest-rpc-function-name-options-params) for details.
+:::
 
 ## Authentication
 
