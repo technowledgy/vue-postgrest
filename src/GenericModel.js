@@ -113,7 +113,7 @@ class GenericModel {
   }
 
   async _post (opts) {
-    const defaultOptions = { return: 'representation', columns: Object.keys(this) }
+    const defaultOptions = { return: 'representation' }
     const { columns, ...options } = Object.assign({}, defaultOptions, opts)
 
     const query = {}
@@ -143,7 +143,7 @@ class GenericModel {
       }
       return acc
     }, {}))
-    const defaultOptions = { return: 'representation', columns: Object.keys(patchData) }
+    const defaultOptions = { return: 'representation' }
     const { columns, ...options } = Object.assign({}, defaultOptions, opts)
 
     const query = await this._createQueryFromPKs()
