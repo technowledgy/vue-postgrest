@@ -23,6 +23,7 @@ class GenericModel {
   #select
   #diff = Vue.observable({})
   #resetCache = {}
+  #enableTrack
 
   constructor (data, { route, select }) {
     this.#route = route
@@ -46,23 +47,16 @@ class GenericModel {
     Object.defineProperties(this, obsDescriptors)
     // re-target the Observer class to "this", to make Vue.set work
     this.__ob__.value = this
-    // inject our own tracker to build #diff
-    const tracker = (key) => {
-      if (isEqual(this[key], this.#resetCache[key])) {
-        Vue.delete(this.#diff, key)
-      } else {
-        Vue.set(this.#diff, key, this[key])
-      }
-    }
-    this._track(this, tracker)
     this._setData(data)
   }
 
   _track (obj, notify, rootKey) {
     obj.__ob__.dep.addSub({
       update: () => {
-        this._track(obj, notify, rootKey)
-        if (rootKey) notify(rootKey)
+        if (this.#enableTrack) {
+          this._track(obj, notify, rootKey)
+          if (rootKey) notify(rootKey)
+        }
       }
     })
     for (const key of Object.keys(obj)) {
@@ -78,6 +72,7 @@ class GenericModel {
   }
 
   _setData (data, keepDiff = false) {
+    this.#enableTrack = false
     this.#resetCache = cloneDeep(data)
     if (keepDiff) {
       const diff = cloneDeep(this.#diff)
@@ -86,6 +81,16 @@ class GenericModel {
     } else {
       syncObjects(this, data)
     }
+    this.#enableTrack = true
+    // inject our own tracker to build #diff
+    const tracker = (key) => {
+      if (isEqual(this[key], this.#resetCache[key])) {
+        Vue.delete(this.#diff, key)
+      } else {
+        Vue.set(this.#diff, key, this[key])
+      }
+    }
+    this._track(this, tracker)
   }
 
   $reset () {
