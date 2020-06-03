@@ -243,11 +243,6 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
   The query sent to the API is constructed from this option. See the [Query API](/query) as well as [API](http://postgrest.org/en/v7.0.0/api.html) in the PostgREST documentation for more details.
 
-  ::: warning
-  If this option is undefined, the instance will not provide methods and items related to get/patch/delete requests. Set query to `{}`
-  if you want to make requests without parameters.
-  :::
-
 - **Example:**
 
   ``` js
