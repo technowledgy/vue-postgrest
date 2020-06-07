@@ -187,7 +187,7 @@ describe('Schema', () => {
 
     it('provides curried functions as props', async () => {
       await schema.rpc.$ready
-      schema.rpc.authenticate({ query: { select: 'id' } }, { user: 'test' })
+      schema.rpc.authenticate({ user: 'test' }, { query: { select: 'id' } })
       expect(schema.rpc.authenticate).toBeInstanceOf(ObservableFunction)
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'rpc/authenticate', 'POST', { select: 'id' }, {}, { user: 'test' })
     })

@@ -619,7 +619,7 @@ export default {
 
 ## Stored Procedures
 
-For calling stored procedures, the instance method `$postgrest.rpc` is provided. On loading the schema, all available stored procedures are registered here. The stored procedure call accepts an options object and an object containing the parameters that are passed to the stored procedure. By default, RPCs are called with the request method `POST`, you can set the rpc option `get=true` if you want to call a RPC with `GET` instead. For setting the `Accept` header, use the option `accept`.
+For calling stored procedures, the instance method `$postgrest.rpc` is provided. On loading the schema, all available stored procedures are registered here. The stored procedure call accepts an object containing the parameters that are passed to the stored procedure and an options object. By default, RPCs are called with the request method `POST`, you can set the rpc option `get: true` if you want to call a RPC with `GET` instead. For setting the `Accept` header, use the option `accept`.
 
 ``` vue
 <script>
@@ -629,12 +629,12 @@ export default {
     async destroyAllPlanets () {
       // wait till schema is loaded
       await this.$postgrest.$ready
-      const result = await this.$postgrest.rpc.destroyplanets({ 
+      const result = await this.$postgrest.rpc.destroyplanets({ countdown: false }, { 
         accept: 'text',
         headers: { 'Warning': 'Will cause problems!' }
-      }, { countdown: false })
+      })
       if (await result.text() !== 'all gone!') {
-        this.$postgrest.rpc.destroyplanets({}, { force: true })
+        this.$postgrest.rpc.destroyplanets({ force: true })
       }
     }
   }
@@ -643,7 +643,7 @@ export default {
 ```
 
 ::: tip
-If you want to call a RPC before the schema is loaded, you can call `$postgrest.rpc` directly by passing the name of the stored procedure that should be called as the first argument, followed by the options and rpc parameters. See [RPC](/api/#postgrest-rpc-function-name-options-params) for details.
+If you want to call a RPC before the schema is loaded, you can call `$postgrest.rpc` directly by passing the name of the stored procedure that should be called as the first argument, followed by the rpc parameters and options. See [RPC](/api/#postgrest-rpc-function-name-options-params) for details.
 :::
 
 ## Authentication
