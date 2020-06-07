@@ -22,7 +22,8 @@ const mockReturn = {
 }
 
 request.mockReturnValue({
-  json: async () => mockReturn
+  json: async () => mockReturn,
+  headers: new Headers()
 })
 
 describe('GenericModel', () => {
@@ -270,7 +271,19 @@ describe('GenericModel', () => {
       expect(ret).toEqual(mockReturn)
     })
 
-    it('doesn\'t return the request\'s return value for return=minimal', async () => {
+    it('returns the request\'s location header data with return=minimal', async () => {
+      request.mockReturnValueOnce({
+        json: async () => mockReturn,
+        headers: new Headers({
+          Location: '/clients?id=eq.321'
+        })
+      })
+      const model = new GenericModel(data, { route })
+      const ret = await model.$post({ return: 'minimal' })
+      expect(ret).toEqual({ id: '321' })
+    })
+
+    it('doesn\'t return the request\'s return value for return=minimal without Location header', async () => {
       const model = new GenericModel(data, { route })
       const ret = await model.$post({ return: 'minimal' })
       expect(ret).toBeUndefined()

@@ -1080,6 +1080,8 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
     - All Options described in [postgrest route](./#postgrest-route) are available here as well. **Note:** The `accept` option is not valid here - the `Accept` header will always be set to `'single'` if not overwritten via the `headers` object.
 
   If option `return` is set to `'representation'`, which is the default value, the item is updated with the response from the server.
+  
+  If option `return` is set to `'minimal'` and the `Location` header is set, the location header is returned as an object.
 
 - **Example:**
 
