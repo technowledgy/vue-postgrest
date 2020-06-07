@@ -29,6 +29,10 @@ describe('Schema', () => {
       await expect((new Schema('/json')).$ready).rejects.toThrow('No openapi definition found for api-root: /json')
       await expect((new Schema('/json')).$ready).rejects.toThrow(SchemaNotFoundError)
     })
+
+    it('does not throw for empty schema with correct header', async () => {
+      await expect((new Schema('/empty')).$ready).resolves.toBeUndefined()
+    })
   })
 
   describe('tokens', () => {
