@@ -852,9 +852,11 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
 
 - **Usage:**
 
-  After the schema is [ready](./#postgrest-ready), all available stored procedures are exposed on $postgrest.rpc[function-name] and can be called like this: `$postgrest.rpc[function-name]([options, params])`.
+  After the schema is [ready](./#postgrest-ready), all available stored procedures are exposed on $postgrest.rpc[function-name] and can be called like this: `$postgrest.rpc[function-name]([params, options])`.
 
-  The `params` object contains parameters that are passed to the stored procedure. Available `opts` are:
+  The `params` object contains parameters that are passed to the stored procedure.
+  
+  Available `options` are:
 
   - `{boolean} get` set request method to 'GET' if true, otherwise 'POST'
 
@@ -871,20 +873,20 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
       async destroyAllPlanets () {
         // wait till schema is loaded
         await this.$postgrest.$ready
-        const result = await this.$postgrest.rpc.destroyplanets({ 
+        const result = await this.$postgrest.rpc.destroyplanets({ countdown: false }, { 
           accept: 'text',
           headers: { 'Warning': 'Will cause problems!' }
-        }, { countdown: false })
+        })
 
         if (await result.text() !== 'all gone!') {
-          this.$postgrest.rpc.destroyplanets({}, { force: true })
+          this.$postgrest.rpc.destroyplanets({ force: true })
         }
       }
     }
   }
   ```
 
-### $postgrest.rpc(function-name[, options, params])
+### $postgrest.rpc(function-name[, params, options])
 
 - **Type:** `Function`
 
@@ -894,9 +896,9 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
   
   - `{string} function-name`
 
-  - `{object} options`
-
   - `{object} params`
+
+  - `{object} options`
 
 - **Returns:** API response
 
@@ -911,10 +913,10 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
     name: 'Component',
     methods: {
       async destroyAllPlanets () {
-        await this.$postgrest.rpc('destroyplanets', { 
+        await this.$postgrest.rpc('destroyplanets', { countdown: false }, { 
           accept: 'text',
           headers: { 'Warning': 'Will cause problems!' }
-        }, { countdown: false })
+        })
       }
     }
   }
@@ -1080,6 +1082,8 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
     - All Options described in [postgrest route](./#postgrest-route) are available here as well. **Note:** The `accept` option is not valid here - the `Accept` header will always be set to `'single'` if not overwritten via the `headers` object.
 
   If option `return` is set to `'representation'`, which is the default value, the item is updated with the response from the server.
+  
+  If option `return` is set to `'minimal'` and the `Location` header is set, the location header is returned as an object.
 
 - **Example:**
 

@@ -70,8 +70,9 @@ describe('Query', () => {
       expect(() => new Query('/api', 'test', { 'not.or': '' })).toThrow()
       expect(() => new Query('/api', 'test', { 'not.and': [] })).toThrow()
       expect(() => new Query('/api', 'test', { or: 1 })).toThrow()
-      expect(() => new Query('/api', 'test', { and: undefined })).toThrow()
     })
+
+    itt('ignores logical operators set to undefined', { and: undefined }, '')
 
     itt('supports logical disjoining with "or" object', {
       or: {

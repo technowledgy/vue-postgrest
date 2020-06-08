@@ -41,7 +41,7 @@ export default class Schema extends Function {
     const ready = new Promise(async (resolve, reject) => {
       try {
         const schema = await this._fetchSchema(apiRoot, token)
-        for (const path of Object.keys(schema.paths)) {
+        for (const path of Object.keys(schema.paths ?? {})) {
           if (path.startsWith('/rpc/')) {
             const fn = path.substring(5)
             this.rpc[fn] = new ObservableFunction(this.rpc.bind(this.rpc, fn))
@@ -50,7 +50,7 @@ export default class Schema extends Function {
             this._createRoute(route)
           }
         }
-        for (const [route, def] of Object.entries(schema.definitions)) {
+        for (const [route, def] of Object.entries(schema.definitions ?? {})) {
           this._createRoute(route, def)
         }
         resolve()
@@ -92,7 +92,7 @@ export default class Schema extends Function {
       const url = new URL(apiRoot, window.location.href)
       const resp = await fetch(url.toString(), { headers }).then(throwWhenStatusNotOk)
       const body = await resp.json()
-      if (!resp.headers.get('Content-Type').startsWith('application/openapi+json') || !body.paths) {
+      if (!resp.headers.get('Content-Type').startsWith('application/openapi+json')) {
         throw new Error('wrong body format')
       }
       return body

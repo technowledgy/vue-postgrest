@@ -8,7 +8,7 @@ class RPC extends Function {
     })
   }
 
-  async _call (fn, opts = {}, params) {
+  async _call (fn, params, opts = {}) {
     const { get, query, ...requestOptions } = opts
     if (get) {
       return this._request('rpc/' + fn, 'GET', Object.assign({}, query, params), requestOptions)

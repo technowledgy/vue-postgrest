@@ -103,6 +103,17 @@ export default async req => {
           }
         }
       }
+    case '/empty':
+      return {
+        body: JSON.stringify({}),
+        init: {
+          status: 200,
+          statusText: 'OK',
+          headers: {
+            'Content-Type': 'application/openapi+json'
+          }
+        }
+      }
     case '/text':
       return {
         body: 'just some text',

@@ -136,6 +136,7 @@ class Query extends URL {
 
   _parseConditions (obj, jsonPrefix = '') {
     return Object.entries(obj).map(([key, value]) => {
+      if (value === undefined) return
       // throw away alias - just used to allow the same condition more than once on one object
       const aliasKey = key.split(':')
       key = aliasKey[1] ?? aliasKey[0]
@@ -150,7 +151,6 @@ class Query extends URL {
           value: `(${strValue})`
         }
       } else {
-        if (value === undefined) return
         const [field, ...ops] = key.split('.')
         let strValue
         switch (ops[ops.length - 1]) {

@@ -29,6 +29,10 @@ describe('Schema', () => {
       await expect((new Schema('/json')).$ready).rejects.toThrow('No openapi definition found for api-root: /json')
       await expect((new Schema('/json')).$ready).rejects.toThrow(SchemaNotFoundError)
     })
+
+    it('does not throw for empty schema with correct header', async () => {
+      await expect((new Schema('/empty')).$ready).resolves.toBeUndefined()
+    })
   })
 
   describe('tokens', () => {
@@ -183,7 +187,7 @@ describe('Schema', () => {
 
     it('provides curried functions as props', async () => {
       await schema.rpc.$ready
-      schema.rpc.authenticate({ query: { select: 'id' } }, { user: 'test' })
+      schema.rpc.authenticate({ user: 'test' }, { query: { select: 'id' } })
       expect(schema.rpc.authenticate).toBeInstanceOf(ObservableFunction)
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'rpc/authenticate', 'POST', { select: 'id' }, {}, { user: 'test' })
     })

@@ -130,6 +130,13 @@ class GenericModel {
       const body = await resp.json()
       this._setData(body)
       return body
+    } else if (resp.headers.get('Location')) {
+      const loc = new URLSearchParams(resp.headers.get('Location').replace(/^\/[^?]+\?/, ''))
+      const ret = {}
+      for (const [key, value] of loc.entries()) {
+        ret[key] = value.replace(/^eq\./, '')
+      }
+      return ret
     }
   }
 

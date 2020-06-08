@@ -19,7 +19,7 @@ function isObject (obj) {
   return (typeof obj === 'object' && obj)
 }
 
-// deep merge o2 into o1, while reusing all existing objects to keep existing references valid
+// deep merge o2 into o1
 // when del=true, top-level-keys on o1 that are not on o2 are removed
 function syncObjects (o1, o2, del = true) {
   if (del) {
