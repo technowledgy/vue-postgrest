@@ -198,6 +198,17 @@ describe('GenericModel', () => {
       })
     })
 
+    it('sends a post request with new data included', async () => {
+      const model = new GenericModel(data, { route })
+      Vue.set(model, 'new', 'value')
+      await Vue.nextTick()
+      model.$post()
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single' }, {
+        ...data,
+        new: 'value'
+      })
+    })
+
     it('passes options except accept', async () => {
       const model = new GenericModel(data, { route })
       const options = {
@@ -318,13 +329,24 @@ describe('GenericModel', () => {
         expect(request).not.toHaveBeenCalled()
       })
 
-      it('sends a patch request with simple data fields', async () => {
+      it('sends a patch request with simple changed data fields', async () => {
         const model = new GenericModel(data, { route })
         model.name = 'client321'
         await Vue.nextTick()
         await model.$patch()
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, {
           name: 'client321'
+        })
+      })
+
+      it('sends a patch request with simple new data fields', async () => {
+        const model = new GenericModel(data, { route })
+        Vue.set(model, 'new', 'value')
+        // model.new = 'blubb'
+        await Vue.nextTick()
+        await model.$patch()
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, {
+          new: 'value'
         })
       })
 
@@ -384,6 +406,25 @@ describe('GenericModel', () => {
           await model.$patch()
           expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, {
             nestedField: [2, 5, 10, 20]
+          })
+          expect(request.mock.calls.length).toBe(1)
+        })
+
+        it('with nested array', async () => {
+          const model = new GenericModel({
+            ...data,
+            nestedField: {
+              arr: [1, 5, 10]
+            }
+          }, { route })
+          model.nestedField.arr[0] = 2
+          model.nestedField.arr.push(20)
+          await Vue.nextTick()
+          await model.$patch()
+          expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, {
+            nestedField: {
+              arr: [2, 5, 10, 20]
+            }
           })
           expect(request.mock.calls.length).toBe(1)
         })

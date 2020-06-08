@@ -51,14 +51,17 @@ class GenericModel {
   }
 
   _track (obj, notify, rootKey) {
-    obj.__ob__.dep.addSub({
-      update: () => {
-        if (this.#enableTrack) {
-          this._track(obj, notify, rootKey)
-          if (rootKey) notify(rootKey)
+    if (!obj.__ob__._tracked) {
+      obj.__ob__._tracked = true
+      obj.__ob__.dep.addSub({
+        update: () => {
+          if (this.#enableTrack) {
+            this._track(obj, notify, rootKey ?? null)
+            if (Array.isArray(obj)) notify(rootKey)
+          }
         }
-      }
-    })
+      })
+    }
     for (const key of Object.keys(obj)) {
       const prop = Object.getOwnPropertyDescriptor(obj, key)
       if (prop.set && !(prop.set instanceof TrackedFunction)) {
@@ -68,6 +71,7 @@ class GenericModel {
       if (obj[key] && typeof obj[key] === 'object') {
         this._track(obj[key], notify, rootKey || key)
       }
+      if (rootKey === null) notify(key)
     }
   }
 
