@@ -24,6 +24,8 @@ describe('Query', () => {
     expect((new Query('/api/', 'test', {})).toString()).toBe('http://localhost/api/test')
     expect((new Query('/api', 'rpc/test', {})).toString()).toBe('http://localhost/api/rpc/test')
     expect((new Query('/api', '/rpc/test', {})).toString()).toBe('http://localhost/api/rpc/test')
+    expect((new Query('http://example.com/api', '/rpc/test', {})).toString()).toBe('http://example.com/api/rpc/test')
+    expect((new Query('http://example.com/api/', '/rpc/test', {})).toString()).toBe('http://example.com/api/rpc/test')
   })
 
   describe('arguments', () => {

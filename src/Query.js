@@ -22,7 +22,7 @@ class Query extends URL {
   #apiRoot
 
   constructor (apiRoot, route, queryObject = {}) {
-    const url = (apiRoot + '/' + route).replace(/\/+/g, '/')
+    const url = (apiRoot.replace(/\/$/, '') + '/' + route.replace(/^\//, ''))
     super(url, window.location.href)
     this.#apiRoot = apiRoot
     /* eslint-disable camelcase */
