@@ -40,7 +40,7 @@
     "standard-version": "^8.0.0",
     "vue": "^2.6.11",
     "vue-template-compiler": "^2.6.11",
-    "vuepress": "^1.5.1",
+    "vuepress": "^1.5.2",
     "webpack-node-externals": "^1.7.2"
   },
   "homepage": "https://github.com/technowledgy/vue-postgrest#readme",
