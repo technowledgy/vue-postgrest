@@ -342,7 +342,6 @@ describe('GenericModel', () => {
       it('sends a patch request with simple new data fields', async () => {
         const model = new GenericModel(data, { route })
         Vue.set(model, 'new', 'value')
-        // model.new = 'blubb'
         await Vue.nextTick()
         await model.$patch()
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, {
@@ -389,6 +388,23 @@ describe('GenericModel', () => {
                 child: 'new'
               },
               sibling: 'old'
+            }
+          })
+        })
+
+        it('with a new subfield', async () => {
+          const model = new GenericModel({
+            ...data,
+            nestedField
+          }, { route })
+          Vue.set(model.nestedField, 'newField', 'new')
+          await Vue.nextTick()
+          expect(model.nestedField.newField).toBe('new')
+          await model.$patch()
+          expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, {
+            nestedField: {
+              ...nestedField,
+              newField: 'new'
             }
           })
         })

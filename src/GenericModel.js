@@ -67,6 +67,7 @@ class GenericModel {
       if (prop.set && !(prop.set instanceof TrackedFunction)) {
         prop.set = new TrackedFunction(prop.set, notify, rootKey || key)
         Object.defineProperty(obj, key, prop)
+        if (rootKey) notify(rootKey)
       }
       if (obj[key] && typeof obj[key] === 'object') {
         this._track(obj[key], notify, rootKey || key)
