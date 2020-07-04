@@ -16,7 +16,8 @@ class Route extends Function {
     })
   }
 
-  _extractPrimaryKeys (tableDef) {
+  _extractFromDefinition (tableDef) {
+    this.columns = Object.keys(tableDef.properties)
     this.pks = Object.entries(tableDef.properties)
       .filter(([field, fieldDef]) => fieldDef.description?.includes('<pk/>'))
       .map(([field]) => field)

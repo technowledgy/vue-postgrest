@@ -103,6 +103,7 @@ class GenericModel {
   }
 
   async _get (opts = {}) {
+    await this.#route.$ready
     const defaultOptions = { accept: 'single' }
     const { keepChanges, ...options } = Object.assign({}, defaultOptions, opts)
 
@@ -118,6 +119,7 @@ class GenericModel {
   }
 
   async _post (opts) {
+    await this.#route.$ready
     const defaultOptions = { return: 'representation' }
     const { columns, ...options } = Object.assign({}, defaultOptions, opts)
 
@@ -126,10 +128,28 @@ class GenericModel {
       query.select = this.#select
     }
     if (columns) {
-      query.columns = columns
+      if (this.#route.columns) {
+        query.columns = columns.filter(c => this.#route.columns.includes(c))
+      } else {
+        query.columns = columns
+      }
     }
 
-    const resp = await this.#route.post(query, { ...options, accept: 'single' }, syncObjects({}, this)) // syncObject clone needed for test env
+    const postData = Object.assign(
+      {},
+      Object.keys(this).reduce((acc, key) => {
+        if (this.#route.columns) {
+          if (this.#route.columns.includes(key)) {
+            acc[key] = this[key]
+          }
+        } else {
+          acc[key] = this[key]
+        }
+        return acc
+      }, {})
+    )
+
+    const resp = await this.#route.post(query, { ...options, accept: 'single' }, postData)
 
     if (options.return === 'representation') {
       const body = await resp.json()
@@ -146,15 +166,7 @@ class GenericModel {
   }
 
   async _patch (data = {}, opts) {
-    if (!data || typeof data !== 'object') {
-      throw new Error('Patch data must be an object.')
-    }
-    const patchData = Object.assign({}, this.#diff, Object.keys(data).reduce((acc, key) => {
-      if (data[key] !== undefined) {
-        acc[key] = data[key]
-      }
-      return acc
-    }, {}))
+    await this.#route.$ready
     const defaultOptions = { return: 'representation' }
     const { columns, ...options } = Object.assign({}, defaultOptions, opts)
 
@@ -163,8 +175,27 @@ class GenericModel {
       query.select = this.#select
     }
     if (columns) {
-      query.columns = columns
+      query.columns = columns.filter(c => this.#route.columns.includes(c))
     }
+
+    if (!data || typeof data !== 'object') {
+      throw new Error('Patch data must be an object.')
+    }
+    const patchData = Object.assign(
+      {},
+      Object.keys(this.#diff).reduce((acc, key) => {
+        if (this.#route.columns.includes(key)) {
+          acc[key] = this.#diff[key]
+        }
+        return acc
+      }, {}),
+      Object.keys(data).reduce((acc, key) => {
+        if (data[key] !== undefined) {
+          acc[key] = data[key]
+        }
+        return acc
+      }, {})
+    )
 
     // no empty requests
     if (Object.keys(patchData).length === 0) {
@@ -181,6 +212,7 @@ class GenericModel {
   }
 
   async _delete (options = {}) {
+    await this.#route.$ready
     const query = await this._createQueryFromPKs()
     if (options.return === 'representation' && this.#select) {
       query.select = this.#select
@@ -196,7 +228,6 @@ class GenericModel {
   }
 
   async _createQueryFromPKs () {
-    await this.#route.$ready
     if (this.#route.pks.length === 0) throw new PrimaryKeyError()
     return this.#route.pks.reduce((q, pk) => {
       if (this.#resetCache[pk] === undefined || this.#resetCache[pk] === null) {

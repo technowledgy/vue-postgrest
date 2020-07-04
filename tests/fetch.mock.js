@@ -10,7 +10,13 @@ const apiSchema = {
         id: {
           type: 'integer',
           description: 'Note:\nThis is a Primary Key.<pk/>'
-        }
+        },
+        name: {},
+        age: {},
+        level: {},
+        arr: {},
+        nestedField: {},
+        new: {}
       }
     }
   }

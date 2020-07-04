@@ -78,7 +78,7 @@ export default class Schema extends Function {
       this[route] = new Route(request.bind(null, this.#apiRoot, this.#token, route), this.$ready)
     }
     if (def) {
-      this[route]._extractPrimaryKeys(def)
+      this[route]._extractFromDefinition(def)
     }
     return this[route]
   }

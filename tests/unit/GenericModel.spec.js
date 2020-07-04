@@ -183,7 +183,7 @@ describe('GenericModel', () => {
 
     it('sends a post request', async () => {
       const model = new GenericModel(data, { route })
-      model.$post()
+      await model.$post()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single' }, data)
     })
 
@@ -191,7 +191,7 @@ describe('GenericModel', () => {
       const model = new GenericModel(data, { route })
       model.name = 'client321'
       await Vue.nextTick()
-      model.$post()
+      await model.$post()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single' }, {
         ...data,
         name: 'client321'
@@ -202,7 +202,7 @@ describe('GenericModel', () => {
       const model = new GenericModel(data, { route })
       Vue.set(model, 'new', 'value')
       await Vue.nextTick()
-      model.$post()
+      await model.$post()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single' }, {
         ...data,
         new: 'value'
@@ -223,7 +223,7 @@ describe('GenericModel', () => {
     it('sets select part of query if return is "representation"', async () => {
       const select = ['id', 'name']
       const model = new GenericModel(data, { route, select })
-      model.$post({ return: 'representation' })
+      await model.$post({ return: 'representation' })
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { select }, { return: 'representation', accept: 'single' }, data)
     })
 
@@ -244,6 +244,28 @@ describe('GenericModel', () => {
       const model = new GenericModel(data, { route })
       await model.$post({ columns: ['age'] })
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { columns: ['age'] }, { return: 'representation', accept: 'single' }, data)
+    })
+
+    it('only sends columns that exist on the endpoint', async () => {
+      const model = new GenericModel({
+        ...data,
+        embedded: []
+      }, { route })
+      await model.$post()
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single' }, data)
+    })
+
+    it('still sends all columns if endpoint not known', async () => {
+      const route = schema.$route('unknown')
+      const model = new GenericModel({
+        ...data,
+        embedded: []
+      }, { route })
+      await model.$post({ columns: ['age', 'embedded'] })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'unknown', 'POST', { columns: ['age', 'embedded'] }, { return: 'representation', accept: 'single' }, {
+        ...data,
+        embedded: []
+      })
     })
 
     it('updates data after request', async () => {
@@ -556,6 +578,20 @@ describe('GenericModel', () => {
         await Vue.nextTick()
         await model.$patch({}, { columns: ['age'] })
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['age'] }, { return: 'representation', accept: 'single' }, {
+          name: 'client321'
+        })
+      })
+
+      it('only sends columns that exist on the endpoint', async () => {
+        const model = new GenericModel({
+          ...data,
+          embedded: []
+        }, { route })
+        model.name = 'client321'
+        model.embedded = [{ new: 'record' }]
+        await Vue.nextTick()
+        await model.$patch()
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, {
           name: 'client321'
         })
       })
