@@ -39,20 +39,20 @@ describe('Mixin', () => {
 
     it('pg.get makes request with global default', async () => {
       await wrapper.vm.pg.get()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, {})
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { signal: expect.any(AbortSignal) })
     })
 
     it('pg.get makes request with overrides for apiRoot and token', async () => {
       wrapper.vm.$set(wrapper.vm.pgConfig, 'apiRoot', '/pk-api')
       wrapper.vm.$set(wrapper.vm.pgConfig, 'token', 'test')
       await wrapper.vm.pg.get()
-      expect(request).toHaveBeenLastCalledWith('/pk-api', 'test', 'clients', 'GET', {}, {})
+      expect(request).toHaveBeenLastCalledWith('/pk-api', 'test', 'clients', 'GET', {}, { signal: expect.any(AbortSignal) })
     })
 
     it('pg.get passes pgConfig.query', async () => {
       wrapper.vm.$set(wrapper.vm.pgConfig, 'query', { 'id.eq': 1, select: ['name'] })
       await wrapper.vm.pg.get()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 1, select: ['name'] }, {})
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 1, select: ['name'] }, { signal: expect.any(AbortSignal) })
     })
 
     it('pg.get passes options accept, limit, offset and count', async () => {
@@ -65,7 +65,8 @@ describe('Mixin', () => {
         accept: 'single',
         limit: 5,
         offset: 10,
-        count: 'exact'
+        count: 'exact',
+        signal: expect.any(AbortSignal)
       })
     })
 
@@ -159,7 +160,7 @@ describe('Mixin', () => {
 
     it('calls pg.get initially when query is set', async () => {
       await wrapper.vm.$nextTick()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, {})
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { signal: expect.any(AbortSignal) })
     })
 
     it('doesn\'t call pg.get initially when query is not set', async () => {
@@ -172,7 +173,7 @@ describe('Mixin', () => {
       await wrapper.vm.$nextTick()
       expect(request).not.toHaveBeenCalled()
       await wrapper.vm.pg.get()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, {})
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { signal: expect.any(AbortSignal) })
     })
 
     it('calls pg.get when pgConfig.query changed', async () => {
@@ -180,7 +181,7 @@ describe('Mixin', () => {
         'id.eq': 1
       })
       await wrapper.vm.$nextTick()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 1 }, {})
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 1 }, { signal: expect.any(AbortSignal) })
     })
 
     it('calls pg.get when pgConfig.query changed deep', async () => {
@@ -190,71 +191,71 @@ describe('Mixin', () => {
         }
       })
       await wrapper.vm.$nextTick()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { or: { 'id.eq': 1 } }, {})
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { or: { 'id.eq': 1 } }, { signal: expect.any(AbortSignal) })
       request.mockClear()
       wrapper.vm.$set(wrapper.vm.pgConfig.query.or, 'id.eq', 2)
       await wrapper.vm.$nextTick()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { or: { 'id.eq': 2 } }, {})
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { or: { 'id.eq': 2 } }, { signal: expect.any(AbortSignal) })
     })
 
     it('calls pg.get when pgConfig.accept changed', async () => {
       wrapper.vm.$set(wrapper.vm.pgConfig, 'accept', 'single')
       await wrapper.vm.$nextTick()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { accept: 'single' })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { accept: 'single', signal: expect.any(AbortSignal) })
       wrapper.vm.$set(wrapper.vm.pgConfig, 'accept', 'binary')
       await wrapper.vm.$nextTick()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { accept: 'binary' })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { accept: 'binary', signal: expect.any(AbortSignal) })
     })
 
     it('calls pg.get when pgConfig.limit changed', async () => {
       wrapper.vm.$set(wrapper.vm.pgConfig, 'limit', 2)
       await wrapper.vm.$nextTick()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { limit: 2 })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { limit: 2, signal: expect.any(AbortSignal) })
       wrapper.vm.$set(wrapper.vm.pgConfig, 'limit', 3)
       await wrapper.vm.$nextTick()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { limit: 3 })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { limit: 3, signal: expect.any(AbortSignal) })
     })
 
     it('calls pg.get when pgConfig.offset changed', async () => {
       wrapper.vm.$set(wrapper.vm.pgConfig, 'offset', 1)
       await wrapper.vm.$nextTick()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { offset: 1 })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { offset: 1, signal: expect.any(AbortSignal) })
       wrapper.vm.$set(wrapper.vm.pgConfig, 'offset', 2)
       await wrapper.vm.$nextTick()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { offset: 2 })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { offset: 2, signal: expect.any(AbortSignal) })
     })
 
     it('calls pg.get when pgConfig.count changed', async () => {
       wrapper.vm.$set(wrapper.vm.pgConfig, 'count', 'exact')
       await wrapper.vm.$nextTick()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { count: 'exact' })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { count: 'exact', signal: expect.any(AbortSignal) })
       wrapper.vm.$set(wrapper.vm.pgConfig, 'count', 'estimated')
       await wrapper.vm.$nextTick()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { count: 'estimated' })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { count: 'estimated', signal: expect.any(AbortSignal) })
     })
 
     it('calls pg.get when pgConfig.apiRoot changed', async () => {
       wrapper.vm.$set(wrapper.vm.pgConfig, 'apiRoot', '/pk-api')
       await wrapper.vm.$nextTick()
-      expect(request).toHaveBeenLastCalledWith('/pk-api', undefined, 'clients', 'GET', {}, {})
+      expect(request).toHaveBeenLastCalledWith('/pk-api', undefined, 'clients', 'GET', {}, { signal: expect.any(AbortSignal) })
       wrapper.vm.$set(wrapper.vm.pgConfig, 'apiRoot', '/api')
       await wrapper.vm.$nextTick()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, {})
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { signal: expect.any(AbortSignal) })
     })
 
     it('calls pg.get when pgConfig.token changed', async () => {
       wrapper.vm.$set(wrapper.vm.pgConfig, 'token', 'test')
       await wrapper.vm.$nextTick()
-      expect(request).toHaveBeenLastCalledWith('/api', 'test', 'clients', 'GET', {}, {})
+      expect(request).toHaveBeenLastCalledWith('/api', 'test', 'clients', 'GET', {}, { signal: expect.any(AbortSignal) })
       wrapper.vm.$set(wrapper.vm.pgConfig, 'token', undefined)
       await wrapper.vm.$nextTick()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, {})
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { signal: expect.any(AbortSignal) })
     })
 
     it('calls pg.get when pgConfig.route changed', async () => {
       wrapper.vm.$set(wrapper.vm.pgConfig, 'route', 'test')
       await wrapper.vm.$nextTick()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'test', 'GET', {}, {})
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'test', 'GET', {}, { signal: expect.any(AbortSignal) })
     })
   })
 

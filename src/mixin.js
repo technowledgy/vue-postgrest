@@ -2,13 +2,14 @@ import ObservableFunction from '@/ObservableFunction'
 import GenericModel from '@/GenericModel'
 
 // this = component instance, will be bound
-async function get () {
+async function get (signal) {
   const route = this.$postgrest(this.pgConfig?.apiRoot, this.pgConfig?.token).$route(this.pgConfig?.route)
   const resp = await route.get(this.pgConfig?.query ?? {}, {
     accept: this.pgConfig?.accept,
     limit: this.pgConfig?.limit,
     offset: this.pgConfig?.offset,
-    count: this.pgConfig?.count
+    count: this.pgConfig?.count,
+    signal
   })
 
   let data
@@ -62,9 +63,9 @@ const mixin = {
       handler () {
         // get
         if (this.pgConfig.route && !this.pg?.get) {
-          this.$set(this.pg, 'get', new ObservableFunction(async () => {
+          this.$set(this.pg, 'get', new ObservableFunction(async (signal) => {
             try {
-              const ret = await get.call(this)
+              const ret = await get.call(this, signal)
               this.pg = Object.assign({}, ret, {
                 get: this.pg.get,
                 newItem: this.pg.newItem

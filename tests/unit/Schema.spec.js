@@ -189,7 +189,7 @@ describe('Schema', () => {
       await schema.rpc.$ready
       schema.rpc.authenticate({ user: 'test' }, { query: { select: 'id' } })
       expect(schema.rpc.authenticate).toBeInstanceOf(ObservableFunction)
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'rpc/authenticate', 'POST', { select: 'id' }, {}, { user: 'test' })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'rpc/authenticate', 'POST', { select: 'id' }, { signal: expect.any(AbortSignal) }, { user: 'test' })
     })
   })
 })

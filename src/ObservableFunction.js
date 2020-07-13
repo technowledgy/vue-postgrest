@@ -15,7 +15,10 @@ class ObservableFunction extends Function {
       get hasError () {
         return this.errors.length > 0
       },
-      nPending: 0,
+      pending: [],
+      get nPending () {
+        return this.pending.length
+      },
       get isPending () {
         return this.nPending > 0
       }
@@ -24,16 +27,17 @@ class ObservableFunction extends Function {
   }
 
   async call (...args) {
-    this.nPending++
+    const controller = new AbortController()
+    this.pending.push(controller)
     try {
-      const ret = await this.#fn(...args)
+      const ret = await this.#fn(controller.signal, ...args)
       this.clear()
       return ret
     } catch (e) {
       this.errors.push(e)
       throw e
     } finally {
-      this.nPending--
+      this.pending = this.pending.filter(p => p !== controller)
     }
   }
 

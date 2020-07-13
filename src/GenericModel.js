@@ -102,7 +102,7 @@ class GenericModel {
     syncObjects(this, this.#resetCache)
   }
 
-  async _get (opts = {}) {
+  async _get (signal, opts = {}) {
     await this.#route.$ready
     const defaultOptions = { accept: 'single' }
     const { keepChanges, ...options } = Object.assign({}, defaultOptions, opts)
@@ -111,14 +111,14 @@ class GenericModel {
     if (this.#select) {
       query.select = this.#select
     }
-    const resp = await this.#route.get(query, { ...options, accept: 'single' })
+    const resp = await this.#route.get(query, { ...options, accept: 'single', signal })
     const body = await resp.json()
 
     this._setData(body, keepChanges)
     return body
   }
 
-  async _post (opts) {
+  async _post (signal, opts) {
     await this.#route.$ready
     const defaultOptions = { return: 'representation' }
     const { columns, ...options } = Object.assign({}, defaultOptions, opts)
@@ -149,7 +149,7 @@ class GenericModel {
       }, {})
     )
 
-    const resp = await this.#route.post(query, { ...options, accept: 'single' }, postData)
+    const resp = await this.#route.post(query, { ...options, accept: 'single', signal }, postData)
 
     if (options.return === 'representation') {
       const body = await resp.json()
@@ -165,7 +165,7 @@ class GenericModel {
     }
   }
 
-  async _patch (data = {}, opts) {
+  async _patch (signal, data = {}, opts) {
     await this.#route.$ready
     const defaultOptions = { return: 'representation' }
     const { columns, ...options } = Object.assign({}, defaultOptions, opts)
@@ -202,7 +202,7 @@ class GenericModel {
       return
     }
 
-    const resp = await this.#route.patch(query, { ...options, accept: 'single' }, patchData)
+    const resp = await this.#route.patch(query, { ...options, accept: 'single', signal }, patchData)
 
     if (options.return === 'representation') {
       const body = await resp.json()
@@ -211,14 +211,14 @@ class GenericModel {
     }
   }
 
-  async _delete (options = {}) {
+  async _delete (signal, options = {}) {
     await this.#route.$ready
     const query = await this._createQueryFromPKs()
     if (options.return === 'representation' && this.#select) {
       query.select = this.#select
     }
 
-    const resp = await this.#route.delete(query, { ...options, accept: 'single' })
+    const resp = await this.#route.delete(query, { ...options, accept: 'single', signal })
 
     if (options.return === 'representation') {
       const body = await resp.json()

@@ -118,7 +118,7 @@ describe('GenericModel', () => {
     it('sends a get request', async () => {
       const model = new GenericModel(data, { route })
       await model.$get()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 123 }, { accept: 'single' })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 123 }, { accept: 'single', signal: expect.any(AbortSignal) })
     })
 
     it('passes options except accept and keepChanges', async () => {
@@ -129,14 +129,14 @@ describe('GenericModel', () => {
         accept: 'multiple'
       }
       await model.$get(options)
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 123 }, { headers: options.headers, accept: 'single' })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 123 }, { headers: options.headers, accept: 'single', signal: expect.any(AbortSignal) })
     })
 
     it('sets select part of query', async () => {
       const select = ['id', 'name']
       const model = new GenericModel(data, { route, select })
       await model.$get()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 123, select }, { accept: 'single' })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 123, select }, { accept: 'single', signal: expect.any(AbortSignal) })
     })
 
     it('returns the request\'s return value and updates model data', async () => {
@@ -184,7 +184,7 @@ describe('GenericModel', () => {
     it('sends a post request', async () => {
       const model = new GenericModel(data, { route })
       await model.$post()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single' }, data)
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
 
     it('sends a post request with changed data included', async () => {
@@ -192,7 +192,7 @@ describe('GenericModel', () => {
       model.name = 'client321'
       await Vue.nextTick()
       await model.$post()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single' }, {
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
         ...data,
         name: 'client321'
       })
@@ -203,7 +203,7 @@ describe('GenericModel', () => {
       Vue.set(model, 'new', 'value')
       await Vue.nextTick()
       await model.$post()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single' }, {
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
         ...data,
         new: 'value'
       })
@@ -217,33 +217,33 @@ describe('GenericModel', () => {
         accept: 'multiple'
       }
       await model.$post(options)
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { ...options, accept: 'single' }, data)
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { ...options, accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
 
     it('sets select part of query if return is "representation"', async () => {
       const select = ['id', 'name']
       const model = new GenericModel(data, { route, select })
       await model.$post({ return: 'representation' })
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { select }, { return: 'representation', accept: 'single' }, data)
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { select }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
 
     it('does not set select part of query if return is "minimal"', async () => {
       const select = ['id', 'name']
       const model = new GenericModel(data, { route, select })
       await model.$post({ return: 'minimal' })
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'minimal', accept: 'single' }, data)
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'minimal', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
 
     it('does not set columns part of query if option "columns" is set to undefined', async () => {
       const model = new GenericModel(data, { route })
       await model.$post({ columns: undefined })
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single' }, data)
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
 
     it('sets columns part of query to user-defined columns if option "columns" is set', async () => {
       const model = new GenericModel(data, { route })
       await model.$post({ columns: ['age'] })
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { columns: ['age'] }, { return: 'representation', accept: 'single' }, data)
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { columns: ['age'] }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
 
     it('only sends columns that exist on the endpoint', async () => {
@@ -252,7 +252,7 @@ describe('GenericModel', () => {
         embedded: []
       }, { route })
       await model.$post()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single' }, data)
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
 
     it('still sends all columns if endpoint not known', async () => {
@@ -262,7 +262,7 @@ describe('GenericModel', () => {
         embedded: []
       }, { route })
       await model.$post({ columns: ['age', 'embedded'] })
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'unknown', 'POST', { columns: ['age', 'embedded'] }, { return: 'representation', accept: 'single' }, {
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'unknown', 'POST', { columns: ['age', 'embedded'] }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
         ...data,
         embedded: []
       })
@@ -273,7 +273,7 @@ describe('GenericModel', () => {
       model.name = 'client321'
       await Vue.nextTick()
       await model.$post()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single' }, {
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
         ...data,
         name: 'client321'
       })
@@ -356,7 +356,7 @@ describe('GenericModel', () => {
         model.name = 'client321'
         await Vue.nextTick()
         await model.$patch()
-        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, {
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client321'
         })
       })
@@ -366,7 +366,7 @@ describe('GenericModel', () => {
         Vue.set(model, 'new', 'value')
         await Vue.nextTick()
         await model.$patch()
-        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, {
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           new: 'value'
         })
       })
@@ -393,7 +393,7 @@ describe('GenericModel', () => {
           model.nestedField = newNestedField
           await Vue.nextTick()
           await model.$patch()
-          expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, { nestedField: newNestedField })
+          expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, { nestedField: newNestedField })
         })
 
         it('of whom only a subfield is changed', async () => {
@@ -404,7 +404,7 @@ describe('GenericModel', () => {
           model.nestedField.parent.child = 'new'
           await Vue.nextTick()
           await model.$patch()
-          expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, {
+          expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
             nestedField: {
               parent: {
                 child: 'new'
@@ -423,7 +423,7 @@ describe('GenericModel', () => {
           await Vue.nextTick()
           expect(model.nestedField.newField).toBe('new')
           await model.$patch()
-          expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, {
+          expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
             nestedField: {
               ...nestedField,
               newField: 'new'
@@ -442,7 +442,7 @@ describe('GenericModel', () => {
           model.nestedField.push(20)
           await Vue.nextTick()
           await model.$patch()
-          expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, {
+          expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
             nestedField: [2, 5, 10, 20]
           })
           expect(request.mock.calls.length).toBe(1)
@@ -459,7 +459,7 @@ describe('GenericModel', () => {
           model.nestedField.arr.push(20)
           await Vue.nextTick()
           await model.$patch()
-          expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, {
+          expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
             nestedField: {
               arr: [2, 5, 10, 20]
             }
@@ -475,7 +475,7 @@ describe('GenericModel', () => {
           model.nestedField[0].child = 'new'
           await Vue.nextTick()
           await model.$patch()
-          expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, {
+          expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
             nestedField: [{ child: 'new' }, 5, 10]
           })
         })
@@ -495,7 +495,7 @@ describe('GenericModel', () => {
           name: 'client 222',
           newField: true
         })
-        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, {
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client 222',
           newField: true
         })
@@ -516,7 +516,7 @@ describe('GenericModel', () => {
           name: 'client 222',
           newField: true
         })
-        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, {
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client 222',
           age: 66,
           newField: true
@@ -535,7 +535,7 @@ describe('GenericModel', () => {
           accept: 'multiple'
         }
         await model.$patch({}, options)
-        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { ...options, accept: 'single' }, {
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { ...options, accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client321'
         })
       })
@@ -546,7 +546,7 @@ describe('GenericModel', () => {
         model.name = 'client321'
         await Vue.nextTick()
         await model.$patch({}, { return: 'representation' })
-        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, select }, { return: 'representation', accept: 'single' }, {
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, select }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client321'
         })
       })
@@ -557,7 +557,7 @@ describe('GenericModel', () => {
         model.name = 'client321'
         await Vue.nextTick()
         await model.$patch({}, { return: 'minimal' })
-        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'minimal', accept: 'single' }, {
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'minimal', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client321'
         })
       })
@@ -567,7 +567,7 @@ describe('GenericModel', () => {
         model.name = 'client321'
         await Vue.nextTick()
         await model.$patch({}, { columns: undefined })
-        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, {
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client321'
         })
       })
@@ -577,7 +577,7 @@ describe('GenericModel', () => {
         model.name = 'client321'
         await Vue.nextTick()
         await model.$patch({}, { columns: ['age'] })
-        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['age'] }, { return: 'representation', accept: 'single' }, {
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['age'] }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client321'
         })
       })
@@ -591,7 +591,7 @@ describe('GenericModel', () => {
         model.embedded = [{ new: 'record' }]
         await Vue.nextTick()
         await model.$patch()
-        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single' }, {
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client321'
         })
       })
@@ -666,7 +666,7 @@ describe('GenericModel', () => {
     it('sends a delete request', async () => {
       const model = new GenericModel(data, { route })
       await model.$delete()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123 }, { accept: 'single' })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123 }, { accept: 'single', signal: expect.any(AbortSignal) })
     })
 
     it('passes options except accept', async () => {
@@ -677,23 +677,23 @@ describe('GenericModel', () => {
         accept: 'multiple'
       }
       await model.$delete(options)
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123 }, { ...options, accept: 'single' })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123 }, { ...options, accept: 'single', signal: expect.any(AbortSignal) })
     })
 
     it('sets select part of query if return is "representation"', async () => {
       const select = ['id', 'name']
       const model = new GenericModel(data, { route, select })
       await model.$delete({ return: 'representation' })
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123, select }, { return: 'representation', accept: 'single' })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123, select }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) })
     })
 
     it('does not set select part of query if return is not "representation"', async () => {
       const select = ['id', 'name']
       const model = new GenericModel(data, { route, select })
       await model.$delete({ return: 'minimal' })
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123 }, { return: 'minimal', accept: 'single' })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123 }, { return: 'minimal', accept: 'single', signal: expect.any(AbortSignal) })
       await model.$delete()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123 }, { accept: 'single' })
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123 }, { accept: 'single', signal: expect.any(AbortSignal) })
     })
 
     it('doesn\'t return the request\'s return value', async () => {

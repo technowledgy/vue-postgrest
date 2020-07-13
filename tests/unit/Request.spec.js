@@ -274,6 +274,15 @@ describe('request method', () => {
     }))
   })
 
+  it('passes "signal" option to fetch', async () => {
+    const controller = new AbortController()
+    const signal = controller.signal
+    await request('/api', '', 'clients', 'GET', {}, { signal })
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      signal
+    }))
+  })
+
   it('sends authorization header if argument "token" is set', async () => {
     const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiamRvZSIsImV4cCI6MTQ3NTUxNjI1MH0.GYDZV3yM0gqvuEtJmfpplLBXSGYnke_Pvnl0tbKAjB'
     await request('/api', token, 'clients', 'GET', {})

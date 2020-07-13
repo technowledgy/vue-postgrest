@@ -1345,7 +1345,7 @@ An ObservableFunction has the following Vue-reactive properties indicating it's 
 
 - **Details:**
 
-  Indicating whether there are pending requests for this Function.
+  Indicating whether there are pending calls for this Function.
 
 ### nPending
 
@@ -1353,4 +1353,12 @@ An ObservableFunction has the following Vue-reactive properties indicating it's 
 
 - **Details:**
 
-  The number of currently pending requests for this Function.
+  The number of currently pending calls for this Function.
+
+### pending
+
+- **Type:** `Array<AbortController>`
+
+- **Details:**
+
+  This array holds an `AbortController` instance for every function call that is currently pending. Those are passed to the underlying `fetch()` call for requests and can be used to cancel the request. See [AbortController (MDN)](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) for details.

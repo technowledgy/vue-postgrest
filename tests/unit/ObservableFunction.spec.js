@@ -4,7 +4,7 @@ import ObservableFunction from '@/ObservableFunction'
 describe('ObservableFunction', () => {
   let fn
   beforeEach(() => {
-    fn = new ObservableFunction(id => id)
+    fn = new ObservableFunction((signal, id) => id)
   })
 
   it('is callable', () => {
@@ -24,12 +24,43 @@ describe('ObservableFunction', () => {
     })
   })
 
+  fdescribe('pending', () => {
+    it('has prop with default empty array', () => {
+      expect(fn.pending).toMatchObject([])
+    })
+
+    it('is Array of AbortControllers while async function call is pending', async () => {
+      expect.assertions(3)
+      expect(fn.pending).toMatchObject([])
+      const p = fn(new Promise((resolve) => resolve()))
+      expect(fn.pending).toMatchObject([
+        expect.any(AbortController)
+      ])
+      await p
+      expect(fn.pending).toMatchObject([])
+    })
+
+    it('is empty Array when async function call is rejected', async () => {
+      expect.assertions(3)
+      expect(fn.pending).toMatchObject([])
+      const p = fn(new Promise((resolve, reject) => reject(new Error())))
+      expect(fn.pending).toMatchObject([
+        expect.any(AbortController)
+      ])
+      try {
+        await p
+      } catch {
+        expect(fn.pending).toMatchObject([])
+      }
+    })
+  })
+
   describe('isPending', () => {
     it('has prop with default false', () => {
       expect(fn.isPending).toBe(false)
     })
 
-    it('is true while async function is pending', async () => {
+    it('is true while async function call is pending', async () => {
       expect.assertions(3)
       expect(fn.isPending).toBe(false)
       const p = fn(new Promise((resolve) => resolve()))

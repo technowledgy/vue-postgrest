@@ -75,7 +75,8 @@ async function request (apiRoot, token, route, method, query = {}, options = {},
     return await fetch(url.toString(), {
       method,
       headers,
-      body: isJSONBody ? JSON.stringify(body) : body
+      body: isJSONBody ? JSON.stringify(body) : body,
+      signal: options.signal
     }).then(throwWhenStatusNotOk)
   } catch (err) {
     if (err.resp?.headers.get('WWW-Authenticate')) {
