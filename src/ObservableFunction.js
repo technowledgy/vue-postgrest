@@ -27,13 +27,21 @@ class ObservableFunction extends Function {
     this.nPending++
     try {
       const ret = await this.#fn(...args)
-      this.errors = []
+      this.clear()
       return ret
     } catch (e) {
       this.errors.push(e)
       throw e
     } finally {
       this.nPending--
+    }
+  }
+
+  clear (...args) {
+    if (args.length) {
+      this.errors = this.errors.filter((e, i) => !args.includes(e) && !args.includes(i))
+    } else {
+      this.errors = []
     }
   }
 }

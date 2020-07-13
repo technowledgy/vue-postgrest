@@ -1296,6 +1296,49 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
 An ObservableFunction has the following Vue-reactive properties indicating it's current status.
 
+### clear([error|index, ...])
+
+- **Type:** `Function`
+
+- **Arguments:**
+
+  - any number of type `Error` or `Number`
+
+- **Returns:** Nothing
+
+- **Details:**
+
+  Removes errors from the `.errors` property. `clear(error, ...)` removes specific errors by reference. `clear(index, ...)` removes specific errors by index. `clear()` removes all errors.
+
+  ``` javascript
+  try {
+    this.pg.item.$delete()
+  } catch (e) {
+    if (e instanceof AuthError) {
+      this.handleAuthError()
+      this.pg.item.$delete.clear(e)
+    } else {
+      // error e.g. rendered in template
+    }
+  }
+  ```
+
+### errors
+
+- **Type:** `Array<Error>`
+
+- **Details:**
+
+  An Array of Errors that are associated with this Function. This is cleared automatically upon the next successful request or manually with `ObservableFunction.clear()`.
+
+### hasError
+
+- **Type:** `Boolean`
+
+- **Details:**
+
+  Indicating whether there were errors during the request. This is cleared automatically upon the next successful request or manually with `ObservableFunction.clear()`.
+
 ### isPending
 
 - **Type:** `Boolean`
@@ -1311,19 +1354,3 @@ An ObservableFunction has the following Vue-reactive properties indicating it's 
 - **Details:**
 
   The number of currently pending requests for this Function.
-
-### hasError
-
-- **Type:** `Boolean`
-
-- **Details:**
-
-  Indicating whether there were errors during the request. This is cleared upon the next successful request.
-
-### errors
-
-- **Type:** `Array<Error>`
-
-- **Details:**
-
-  An Array of Errors that are associated with this Function. This is cleared upon the next successful request.

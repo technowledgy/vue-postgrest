@@ -166,4 +166,53 @@ describe('ObservableFunction', () => {
       } catch {}
     })
   })
+
+  describe('clear', () => {
+    it('without argument clears .errors', async () => {
+      expect.assertions(2)
+      const p = fn(new Promise((resolve, reject) => reject(new Error('test'))))
+      try {
+        await p
+      } catch {}
+      const p2 = fn(new Promise((resolve, reject) => reject(new Error('test2'))))
+      try {
+        await p2
+      } catch {
+        expect(fn.errors).toEqual([Error('test'), Error('test2')])
+        fn.clear()
+        expect(fn.errors).toEqual([])
+      }
+    })
+
+    it('with error argument removes argument from .errors', async () => {
+      expect.assertions(2)
+      const p = fn(new Promise((resolve, reject) => reject(new Error('test'))))
+      try {
+        await p
+      } catch {}
+      const p2 = fn(new Promise((resolve, reject) => reject(new Error('test2'))))
+      try {
+        await p2
+      } catch (e) {
+        expect(fn.errors).toEqual([Error('test'), Error('test2')])
+        fn.clear(e)
+        expect(fn.errors).toEqual([Error('test')])
+      }
+    })
+
+    it('with int argument removes argument with index from .errors', async () => {
+      expect.assertions(2)
+      const p = fn(new Promise((resolve, reject) => reject(new Error('test'))))
+      try {
+        await p
+      } catch {}
+      const p2 = fn(new Promise((resolve, reject) => reject(new Error('test2'))))
+      try {
+        await p2
+      } catch {}
+      expect(fn.errors).toEqual([Error('test'), Error('test2')])
+      fn.clear(0)
+      expect(fn.errors).toEqual([Error('test2')])
+    })
+  })
 })
