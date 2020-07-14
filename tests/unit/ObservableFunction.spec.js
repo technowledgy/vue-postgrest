@@ -24,7 +24,7 @@ describe('ObservableFunction', () => {
     })
   })
 
-  fdescribe('pending', () => {
+  describe('pending', () => {
     it('has prop with default empty array', () => {
       expect(fn.pending).toMatchObject([])
     })
