@@ -1,124 +1,98 @@
-import Vue from 'vue'
+import DeepProxy from '@/DeepProxy'
 import ObservableFunction from '@/ObservableFunction'
 import { PrimaryKeyError } from '@/errors'
-import { cloneDeep, isEqual, syncObjects } from '@/utils'
-
-class TrackedFunction extends Function {
-  constructor (fn, cb, arg) {
-    super('', 'arguments.callee._call(...arguments)')
-    this._fn = fn
-    this._cb = cb
-    this._arg = arg
-  }
-
-  _call () {
-    const ret = this._fn(...arguments)
-    this._cb(this._arg)
-    return ret
-  }
-}
+import { cloneDeep } from '@/utils'
 
 class GenericModel {
   #route
   #select
-  #diff = Vue.observable({})
-  #resetCache = {}
-  #enableTrack
+  #data
 
   constructor (data, { route, select }) {
     this.#route = route
     this.#select = select
-    // define isDirty here so this has the right context
-    const isDirty = () => Object.keys(this.#diff).length > 0
-    const obsDescriptors = Object.getOwnPropertyDescriptors(Vue.observable({
-      $get: new ObservableFunction(this._get.bind(this)),
-      $post: new ObservableFunction(this._post.bind(this)),
-      $patch: new ObservableFunction(this._patch.bind(this)),
-      $delete: new ObservableFunction(this._delete.bind(this)),
-      get $isDirty () {
-        return isDirty()
+    this.#data = new DeepProxy(cloneDeep(data))
+
+    // ObservableFunctions need to be defined on the instance, because they keep state
+    // Using defineProperties to make them non-configurable, non-enumerable, non-writable
+    Object.defineProperties(this, {
+      $get: {
+        value: new ObservableFunction(this.get.bind(this))
+      },
+      $post: {
+        value: new ObservableFunction(this.post.bind(this))
+      },
+      $patch: {
+        value: new ObservableFunction(this.patch.bind(this))
+      },
+      $delete: {
+        value: new ObservableFunction(this.delete.bind(this))
       }
-    }))
-    // set enumerable to false for all of the $ methods / props, otherwise setData / Vue.set will try to overwrite them
-    for (const key in obsDescriptors) {
-      obsDescriptors[key].enumerable = false
-      obsDescriptors[key].configurable = false
+    })
+
+    // proxies the call to fn to either the proxy target
+    // or #data object
+    function proxySwitch (fn, target, property, ...args) {
+      if (property in target) {
+        return Reflect[fn](target, property, ...args)
+      }
+      return Reflect[fn](this.#data, property, ...args)
     }
-    Object.defineProperties(this, obsDescriptors)
-    // re-target the Observer class to "this", to make Vue.set work
-    this.__ob__.value = this
-    this._setData(data)
+    function concatKeys (target) {
+      return Reflect.ownKeys(target).concat(Reflect.ownKeys(this.#data))
+    }
+    return new Proxy(this, {
+      defineProperty: proxySwitch.bind(this, 'defineProperty'),
+      deleteProperty: proxySwitch.bind(this, 'deleteProperty'),
+      get: proxySwitch.bind(this, 'get'),
+      getOwnPropertyDescriptor: proxySwitch.bind(this, 'getOwnPropertyDescriptor'),
+      has: proxySwitch.bind(this, 'has'),
+      set: proxySwitch.bind(this, 'set'),
+      ownKeys: concatKeys.bind(this)
+    })
   }
 
-  _track (obj, notify, rootKey) {
-    if (!obj.__ob__._tracked) {
-      obj.__ob__._tracked = true
-      obj.__ob__.dep.addSub({
-        update: () => {
-          if (this.#enableTrack) {
-            this._track(obj, notify, rootKey ?? null)
-            if (Array.isArray(obj)) notify(rootKey)
-          }
-        }
-      })
-    }
-    for (const key of Object.keys(obj)) {
-      const prop = Object.getOwnPropertyDescriptor(obj, key)
-      if (prop.set && !(prop.set instanceof TrackedFunction)) {
-        prop.set = new TrackedFunction(prop.set, notify, rootKey || key)
-        Object.defineProperty(obj, key, prop)
-        if (rootKey) notify(rootKey)
-      }
-      if (obj[key] && typeof obj[key] === 'object') {
-        this._track(obj[key], notify, rootKey || key)
-      }
-      if (rootKey === null) notify(key)
-    }
-  }
-
-  _setData (data, keepDiff = false) {
-    this.#enableTrack = false
-    this.#resetCache = cloneDeep(data)
+  setData (data, keepDiff = false) {
     if (keepDiff) {
-      const diff = cloneDeep(this.#diff)
-      syncObjects(this, data)
-      syncObjects(this, diff, false)
+      const diff = this.#data.$diff
+      Object.assign(this.#data, data)
+      this.#data.$freeze()
+      Object.assign(this.#data, diff)
     } else {
-      syncObjects(this, data)
+      Object.assign(this.#data, data)
+      this.#data.$freeze()
     }
-    this.#enableTrack = true
-    // inject our own tracker to build #diff
-    const tracker = (key) => {
-      if (isEqual(this[key], this.#resetCache[key])) {
-        Vue.delete(this.#diff, key)
-      } else {
-        Vue.set(this.#diff, key, this[key])
+  }
+
+  async createQueryFromPKs () {
+    if (this.#route.pks.length === 0) throw new PrimaryKeyError()
+    const base = this.#data.$base
+    return this.#route.pks.reduce((q, pk) => {
+      if (base[pk] === undefined || base[pk] === null) {
+        throw new PrimaryKeyError(pk)
       }
-    }
-    this._track(this, tracker)
+      q[pk + '.eq'] = base[pk]
+      return q
+    }, {})
   }
 
-  $reset () {
-    syncObjects(this, this.#resetCache)
-  }
-
-  async _get (signal, opts = {}) {
+  async get (signal, opts = {}) {
     await this.#route.$ready
     const defaultOptions = { accept: 'single' }
     const { keepChanges, ...options } = Object.assign({}, defaultOptions, opts)
 
-    const query = await this._createQueryFromPKs()
+    const query = await this.createQueryFromPKs()
     if (this.#select) {
       query.select = this.#select
     }
     const resp = await this.#route.get(query, { ...options, accept: 'single', signal })
     const body = await resp.json()
 
-    this._setData(body, keepChanges)
+    this.setData(body, keepChanges)
     return body
   }
 
-  async _post (signal, opts) {
+  async post (signal, opts) {
     await this.#route.$ready
     const defaultOptions = { return: 'representation' }
     const { columns, ...options } = Object.assign({}, defaultOptions, opts)
@@ -137,13 +111,13 @@ class GenericModel {
 
     const postData = Object.assign(
       {},
-      Object.keys(this).reduce((acc, key) => {
+      Object.keys(this.#data).reduce((acc, key) => {
         if (this.#route.columns) {
           if (this.#route.columns.includes(key)) {
-            acc[key] = this[key]
+            acc[key] = this.#data[key]
           }
         } else {
-          acc[key] = this[key]
+          acc[key] = this.#data[key]
         }
         return acc
       }, {})
@@ -153,7 +127,7 @@ class GenericModel {
 
     if (options.return === 'representation') {
       const body = await resp.json()
-      this._setData(body)
+      this.setData(body)
       return body
     } else if (resp.headers.get('Location')) {
       const loc = new URLSearchParams(resp.headers.get('Location').replace(/^\/[^?]+\?/, ''))
@@ -165,12 +139,12 @@ class GenericModel {
     }
   }
 
-  async _patch (signal, data = {}, opts) {
+  async patch (signal, data = {}, opts) {
     await this.#route.$ready
     const defaultOptions = { return: 'representation' }
     const { columns, ...options } = Object.assign({}, defaultOptions, opts)
 
-    const query = await this._createQueryFromPKs()
+    const query = await this.createQueryFromPKs()
     if (options.return === 'representation' && this.#select) {
       query.select = this.#select
     }
@@ -183,9 +157,9 @@ class GenericModel {
     }
     const patchData = Object.assign(
       {},
-      Object.keys(this.#diff).reduce((acc, key) => {
+      Object.keys(this.#data.$diff).reduce((acc, key) => {
         if (this.#route.columns.includes(key)) {
-          acc[key] = this.#diff[key]
+          acc[key] = this.#data.$diff[key]
         }
         return acc
       }, {}),
@@ -206,14 +180,14 @@ class GenericModel {
 
     if (options.return === 'representation') {
       const body = await resp.json()
-      this._setData(body)
+      this.setData(body)
       return body
     }
   }
 
-  async _delete (signal, options = {}) {
+  async delete (signal, options = {}) {
     await this.#route.$ready
-    const query = await this._createQueryFromPKs()
+    const query = await this.createQueryFromPKs()
     if (options.return === 'representation' && this.#select) {
       query.select = this.#select
     }
@@ -222,20 +196,9 @@ class GenericModel {
 
     if (options.return === 'representation') {
       const body = await resp.json()
-      this._setData(body)
+      this.setData(body)
       return body
     }
-  }
-
-  async _createQueryFromPKs () {
-    if (this.#route.pks.length === 0) throw new PrimaryKeyError()
-    return this.#route.pks.reduce((q, pk) => {
-      if (this.#resetCache[pk] === undefined || this.#resetCache[pk] === null) {
-        throw new PrimaryKeyError(pk)
-      }
-      q[pk + '.eq'] = this.#resetCache[pk]
-      return q
-    }, {})
   }
 }
 

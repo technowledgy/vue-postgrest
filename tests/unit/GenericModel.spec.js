@@ -55,10 +55,8 @@ describe('GenericModel', () => {
       const model = new GenericModel(data, { route })
       expect(model.$isDirty).toBe(false)
       model.name = 'client321'
-      await Vue.nextTick()
       expect(model.$isDirty).toBe(true)
       model.name = data.name
-      await Vue.nextTick()
       expect(model.$isDirty).toBe(false)
     })
   })
@@ -72,7 +70,6 @@ describe('GenericModel', () => {
     it('resets changes', async () => {
       const model = new GenericModel(data, { route })
       model.name = 'client321'
-      await Vue.nextTick()
       expect(model.name).toBe('client321')
       model.$reset()
       expect(model.name).toBe('client123')
@@ -81,7 +78,6 @@ describe('GenericModel', () => {
     it('resets changes to arrays', async () => {
       const model = new GenericModel({ ...data, arr: [] }, { route })
       model.arr = ['a', 'b', 'c', 'd', 'e']
-      await Vue.nextTick()
       expect(model.arr).toEqual(['a', 'b', 'c', 'd', 'e'])
       model.$reset()
       expect(model.arr).toEqual([])
@@ -115,8 +111,15 @@ describe('GenericModel', () => {
       await expect(model.$get()).rejects.toThrow(PrimaryKeyError)
     })
 
-    it('sends a get request', async () => {
+    it('sends a get request with PK query', async () => {
       const model = new GenericModel(data, { route })
+      await model.$get()
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 123 }, { accept: 'single', signal: expect.any(AbortSignal) })
+    })
+
+    it('sends a get request with original PK query after change', async () => {
+      const model = new GenericModel(data, { route })
+      model.id = 321
       await model.$get()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 123 }, { accept: 'single', signal: expect.any(AbortSignal) })
     })
@@ -150,7 +153,6 @@ describe('GenericModel', () => {
     it('overwrites changes to the item data if option "keepChanges" is not set', async () => {
       const model = new GenericModel(data, { route })
       model.name = 'localName'
-      await Vue.nextTick()
       await model.$get()
       expect(model.name).toBe(mockReturn.name)
     })
@@ -158,7 +160,6 @@ describe('GenericModel', () => {
     it('overwrites changes to the item data if option "keepChanges" is false', async () => {
       const model = new GenericModel(data, { route })
       model.name = 'localName'
-      await Vue.nextTick()
       await model.$get({ keepChanges: false })
       expect(model.name).toBe(mockReturn.name)
     })
@@ -166,7 +167,6 @@ describe('GenericModel', () => {
     it('does not overwrite changes to the item data if option "keepChanges" is true', async () => {
       const model = new GenericModel(data, { route })
       model.name = 'localName'
-      await Vue.nextTick()
       expect(model.name).toBe('localName')
       expect(model.id).toBe(123)
       await model.$get({ keepChanges: true })
@@ -190,7 +190,6 @@ describe('GenericModel', () => {
     it('sends a post request with changed data included', async () => {
       const model = new GenericModel(data, { route })
       model.name = 'client321'
-      await Vue.nextTick()
       await model.$post()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
         ...data,
@@ -201,7 +200,6 @@ describe('GenericModel', () => {
     it('sends a post request with new data included', async () => {
       const model = new GenericModel(data, { route })
       Vue.set(model, 'new', 'value')
-      await Vue.nextTick()
       await model.$post()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
         ...data,
@@ -271,7 +269,6 @@ describe('GenericModel', () => {
     it('updates data after request', async () => {
       const model = new GenericModel(data, { route })
       model.name = 'client321'
-      await Vue.nextTick()
       await model.$post()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
         ...data,
@@ -283,7 +280,6 @@ describe('GenericModel', () => {
     it('keeps data when return is "minimal"', async () => {
       const model = new GenericModel(data, { route })
       model.name = 'client321'
-      await Vue.nextTick()
       await model.$post({ return: 'minimal' })
       expect(request).toHaveBeenCalled()
       expect(model).toMatchObject({
@@ -354,7 +350,6 @@ describe('GenericModel', () => {
       it('sends a patch request with simple changed data fields', async () => {
         const model = new GenericModel(data, { route })
         model.name = 'client321'
-        await Vue.nextTick()
         await model.$patch()
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client321'
@@ -364,7 +359,6 @@ describe('GenericModel', () => {
       it('sends a patch request with simple new data fields', async () => {
         const model = new GenericModel(data, { route })
         Vue.set(model, 'new', 'value')
-        await Vue.nextTick()
         await model.$patch()
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           new: 'value'
@@ -391,7 +385,6 @@ describe('GenericModel', () => {
             newSibling: 'new'
           }
           model.nestedField = newNestedField
-          await Vue.nextTick()
           await model.$patch()
           expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, { nestedField: newNestedField })
         })
@@ -402,7 +395,6 @@ describe('GenericModel', () => {
             nestedField
           }, { route })
           model.nestedField.parent.child = 'new'
-          await Vue.nextTick()
           await model.$patch()
           expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
             nestedField: {
@@ -420,7 +412,6 @@ describe('GenericModel', () => {
             nestedField
           }, { route })
           Vue.set(model.nestedField, 'newField', 'new')
-          await Vue.nextTick()
           expect(model.nestedField.newField).toBe('new')
           await model.$patch()
           expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
@@ -440,7 +431,6 @@ describe('GenericModel', () => {
           }, { route })
           model.nestedField[0] = 2
           model.nestedField.push(20)
-          await Vue.nextTick()
           await model.$patch()
           expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
             nestedField: [2, 5, 10, 20]
@@ -457,7 +447,6 @@ describe('GenericModel', () => {
           }, { route })
           model.nestedField.arr[0] = 2
           model.nestedField.arr.push(20)
-          await Vue.nextTick()
           await model.$patch()
           expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
             nestedField: {
@@ -473,7 +462,6 @@ describe('GenericModel', () => {
             nestedField: [{ child: 'old' }, 5, 10]
           }, { route })
           model.nestedField[0].child = 'new'
-          await Vue.nextTick()
           await model.$patch()
           expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
             nestedField: [{ child: 'new' }, 5, 10]
@@ -511,7 +499,6 @@ describe('GenericModel', () => {
         const model = new GenericModel(data, { route })
         model.name = 'client321'
         model.age = 66
-        await Vue.nextTick()
         await model.$patch({
           name: 'client 222',
           newField: true
@@ -528,7 +515,6 @@ describe('GenericModel', () => {
       it('passes options except accept', async () => {
         const model = new GenericModel(data, { route })
         model.name = 'client321'
-        await Vue.nextTick()
         const options = {
           return: 'minimal',
           headers: { prefer: 'custom-prefer-header', accept: 'custom-accept-header', 'x-header': 'custom-x-header' },
@@ -544,7 +530,6 @@ describe('GenericModel', () => {
         const select = ['id', 'name']
         const model = new GenericModel(data, { route, select })
         model.name = 'client321'
-        await Vue.nextTick()
         await model.$patch({}, { return: 'representation' })
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, select }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client321'
@@ -555,7 +540,6 @@ describe('GenericModel', () => {
         const select = ['id', 'name']
         const model = new GenericModel(data, { route, select })
         model.name = 'client321'
-        await Vue.nextTick()
         await model.$patch({}, { return: 'minimal' })
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'minimal', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client321'
@@ -565,7 +549,6 @@ describe('GenericModel', () => {
       it('does not set columns part of query if option "columns" is set to undefined', async () => {
         const model = new GenericModel(data, { route })
         model.name = 'client321'
-        await Vue.nextTick()
         await model.$patch({}, { columns: undefined })
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client321'
@@ -575,7 +558,6 @@ describe('GenericModel', () => {
       it('sets columns part of query to user-defined columns if option "columns" is set', async () => {
         const model = new GenericModel(data, { route })
         model.name = 'client321'
-        await Vue.nextTick()
         await model.$patch({}, { columns: ['age'] })
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['age'] }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client321'
@@ -589,7 +571,6 @@ describe('GenericModel', () => {
         }, { route })
         model.name = 'client321'
         model.embedded = [{ new: 'record' }]
-        await Vue.nextTick()
         await model.$patch()
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client321'
@@ -599,7 +580,6 @@ describe('GenericModel', () => {
       it('updates model when return is "representation"', async () => {
         const model = new GenericModel(data, { route })
         model.name = 'client321'
-        await Vue.nextTick()
         await model.$patch({}, { return: 'representation' })
         expect(request).toHaveBeenCalled()
         model.$reset()
@@ -609,7 +589,6 @@ describe('GenericModel', () => {
       it('keeps data when return is "minimal"', async () => {
         const model = new GenericModel(data, { route })
         model.name = 'client321'
-        await Vue.nextTick()
         await model.$patch({}, { return: 'minimal' })
         expect(request).toHaveBeenCalled()
         expect(model).toMatchObject({
@@ -622,7 +601,6 @@ describe('GenericModel', () => {
     it('returns the request\'s return value', async () => {
       const model = new GenericModel(data, { route })
       model.name = 'client321'
-      await Vue.nextTick()
       const ret = await model.$patch()
       expect(ret).toEqual(mockReturn)
     })
@@ -630,7 +608,6 @@ describe('GenericModel', () => {
     it('doesn\'t return the request\'s return value for return=minimal', async () => {
       const model = new GenericModel(data, { route })
       model.name = 'client321'
-      await Vue.nextTick()
       const ret = await model.$patch({}, { return: 'minimal' })
       expect(ret).toBeUndefined()
     })
