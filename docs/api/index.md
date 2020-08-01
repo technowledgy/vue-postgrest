@@ -208,7 +208,7 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
   The access token used for authorizing the connection to the API. This options sets the `Authorization` header for all requests.
 
-  See also [Client Auth](http://postgrest.org/en/v7.0.0/auth.html#client-auth) in the PostgREST documentation.
+  See also [Client Auth](http://postgrest.org/en/latest/auth.html#client-auth) in the PostgREST documentation.
 
   ::: tip
   You can set this globally with the [setDefaultToken method](./#setdefaulttoken-token)!
@@ -241,7 +241,7 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
 - **Details:**
 
-  The query sent to the API is constructed from this option. See the [Query API](/query) as well as [API](http://postgrest.org/en/v7.0.0/api.html) in the PostgREST documentation for more details.
+  The query sent to the API is constructed from this option. See the [Query API](/query) as well as [API](http://postgrest.org/en/latest/api.html) in the PostgREST documentation for more details.
 
 - **Example:**
 
@@ -279,7 +279,7 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
   Accept header to set or one of the options 'single', 'binary' or 'text', which set the correct headers automatically. Default header is set to 'application/json'. If setting 'text' or 'binary' the response data will be available via `pg.data` or the slot prop `data`, respectively.
 
-  See also [Response Format](http://postgrest.org/en/v7.0.0/api.html#response-format) in the PostgREST documentation.
+  See also [Response Format](http://postgrest.org/en/latest/api.html#response-format) in the PostgREST documentation.
 
 - **Example:**
 
@@ -313,7 +313,7 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
   Limits the count of response items by setting `Range-Unit` and `Range` headers.
 
-  See also [Limits and Pagination](http://postgrest.org/en/v7.0.0/api.html#limits-and-pagination) in the PostgREST documentation.
+  See also [Limits and Pagination](http://postgrest.org/en/latest/api.html#limits-and-pagination) in the PostgREST documentation.
 
 - **Example:**
 
@@ -349,7 +349,7 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
   Offset the response items, useful e.g. for pagination, by setting `Range-Unit` and `Range` headers.
 
-  See also [Limits and Pagination](http://postgrest.org/en/v7.0.0/api.html#limits-and-pagination) in the PostgREST documentation.
+  See also [Limits and Pagination](http://postgrest.org/en/latest/api.html#limits-and-pagination) in the PostgREST documentation.
 
 - **Example:**
 
@@ -384,7 +384,7 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
   If set to `'exact'`, we request the total amount of items in the database that fit the filter query (disabled by default due to performance considerations) by setting the `Prefer` header accordingly.
 
-  See also [Limits and Pagination](http://postgrest.org/en/v7.0.0/api.html#exact-count) in the PostgREST documentation.
+  See also [Limits and Pagination](http://postgrest.org/en/latest/api.html#exact-count) in the PostgREST documentation.
 
 - **Example:**
 
