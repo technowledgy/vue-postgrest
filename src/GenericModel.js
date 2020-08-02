@@ -4,14 +4,19 @@ import { PrimaryKeyError } from '@/errors'
 import { cloneDeep } from '@/utils'
 
 class GenericModel {
+  #alias2column
+  #column2alias
+  #model
   #route
   #select
-  #data
 
   constructor (data, { route, select }) {
+    const cols = this.columnMappingFromSelect(select)
+    this.#alias2column = new Map(cols)
+    this.#column2alias = new Map(cols.map(([k, v]) => [v, k]))
+    this.#model = new DeepProxy(cloneDeep(data))
     this.#route = route
     this.#select = select
-    this.#data = new DeepProxy(cloneDeep(data))
 
     // ObservableFunctions need to be defined on the instance, because they keep state
     // Using defineProperties to make them non-configurable, non-enumerable, non-writable
@@ -31,15 +36,15 @@ class GenericModel {
     })
 
     // proxies the call to fn to either the proxy target
-    // or #data object
+    // or #model object
     function proxySwitch (fn, target, property, ...args) {
       if (property in target) {
         return Reflect[fn](target, property, ...args)
       }
-      return Reflect[fn](this.#data, property, ...args)
+      return Reflect[fn](this.#model, property, ...args)
     }
     function concatKeys (target) {
-      return Reflect.ownKeys(target).concat(Reflect.ownKeys(this.#data))
+      return Reflect.ownKeys(target).concat(Reflect.ownKeys(this.#model))
     }
     return new Proxy(this, {
       defineProperty: proxySwitch.bind(this, 'defineProperty'),
@@ -54,24 +59,41 @@ class GenericModel {
 
   setData (data, keepDiff = false) {
     if (keepDiff) {
-      const diff = this.#data.$diff
-      Object.assign(this.#data, data)
-      this.#data.$freeze()
-      Object.assign(this.#data, diff)
+      const diff = this.#model.$diff
+      Object.assign(this.#model, data)
+      this.#model.$freeze()
+      Object.assign(this.#model, diff)
     } else {
-      Object.assign(this.#data, data)
-      this.#data.$freeze()
+      Object.assign(this.#model, data)
+      this.#model.$freeze()
     }
   }
 
-  async createQueryFromPKs () {
+  columnMappingFromSelect (select) {
+    if (!select) return []
+    const kvPairs =
+      Array.isArray(select) ? select.map(k => [k, true])
+        : typeof select === 'string' ? select.split(',').map(k => [k, true])
+          : Object.entries(select)
+
+    return kvPairs
+      .map(([k, v]) => {
+        if (!v) return
+        const [alias, column] = k.split(':')
+        return [alias, column ?? alias]
+      })
+      .filter(Boolean)
+  }
+
+  queryFromPKs () {
     if (this.#route.pks.length === 0) throw new PrimaryKeyError()
-    const base = this.#data.$base
+    const base = this.#model.$base
     return this.#route.pks.reduce((q, pk) => {
-      if (base[pk] === undefined || base[pk] === null) {
+      const alias = this.#column2alias.get(pk) ?? pk
+      if (base[alias] === undefined || base[alias] === null) {
         throw new PrimaryKeyError(pk)
       }
-      q[pk + '.eq'] = base[pk]
+      q[pk + '.eq'] = base[alias]
       return q
     }, {})
   }
@@ -81,7 +103,7 @@ class GenericModel {
     const defaultOptions = { accept: 'single' }
     const { keepChanges, ...options } = Object.assign({}, defaultOptions, opts)
 
-    const query = await this.createQueryFromPKs()
+    const query = this.queryFromPKs()
     if (this.#select) {
       query.select = this.#select
     }
@@ -111,13 +133,14 @@ class GenericModel {
 
     const postData = Object.assign(
       {},
-      Object.keys(this.#data).reduce((acc, key) => {
+      Object.keys(this.#model).reduce((acc, alias) => {
+        const col = this.#alias2column.get(alias) ?? alias
         if (this.#route.columns) {
-          if (this.#route.columns.includes(key)) {
-            acc[key] = this.#data[key]
+          if (this.#route.columns.includes(col)) {
+            acc[col] = this.#model[alias]
           }
         } else {
-          acc[key] = this.#data[key]
+          acc[col] = this.#model[alias]
         }
         return acc
       }, {})
@@ -144,7 +167,7 @@ class GenericModel {
     const defaultOptions = { return: 'representation' }
     const { columns, ...options } = Object.assign({}, defaultOptions, opts)
 
-    const query = await this.createQueryFromPKs()
+    const query = this.queryFromPKs()
     if (options.return === 'representation' && this.#select) {
       query.select = this.#select
     }
@@ -157,15 +180,16 @@ class GenericModel {
     }
     const patchData = Object.assign(
       {},
-      Object.keys(this.#data.$diff).reduce((acc, key) => {
-        if (this.#route.columns.includes(key)) {
-          acc[key] = this.#data.$diff[key]
+      Object.keys(this.#model.$diff).reduce((acc, alias) => {
+        const col = this.#alias2column.get(alias) ?? alias
+        if (this.#route.columns.includes(col)) {
+          acc[col] = this.#model.$diff[alias]
         }
         return acc
       }, {}),
-      Object.keys(data).reduce((acc, key) => {
-        if (data[key] !== undefined) {
-          acc[key] = data[key]
+      Object.keys(data).reduce((acc, col) => {
+        if (data[col] !== undefined) {
+          acc[col] = data[col]
         }
         return acc
       }, {})
@@ -187,7 +211,7 @@ class GenericModel {
 
   async delete (signal, options = {}) {
     await this.#route.$ready
-    const query = await this.createQueryFromPKs()
+    const query = this.queryFromPKs()
     if (options.return === 'representation' && this.#select) {
       query.select = this.#select
     }

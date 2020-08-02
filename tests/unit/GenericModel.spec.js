@@ -253,6 +253,45 @@ describe('GenericModel', () => {
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
 
+    it('understands column aliases in object select', async () => {
+      const select = {
+        'pk:id': true,
+        'age:name': true,
+        'name:age': true,
+        level: false
+      }
+      const model = new GenericModel({
+        pk: 123,
+        age: 'client123',
+        name: 50,
+        level: 10
+      }, { route, select })
+      await model.$post()
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { select }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
+        id: 123,
+        name: 'client123',
+        age: 50,
+        level: 10
+      })
+    })
+
+    it('understands column aliases in string select', async () => {
+      const select = 'pk:id,age:name,name:age,level'
+      const model = new GenericModel({
+        pk: 123,
+        age: 'client123',
+        name: 50,
+        level: 10
+      }, { route, select })
+      await model.$post()
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { select }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
+        id: 123,
+        name: 'client123',
+        age: 50,
+        level: 10
+      })
+    })
+
     it('still sends all columns if endpoint not known', async () => {
       const route = schema.$route('unknown')
       const model = new GenericModel({
@@ -573,6 +612,21 @@ describe('GenericModel', () => {
         model.embedded = [{ new: 'record' }]
         await model.$patch()
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
+          name: 'client321'
+        })
+      })
+
+      it('understands column aliases in array select', async () => {
+        const select = ['pk:id', 'age:name', 'name:age', 'level']
+        const model = new GenericModel({
+          pk: 123,
+          age: 'client123',
+          name: 50,
+          level: 10
+        }, { route, select })
+        model.age = 'client321'
+        await model.$patch()
+        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, select }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client321'
         })
       })
