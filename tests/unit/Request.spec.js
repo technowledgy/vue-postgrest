@@ -311,9 +311,9 @@ describe('request method', () => {
     })
 
     it('is stringified when generic model and sets content-type header to application/json', async () => {
-      const body = new GenericModel({
+      const body = new GenericModel({}, {
         string: 'value', number: 5
-      }, {})
+      })
       await request('/api', '', 'clients', 'POST', {}, {}, body)
       expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
         headers: new Headers({

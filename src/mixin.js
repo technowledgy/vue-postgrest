@@ -27,14 +27,14 @@ async function get (signal) {
       }
       data = await resp.json()
       return {
-        items: data.map(item => new GenericModel(item, { route, select: this.pgConfig?.query?.select })),
+        items: data.map(item => new GenericModel({ route, select: this.pgConfig?.query?.select }, item)),
         range
       }
     }
     case 'single':
       data = await resp.json()
       return {
-        item: new GenericModel(data, { route, select: this.pgConfig?.query?.select })
+        item: new GenericModel({ route, select: this.pgConfig?.query?.select }, data)
       }
     case 'binary':
       data = await resp.blob()
@@ -85,7 +85,7 @@ const mixin = {
         if (this.pgConfig.newTemplate) {
           if (!this.pg.newItem?.$isDirty) {
             const route = this.$postgrest(this.pgConfig?.apiRoot, this.pgConfig?.token).$route(this.pgConfig?.route)
-            this.$set(this.pg, 'newItem', new GenericModel(this.pgConfig.newTemplate, { route, select: this.pgConfig?.query?.select }))
+            this.$set(this.pg, 'newItem', new GenericModel({ route, select: this.pgConfig?.query?.select }, this.pgConfig.newTemplate))
           }
         } else {
           this.$delete(this.pg, 'newItem')

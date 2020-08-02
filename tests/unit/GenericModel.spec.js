@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import GenericModel from '@/GenericModel'
-import Schema from '@/Schema'
 import ObservableFunction from '@/ObservableFunction'
+import Schema from '@/Schema'
 import { PrimaryKeyError } from '@/index'
 
 import request from '@/request'
@@ -38,7 +38,7 @@ describe('GenericModel', () => {
 
   describe('Data', () => {
     it('sets the data field getters and setters on property "data"', () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       for (const prop in data) {
         expect(model[prop]).toBe(data[prop])
         model[prop] = 'test'
@@ -47,12 +47,12 @@ describe('GenericModel', () => {
     })
 
     it('has property "$isDirty" which defaults to false', () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       expect(model.$isDirty).toBe(false)
     })
 
     it('sets prop "$isDirty" correctly', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       expect(model.$isDirty).toBe(false)
       model.name = 'client321'
       expect(model.$isDirty).toBe(true)
@@ -63,12 +63,12 @@ describe('GenericModel', () => {
 
   describe('Reset method', () => {
     it('has method "reset"', () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       expect(model.$reset).toBeInstanceOf(Function)
     })
 
     it('resets changes', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       model.name = 'client321'
       expect(model.name).toBe('client321')
       model.$reset()
@@ -76,7 +76,7 @@ describe('GenericModel', () => {
     })
 
     it('resets changes to arrays', async () => {
-      const model = new GenericModel({ ...data, arr: [] }, { route })
+      const model = new GenericModel({ route }, { ...data, arr: [] })
       model.arr = ['a', 'b', 'c', 'd', 'e']
       expect(model.arr).toEqual(['a', 'b', 'c', 'd', 'e'])
       model.$reset()
@@ -86,46 +86,46 @@ describe('GenericModel', () => {
 
   describe('Get method', () => {
     it('has observable method "get"', () => {
-      const model = new GenericModel(data, { route })
-      expect(model.$get).toBeInstanceOf(Function)
+      const model = new GenericModel({ route }, data)
+      expect(model.$get).toBeInstanceOf(ObservableFunction)
     })
 
     it('throws for invalid route', async () => {
       const route = schema.$route('not-existing')
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       await expect(model.$get()).rejects.toThrow()
     })
 
     it('throws for route without pks', async () => {
       const route = schema('/pk-api').$route('no_pk')
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       await expect(model.$get()).rejects.toThrow(PrimaryKeyError)
     })
 
     it('throws if primary keys not available in data', async () => {
-      const model = new GenericModel({
+      const model = new GenericModel({ route }, {
         name: 'client123',
         age: 50,
         level: 10
-      }, { route })
+      })
       await expect(model.$get()).rejects.toThrow(PrimaryKeyError)
     })
 
     it('sends a get request with PK query', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       await model.$get()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 123 }, { accept: 'single', signal: expect.any(AbortSignal) })
     })
 
     it('sends a get request with original PK query after change', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       model.id = 321
       await model.$get()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 123 }, { accept: 'single', signal: expect.any(AbortSignal) })
     })
 
     it('passes options except accept and keepChanges', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       const options = {
         headers: { prefer: 'custom-prefer-header', accept: 'custom-accept-header', 'x-header': 'custom-x-header' },
         keepChanges: false,
@@ -137,13 +137,13 @@ describe('GenericModel', () => {
 
     it('sets select part of query', async () => {
       const select = ['id', 'name']
-      const model = new GenericModel(data, { route, select })
+      const model = new GenericModel({ route, select }, data)
       await model.$get()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', { 'id.eq': 123, select }, { accept: 'single', signal: expect.any(AbortSignal) })
     })
 
     it('returns the request\'s return value and updates model data', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       expect(model).toMatchObject(data)
       const ret = await model.$get()
       expect(ret).toEqual(mockReturn)
@@ -151,21 +151,21 @@ describe('GenericModel', () => {
     })
 
     it('overwrites changes to the item data if option "keepChanges" is not set', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       model.name = 'localName'
       await model.$get()
       expect(model.name).toBe(mockReturn.name)
     })
 
     it('overwrites changes to the item data if option "keepChanges" is false', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       model.name = 'localName'
       await model.$get({ keepChanges: false })
       expect(model.name).toBe(mockReturn.name)
     })
 
     it('does not overwrite changes to the item data if option "keepChanges" is true', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       model.name = 'localName'
       expect(model.name).toBe('localName')
       expect(model.id).toBe(123)
@@ -177,18 +177,18 @@ describe('GenericModel', () => {
 
   describe('Post method', () => {
     it('has observable method "post"', () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       expect(model.$post).toBeInstanceOf(ObservableFunction)
     })
 
     it('sends a post request', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       await model.$post()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
 
     it('sends a post request with changed data included', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       model.name = 'client321'
       await model.$post()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
@@ -198,7 +198,7 @@ describe('GenericModel', () => {
     })
 
     it('sends a post request with new data included', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       Vue.set(model, 'new', 'value')
       await model.$post()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
@@ -208,7 +208,7 @@ describe('GenericModel', () => {
     })
 
     it('passes options except accept', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       const options = {
         return: 'minimal',
         headers: { prefer: 'custom-prefer-header', accept: 'custom-accept-header', 'x-header': 'custom-x-header' },
@@ -220,35 +220,35 @@ describe('GenericModel', () => {
 
     it('sets select part of query if return is "representation"', async () => {
       const select = ['id', 'name']
-      const model = new GenericModel(data, { route, select })
+      const model = new GenericModel({ route, select }, data)
       await model.$post({ return: 'representation' })
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { select }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
 
     it('does not set select part of query if return is "minimal"', async () => {
       const select = ['id', 'name']
-      const model = new GenericModel(data, { route, select })
+      const model = new GenericModel({ route, select }, data)
       await model.$post({ return: 'minimal' })
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'minimal', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
 
     it('does not set columns part of query if option "columns" is set to undefined', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       await model.$post({ columns: undefined })
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
 
     it('sets columns part of query to user-defined columns if option "columns" is set', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       await model.$post({ columns: ['age'] })
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { columns: ['age'] }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
 
     it('only sends columns that exist on the endpoint', async () => {
-      const model = new GenericModel({
+      const model = new GenericModel({ route }, {
         ...data,
         embedded: []
-      }, { route })
+      })
       await model.$post()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
@@ -260,12 +260,12 @@ describe('GenericModel', () => {
         'name:age': true,
         level: false
       }
-      const model = new GenericModel({
+      const model = new GenericModel({ route, select }, {
         pk: 123,
         age: 'client123',
         name: 50,
         level: 10
-      }, { route, select })
+      })
       await model.$post()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { select }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
         id: 123,
@@ -277,12 +277,12 @@ describe('GenericModel', () => {
 
     it('understands column aliases in string select', async () => {
       const select = 'pk:id,age:name,name:age,level'
-      const model = new GenericModel({
+      const model = new GenericModel({ route, select }, {
         pk: 123,
         age: 'client123',
         name: 50,
         level: 10
-      }, { route, select })
+      })
       await model.$post()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { select }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
         id: 123,
@@ -294,10 +294,10 @@ describe('GenericModel', () => {
 
     it('still sends all columns if endpoint not known', async () => {
       const route = schema.$route('unknown')
-      const model = new GenericModel({
+      const model = new GenericModel({ route }, {
         ...data,
         embedded: []
-      }, { route })
+      })
       await model.$post({ columns: ['age', 'embedded'] })
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'unknown', 'POST', { columns: ['age', 'embedded'] }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
         ...data,
@@ -306,7 +306,7 @@ describe('GenericModel', () => {
     })
 
     it('updates data after request', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       model.name = 'client321'
       await model.$post()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
@@ -317,7 +317,7 @@ describe('GenericModel', () => {
     })
 
     it('keeps data when return is "minimal"', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       model.name = 'client321'
       await model.$post({ return: 'minimal' })
       expect(request).toHaveBeenCalled()
@@ -328,7 +328,7 @@ describe('GenericModel', () => {
     })
 
     it('returns the request\'s return value', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       const ret = await model.$post()
       expect(ret).toEqual(mockReturn)
     })
@@ -340,13 +340,13 @@ describe('GenericModel', () => {
           Location: '/clients?id=eq.321'
         })
       })
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       const ret = await model.$post({ return: 'minimal' })
       expect(ret).toEqual({ id: '321' })
     })
 
     it('doesn\'t return the request\'s return value for return=minimal without Location header', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       const ret = await model.$post({ return: 'minimal' })
       expect(ret).toBeUndefined()
     })
@@ -354,39 +354,39 @@ describe('GenericModel', () => {
 
   describe('Put method', () => {
     it('has observable method "put"', () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       expect(model.$put).toBeInstanceOf(ObservableFunction)
     })
 
     it('throws for invalid route', async () => {
       const route = schema.$route('not-existing')
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       await expect(model.$put()).rejects.toThrow()
     })
 
     it('throws for route without pks', async () => {
       const route = schema('/pk-api').$route('no_pk')
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       await expect(model.$put()).rejects.toThrow(PrimaryKeyError)
     })
 
     it('throws if primary keys not available in data', async () => {
-      const model = new GenericModel({
+      const model = new GenericModel({ route }, {
         name: 'client123',
         age: 50,
         level: 10
-      }, { route })
+      })
       await expect(model.$put()).rejects.toThrow(PrimaryKeyError)
     })
 
     it('sends a put request', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       await model.$put()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PUT', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
 
     it('sends a put request with changed data included', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       model.name = 'client321'
       await model.$put()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PUT', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
@@ -396,7 +396,7 @@ describe('GenericModel', () => {
     })
 
     it('sends a put request with new data included', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       Vue.set(model, 'new', 'value')
       await model.$put()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PUT', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
@@ -406,7 +406,7 @@ describe('GenericModel', () => {
     })
 
     it('passes options except accept', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       const options = {
         return: 'minimal',
         headers: { prefer: 'custom-prefer-header', accept: 'custom-accept-header', 'x-header': 'custom-x-header' },
@@ -418,35 +418,35 @@ describe('GenericModel', () => {
 
     it('sets select part of query if return is "representation"', async () => {
       const select = ['id', 'name']
-      const model = new GenericModel(data, { route, select })
+      const model = new GenericModel({ route, select }, data)
       await model.$put({ return: 'representation' })
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PUT', { 'id.eq': 123, select }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
 
     it('does not set select part of query if return is "minimal"', async () => {
       const select = ['id', 'name']
-      const model = new GenericModel(data, { route, select })
+      const model = new GenericModel({ route, select }, data)
       await model.$put({ return: 'minimal' })
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PUT', { 'id.eq': 123 }, { return: 'minimal', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
 
     it('does not set columns part of query if option "columns" is set to undefined', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       await model.$put({ columns: undefined })
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PUT', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
 
     it('sets columns part of query to user-defined columns if option "columns" is set', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       await model.$put({ columns: ['age'] })
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PUT', { 'id.eq': 123, columns: ['age'] }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
 
     it('only sends columns that exist on the endpoint', async () => {
-      const model = new GenericModel({
+      const model = new GenericModel({ route }, {
         ...data,
         embedded: []
-      }, { route })
+      })
       await model.$put()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PUT', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
@@ -458,12 +458,12 @@ describe('GenericModel', () => {
         'name:age': true,
         level: false
       }
-      const model = new GenericModel({
+      const model = new GenericModel({ route, select }, {
         pk: 123,
         age: 'client123',
         name: 50,
         level: 10
-      }, { route, select })
+      })
       await model.$put()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PUT', { 'id.eq': 123, select }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
         id: 123,
@@ -475,12 +475,12 @@ describe('GenericModel', () => {
 
     it('understands column aliases in string select', async () => {
       const select = 'pk:id,age:name,name:age,level'
-      const model = new GenericModel({
+      const model = new GenericModel({ route, select }, {
         pk: 123,
         age: 'client123',
         name: 50,
         level: 10
-      }, { route, select })
+      })
       await model.$put()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PUT', { 'id.eq': 123, select }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
         id: 123,
@@ -491,7 +491,7 @@ describe('GenericModel', () => {
     })
 
     it('updates data after request', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       model.name = 'client321'
       await model.$put()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PUT', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
@@ -502,7 +502,7 @@ describe('GenericModel', () => {
     })
 
     it('keeps data when return is "minimal"', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       model.name = 'client321'
       await model.$put({ return: 'minimal' })
       expect(request).toHaveBeenCalled()
@@ -513,7 +513,7 @@ describe('GenericModel', () => {
     })
 
     it('returns the request\'s return value', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       const ret = await model.$put()
       expect(ret).toEqual(mockReturn)
     })
@@ -525,13 +525,13 @@ describe('GenericModel', () => {
           Location: '/clients?id=eq.321'
         })
       })
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       const ret = await model.$put({ return: 'minimal' })
       expect(ret).toEqual({ id: '321' })
     })
 
     it('doesn\'t return the request\'s return value for return=minimal without Location header', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       const ret = await model.$put({ return: 'minimal' })
       expect(ret).toBeUndefined()
     })
@@ -539,40 +539,40 @@ describe('GenericModel', () => {
 
   describe('Patch method', () => {
     it('has observable method "patch"', () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       expect(model.$patch).toBeInstanceOf(ObservableFunction)
     })
 
     it('throws for invalid route', async () => {
       const route = schema.$route('not-existing')
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       await expect(model.$patch()).rejects.toThrow()
     })
 
     it('throws for route without pks', async () => {
       const route = schema('/pk-api').$route('no_pk')
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       await expect(model.$patch()).rejects.toThrow(PrimaryKeyError)
     })
 
     it('throws if primary keys not available in data', async () => {
-      const model = new GenericModel({
+      const model = new GenericModel({ route }, {
         name: 'client123',
         age: 50,
         level: 10
-      }, { route })
+      })
       await expect(model.$patch()).rejects.toThrow(PrimaryKeyError)
     })
 
     describe('called without data', () => {
       it('does not send a patch request if no data was changed', async () => {
-        const model = new GenericModel(data, { route })
+        const model = new GenericModel({ route }, data)
         await model.$patch()
         expect(request).not.toHaveBeenCalled()
       })
 
       it('sends a patch request with simple changed data fields', async () => {
-        const model = new GenericModel(data, { route })
+        const model = new GenericModel({ route }, data)
         model.name = 'client321'
         await model.$patch()
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
@@ -581,8 +581,8 @@ describe('GenericModel', () => {
       })
 
       it('sends a patch request with simple new data fields', async () => {
-        const model = new GenericModel(data, { route })
-        Vue.set(model, 'new', 'value')
+        const model = new GenericModel({ route }, data)
+        model.new = 'value'
         await model.$patch()
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           new: 'value'
@@ -598,10 +598,10 @@ describe('GenericModel', () => {
         }
 
         it('that are changed as a whole', async () => {
-          const model = new GenericModel({
+          const model = new GenericModel({ route }, {
             ...data,
             nestedField: nestedField
-          }, { route })
+          })
           const newNestedField = {
             newParent: {
               newChild: 'new'
@@ -614,10 +614,10 @@ describe('GenericModel', () => {
         })
 
         it('of whom only a subfield is changed', async () => {
-          const model = new GenericModel({
+          const model = new GenericModel({ route }, {
             ...data,
             nestedField
-          }, { route })
+          })
           model.nestedField.parent.child = 'new'
           await model.$patch()
           expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
@@ -631,11 +631,11 @@ describe('GenericModel', () => {
         })
 
         it('with a new subfield', async () => {
-          const model = new GenericModel({
+          const model = new GenericModel({ route }, {
             ...data,
             nestedField
-          }, { route })
-          Vue.set(model.nestedField, 'newField', 'new')
+          })
+          model.nestedField.newField = 'new'
           expect(model.nestedField.newField).toBe('new')
           await model.$patch()
           expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
@@ -649,10 +649,10 @@ describe('GenericModel', () => {
 
       describe('sends a patch request with array data fields', () => {
         it('with primitive values', async () => {
-          const model = new GenericModel({
+          const model = new GenericModel({ route }, {
             ...data,
             nestedField: [1, 5, 10]
-          }, { route })
+          })
           model.nestedField[0] = 2
           model.nestedField.push(20)
           await model.$patch()
@@ -663,12 +663,12 @@ describe('GenericModel', () => {
         })
 
         it('with nested array', async () => {
-          const model = new GenericModel({
+          const model = new GenericModel({ route }, {
             ...data,
             nestedField: {
               arr: [1, 5, 10]
             }
-          }, { route })
+          })
           model.nestedField.arr[0] = 2
           model.nestedField.arr.push(20)
           await model.$patch()
@@ -681,10 +681,10 @@ describe('GenericModel', () => {
         })
 
         it('with nested values', async () => {
-          const model = new GenericModel({
+          const model = new GenericModel({ route }, {
             ...data,
             nestedField: [{ child: 'old' }, 5, 10]
-          }, { route })
+          })
           model.nestedField[0].child = 'new'
           await model.$patch()
           expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
@@ -696,13 +696,13 @@ describe('GenericModel', () => {
 
     describe('called with data', () => {
       it('throws if argument is not an object', async () => {
-        const model = new GenericModel(data, { route })
+        const model = new GenericModel({ route }, data)
         await expect(model.$patch(null)).rejects.toThrow()
         await expect(model.$patch(1)).rejects.toThrow()
       })
 
       it('sends a patch request with argument', async () => {
-        const model = new GenericModel(data, { route })
+        const model = new GenericModel({ route }, data)
         await model.$patch({
           name: 'client 222',
           newField: true
@@ -714,13 +714,13 @@ describe('GenericModel', () => {
       })
 
       it('does not send a patch request for keys with value undefined', async () => {
-        const model = new GenericModel(data, { route })
+        const model = new GenericModel({ route }, data)
         await model.$patch({ key: undefined })
         expect(request).not.toHaveBeenCalled()
       })
 
       it('merges argument with changed data fields', async () => {
-        const model = new GenericModel(data, { route })
+        const model = new GenericModel({ route }, data)
         model.name = 'client321'
         model.age = 66
         await model.$patch({
@@ -737,7 +737,7 @@ describe('GenericModel', () => {
 
     describe('options', () => {
       it('passes options except accept', async () => {
-        const model = new GenericModel(data, { route })
+        const model = new GenericModel({ route }, data)
         model.name = 'client321'
         const options = {
           return: 'minimal',
@@ -752,7 +752,7 @@ describe('GenericModel', () => {
 
       it('sets select part of query if return is "representation"', async () => {
         const select = ['id', 'name']
-        const model = new GenericModel(data, { route, select })
+        const model = new GenericModel({ route, select }, data)
         model.name = 'client321'
         await model.$patch({}, { return: 'representation' })
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, select }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
@@ -762,7 +762,7 @@ describe('GenericModel', () => {
 
       it('does not set select part of query if return is "minimal"', async () => {
         const select = ['id', 'name']
-        const model = new GenericModel(data, { route, select })
+        const model = new GenericModel({ route, select }, data)
         model.name = 'client321'
         await model.$patch({}, { return: 'minimal' })
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'minimal', accept: 'single', signal: expect.any(AbortSignal) }, {
@@ -771,7 +771,7 @@ describe('GenericModel', () => {
       })
 
       it('does not set columns part of query if option "columns" is set to undefined', async () => {
-        const model = new GenericModel(data, { route })
+        const model = new GenericModel({ route }, data)
         model.name = 'client321'
         await model.$patch({}, { columns: undefined })
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
@@ -780,7 +780,7 @@ describe('GenericModel', () => {
       })
 
       it('sets columns part of query to user-defined columns if option "columns" is set', async () => {
-        const model = new GenericModel(data, { route })
+        const model = new GenericModel({ route }, data)
         model.name = 'client321'
         await model.$patch({}, { columns: ['age'] })
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['age'] }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
@@ -789,10 +789,10 @@ describe('GenericModel', () => {
       })
 
       it('only sends columns that exist on the endpoint', async () => {
-        const model = new GenericModel({
+        const model = new GenericModel({ route }, {
           ...data,
           embedded: []
-        }, { route })
+        })
         model.name = 'client321'
         model.embedded = [{ new: 'record' }]
         await model.$patch()
@@ -803,12 +803,12 @@ describe('GenericModel', () => {
 
       it('understands column aliases in array select', async () => {
         const select = ['pk:id', 'age:name', 'name:age', 'level']
-        const model = new GenericModel({
+        const model = new GenericModel({ route, select }, {
           pk: 123,
           age: 'client123',
           name: 50,
           level: 10
-        }, { route, select })
+        })
         model.age = 'client321'
         await model.$patch()
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, select }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
@@ -817,7 +817,7 @@ describe('GenericModel', () => {
       })
 
       it('updates model when return is "representation"', async () => {
-        const model = new GenericModel(data, { route })
+        const model = new GenericModel({ route }, data)
         model.name = 'client321'
         await model.$patch({}, { return: 'representation' })
         expect(request).toHaveBeenCalled()
@@ -826,7 +826,7 @@ describe('GenericModel', () => {
       })
 
       it('keeps data when return is "minimal"', async () => {
-        const model = new GenericModel(data, { route })
+        const model = new GenericModel({ route }, data)
         model.name = 'client321'
         await model.$patch({}, { return: 'minimal' })
         expect(request).toHaveBeenCalled()
@@ -838,14 +838,14 @@ describe('GenericModel', () => {
     })
 
     it('returns the request\'s return value', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       model.name = 'client321'
       const ret = await model.$patch()
       expect(ret).toEqual(mockReturn)
     })
 
     it('doesn\'t return the request\'s return value for return=minimal', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       model.name = 'client321'
       const ret = await model.$patch({}, { return: 'minimal' })
       expect(ret).toBeUndefined()
@@ -854,39 +854,39 @@ describe('GenericModel', () => {
 
   describe('Delete method', () => {
     it('has observable method "delete"', () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       expect(model.$delete).toBeInstanceOf(ObservableFunction)
     })
 
     it('throws for invalid route', async () => {
       const route = schema.$route('not-existing')
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       await expect(model.$delete()).rejects.toThrow()
     })
 
     it('throws for route without pks', async () => {
       const route = schema('/pk-api').$route('no_pk')
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       await expect(model.$delete()).rejects.toThrow(PrimaryKeyError)
     })
 
     it('throws if primary keys not available in data', async () => {
-      const model = new GenericModel({
+      const model = new GenericModel({ route }, {
         name: 'client123',
         age: 50,
         level: 10
-      }, { route })
+      })
       await expect(model.$delete()).rejects.toThrow(PrimaryKeyError)
     })
 
     it('sends a delete request', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       await model.$delete()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123 }, { accept: 'single', signal: expect.any(AbortSignal) })
     })
 
     it('passes options except accept', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       const options = {
         return: 'representation',
         headers: { prefer: 'custom-prefer-header', accept: 'custom-accept-header', 'x-header': 'custom-x-header' },
@@ -898,14 +898,14 @@ describe('GenericModel', () => {
 
     it('sets select part of query if return is "representation"', async () => {
       const select = ['id', 'name']
-      const model = new GenericModel(data, { route, select })
+      const model = new GenericModel({ route, select }, data)
       await model.$delete({ return: 'representation' })
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123, select }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) })
     })
 
     it('does not set select part of query if return is not "representation"', async () => {
       const select = ['id', 'name']
-      const model = new GenericModel(data, { route, select })
+      const model = new GenericModel({ route, select }, data)
       await model.$delete({ return: 'minimal' })
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123 }, { return: 'minimal', accept: 'single', signal: expect.any(AbortSignal) })
       await model.$delete()
@@ -913,13 +913,13 @@ describe('GenericModel', () => {
     })
 
     it('doesn\'t return the request\'s return value', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       const ret = await model.$delete()
       expect(ret).toBeUndefined()
     })
 
     it('returns the request\'s return value for return=representation', async () => {
-      const model = new GenericModel(data, { route })
+      const model = new GenericModel({ route }, data)
       const ret = await model.$delete({ return: 'representation' })
       expect(ret).toEqual(mockReturn)
     })

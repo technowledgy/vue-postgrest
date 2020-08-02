@@ -10,7 +10,7 @@ class GenericModel {
   #route
   #select
 
-  constructor (data, { route, select }) {
+  constructor ({ route, select }, data) {
     const cols = this.columnMappingFromSelect(select)
     this.#alias2column = new Map(cols)
     this.#column2alias = new Map(cols.map(([k, v]) => [v, k]))
@@ -103,8 +103,7 @@ class GenericModel {
 
   async get (signal, opts = {}) {
     await this.#route.$ready
-    const defaultOptions = { accept: 'single' }
-    const { keepChanges, ...options } = Object.assign({}, defaultOptions, opts)
+    const { keepChanges, ...options } = Object.assign({}, opts)
 
     const query = this.queryFromPKs()
     if (this.#select) {
