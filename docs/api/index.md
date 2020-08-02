@@ -1010,7 +1010,7 @@ The `<postgrest>` component provides all [mixin properties](./#mixin-properties)
 
 ## GenericModel
 
-The data of a GenericModel is saved directly on the instance. Additionally, the following methods and getters are available.
+The data of a GenericModel is available directly on the instance in addition to the following methods and getters:
 
 ### $get([options])
 
@@ -1069,7 +1069,7 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
 
 - **Returns:** Response from the API
 
-- **Throws:** `AuthError | FetchError | PrimaryKeyError`
+- **Throws:** `AuthError | FetchError`
 
 - **Details:**
 
@@ -1107,6 +1107,59 @@ The data of a GenericModel is saved directly on the instance. Additionally, the 
     methods: {
       addHero () {
         this.pg.newItem.$post()
+      }
+    }
+  }
+  ```
+
+### $put([options])
+
+- **Type:** `ObservableFunction`
+
+- **Arguments:**
+
+  - `{object} options`
+
+- **Returns:** Response from the API
+
+- **Throws:** `AuthError | FetchError | PrimaryKeyError`
+
+- **Details:**
+
+  An [ObservableFunction](./#observablefunction) for a put request. Available `options` are:
+
+    - `{array<string>} columns` Sets `columns` parameter on request to improve performance on updates/inserts
+
+    - `{string} return` Add `return=[value]` header to request. Possible values are `'representation'` (default) and `'minimal'`.
+
+    - All Options described in [postgrest route](./#postgrest-route) are available here as well. **Note:** The `accept` option is not valid here - the `Accept` header will always be set to `'single'` if not overwritten via the `headers` object.
+
+  If option `return` is set to `'representation'`, which is the default value, the item is updated with the response from the server.
+  
+  If option `return` is set to `'minimal'` and the `Location` header is set, the location header is returned as an object.
+
+- **Example:**
+
+  ``` js
+  import { pg } from 'vue-postgrest'
+
+  export default {
+    name: 'HeroesList',
+    mixins: [pg],
+    data () {
+      return {
+        pgConfig: {
+          route: 'heroes',
+          newTemplate: {
+            name: 'Yoda',
+            age: '999999999'
+          }
+        }
+      }
+    },
+    methods: {
+      upsertHero () {
+        this.pg.newItem.$put()
       }
     }
   }

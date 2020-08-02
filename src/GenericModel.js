@@ -27,6 +27,9 @@ class GenericModel {
       $post: {
         value: new ObservableFunction(this.post.bind(this))
       },
+      $put: {
+        value: new ObservableFunction(this.put.bind(this))
+      },
       $patch: {
         value: new ObservableFunction(this.patch.bind(this))
       },
@@ -147,6 +150,46 @@ class GenericModel {
     )
 
     const resp = await this.#route.post(query, { ...options, accept: 'single', signal }, postData)
+
+    if (options.return === 'representation') {
+      const body = await resp.json()
+      this.setData(body)
+      return body
+    } else if (resp.headers.get('Location')) {
+      const loc = new URLSearchParams(resp.headers.get('Location').replace(/^\/[^?]+\?/, ''))
+      const ret = {}
+      for (const [key, value] of loc.entries()) {
+        ret[key] = value.replace(/^eq\./, '')
+      }
+      return ret
+    }
+  }
+
+  async put (signal, opts) {
+    await this.#route.$ready
+    const defaultOptions = { return: 'representation' }
+    const { columns, ...options } = Object.assign({}, defaultOptions, opts)
+
+    const query = this.queryFromPKs()
+    if (options.return === 'representation' && this.#select) {
+      query.select = this.#select
+    }
+    if (columns) {
+      query.columns = columns.filter(c => this.#route.columns.includes(c))
+    }
+
+    const putData = Object.assign(
+      {},
+      Object.keys(this.#model).reduce((acc, alias) => {
+        const col = this.#alias2column.get(alias) ?? alias
+        if (this.#route.columns.includes(col)) {
+          acc[col] = this.#model[alias]
+        }
+        return acc
+      }, {})
+    )
+
+    const resp = await this.#route.put(query, { ...options, accept: 'single', signal }, putData)
 
     if (options.return === 'representation') {
       const body = await resp.json()

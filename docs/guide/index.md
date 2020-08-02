@@ -486,7 +486,11 @@ When the mixin option `pg.newTemplate` is set, a new [GenericModel](/api/#generi
 
 ### Upserts
 
-As with all GenericModel methods, you can use all options that a [route](/api/#postgrest-route) offers. To perform an upsert, you can pass the `resolution` option, which sets the resolution part of the `Prefer` header. To set the `on_conflict` query string parameter, see [Query](/query/#on-conflict).
+You can do an upsert (insert or update, when it already exists) with either a `POST` or a `PUT` request. To make a `PUT` request, just call `$put()` on the model - but make sure to set the primary key on the model first.
+
+Alternatively, you can use all options that a [route](/api/#postgrest-route) offers with `$post()`. To perform an upsert, you can pass the `resolution` option, which sets the resolution part of the `Prefer` header. To set the `on_conflict` query string parameter, see [Query](/query/#on-conflict).
+
+Example for `$post()` upsert:
 
 ``` vue
 <template>
