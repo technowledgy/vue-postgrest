@@ -22,19 +22,19 @@ class GenericModel {
     // Using defineProperties to make them non-configurable, non-enumerable, non-writable
     Object.defineProperties(this, {
       $get: {
-        value: new ObservableFunction(this.get.bind(this))
+        value: new ObservableFunction(this.$get.bind(this))
       },
       $post: {
-        value: new ObservableFunction(this.post.bind(this))
+        value: new ObservableFunction(this.$post.bind(this))
       },
       $put: {
-        value: new ObservableFunction(this.put.bind(this))
+        value: new ObservableFunction(this.$put.bind(this))
       },
       $patch: {
-        value: new ObservableFunction(this.patch.bind(this))
+        value: new ObservableFunction(this.$patch.bind(this))
       },
       $delete: {
-        value: new ObservableFunction(this.delete.bind(this))
+        value: new ObservableFunction(this.$delete.bind(this))
       }
     })
 
@@ -101,7 +101,7 @@ class GenericModel {
     }, {})
   }
 
-  async get (signal, opts = {}) {
+  async $get (signal, opts = {}) {
     await this.#route.$ready
     const { keepChanges, ...options } = Object.assign({}, opts)
 
@@ -116,7 +116,7 @@ class GenericModel {
     return body
   }
 
-  async post (signal, opts) {
+  async $post (signal, opts) {
     await this.#route.$ready
     const defaultOptions = { return: 'representation' }
     const { columns, ...options } = Object.assign({}, defaultOptions, opts)
@@ -164,7 +164,7 @@ class GenericModel {
     }
   }
 
-  async put (signal, opts) {
+  async $put (signal, opts) {
     await this.#route.$ready
     const defaultOptions = { return: 'representation' }
     const { columns, ...options } = Object.assign({}, defaultOptions, opts)
@@ -204,7 +204,7 @@ class GenericModel {
     }
   }
 
-  async patch (signal, data = {}, opts) {
+  async $patch (signal, data = {}, opts) {
     await this.#route.$ready
     const defaultOptions = { return: 'representation' }
     const { columns, ...options } = Object.assign({}, defaultOptions, opts)
@@ -251,7 +251,7 @@ class GenericModel {
     }
   }
 
-  async delete (signal, options = {}) {
+  async $delete (signal, options = {}) {
     await this.#route.$ready
     const query = this.queryFromPKs()
     if (options.return === 'representation' && this.#select) {

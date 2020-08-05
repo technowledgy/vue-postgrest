@@ -37,7 +37,7 @@ describe('GenericModel', () => {
   })
 
   describe('Data', () => {
-    it('sets the data field getters and setters on property "data"', () => {
+    it('sets the data field getters and setters', () => {
       const model = new GenericModel({ route }, data)
       for (const prop in data) {
         expect(model[prop]).toBe(data[prop])
@@ -62,7 +62,7 @@ describe('GenericModel', () => {
   })
 
   describe('Reset method', () => {
-    it('has method "reset"', () => {
+    it('has method "$reset"', () => {
       const model = new GenericModel({ route }, data)
       expect(model.$reset).toBeInstanceOf(Function)
     })
@@ -85,7 +85,7 @@ describe('GenericModel', () => {
   })
 
   describe('Get method', () => {
-    it('has observable method "get"', () => {
+    it('has observable method "$get"', () => {
       const model = new GenericModel({ route }, data)
       expect(model.$get).toBeInstanceOf(ObservableFunction)
     })
@@ -176,7 +176,7 @@ describe('GenericModel', () => {
   })
 
   describe('Post method', () => {
-    it('has observable method "post"', () => {
+    it('has observable method "$post"', () => {
       const model = new GenericModel({ route }, data)
       expect(model.$post).toBeInstanceOf(ObservableFunction)
     })
@@ -353,7 +353,7 @@ describe('GenericModel', () => {
   })
 
   describe('Put method', () => {
-    it('has observable method "put"', () => {
+    it('has observable method "$put"', () => {
       const model = new GenericModel({ route }, data)
       expect(model.$put).toBeInstanceOf(ObservableFunction)
     })
@@ -538,7 +538,7 @@ describe('GenericModel', () => {
   })
 
   describe('Patch method', () => {
-    it('has observable method "patch"', () => {
+    it('has observable method "$patch"', () => {
       const model = new GenericModel({ route }, data)
       expect(model.$patch).toBeInstanceOf(ObservableFunction)
     })
@@ -853,7 +853,7 @@ describe('GenericModel', () => {
   })
 
   describe('Delete method', () => {
-    it('has observable method "delete"', () => {
+    it('has observable method "$delete"', () => {
       const model = new GenericModel({ route }, data)
       expect(model.$delete).toBeInstanceOf(ObservableFunction)
     })
