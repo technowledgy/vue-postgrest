@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import { shallowMount } from '@vue/test-utils'
 import GenericModel from '@/GenericModel'
 import ObservableFunction from '@/ObservableFunction'
 import Schema from '@/Schema'
@@ -46,9 +47,45 @@ describe('GenericModel', () => {
       }
     })
 
+    it('resets the data fields for "delete"', () => {
+      const model = new GenericModel({ route }, data)
+      for (const prop in data) {
+        model[prop] = 'test'
+        expect(model[prop]).toBe('test')
+        delete model[prop]
+        expect(prop in model).toBe(true)
+        expect(model[prop]).toBe(data[prop])
+      }
+    })
+
+    it('adds and deletes new data fields correctly', () => {
+      const model = new GenericModel({ route }, data)
+      model.new = 'value'
+      expect('new' in model).toBe(true)
+      expect(model.new).toBe('value')
+      delete model.new
+      expect('new' in model).toBe(false)
+      expect(model.new).toBeUndefined()
+    })
+
     it('has property "$isDirty" which defaults to false', () => {
       const model = new GenericModel({ route }, data)
       expect(model.$isDirty).toBe(false)
+    })
+
+    it('property "$isDirty" is from prototpe and not configurable, writable or deletable', () => {
+      const model = new GenericModel({ route }, data)
+      expect(Reflect.getOwnPropertyDescriptor(model, '$isDirty')).toBeUndefined()
+      expect('$isDirty' in model).toBe(true)
+      expect(() => {
+        model.$isDirty = 'writable'
+      }).toThrow()
+      expect(() => {
+        Object.defineProperty(model, '$isDirty', { value: 'configurable' })
+      }).toThrow()
+      expect(() => {
+        delete model.$isDirty
+      }).toThrow()
     })
 
     it('sets prop "$isDirty" correctly', async () => {
@@ -61,10 +98,88 @@ describe('GenericModel', () => {
     })
   })
 
+  describe('Vue reacts', () => {
+    const Component = {
+      render () {},
+      data: () => ({ model: null }),
+      mounted () {
+        this.model = new GenericModel({ route }, data)
+      }
+    }
+    let wrapper
+
+    beforeEach(() => {
+      wrapper = shallowMount(Component)
+    })
+    afterEach(() => wrapper.destroy())
+
+    it('to changed fields', () => {
+      expect.assertions(1)
+      wrapper.vm.$watch('model.name', name => {
+        expect(name).toBe('client321')
+      })
+      wrapper.vm.model.name = 'client321'
+    })
+
+    it('to new fields', () => {
+      expect.assertions(1)
+      wrapper.vm.$watch('model', model => {
+        expect(model.new).toBe('value')
+      }, {
+        deep: true
+      })
+      wrapper.vm.$set(wrapper.vm.model, 'new', 'value')
+    })
+
+    it('to reset field via $delete', () => {
+      expect.assertions(5)
+      wrapper.vm.model.age += 1
+      expect(wrapper.vm.model.age).toBe(51)
+      expect(wrapper.vm.model.$isDirty).toBe(true)
+      wrapper.vm.$watch('model', model => {
+        expect('age' in model).toBe(true)
+        expect(model.age).toBe(50)
+        expect(model.$isDirty).toBe(false)
+      }, {
+        deep: true
+      })
+      wrapper.vm.$delete(wrapper.vm.model, 'age')
+    })
+
+    it('to reset field via $set', () => {
+      expect.assertions(4)
+      wrapper.vm.model.age += 1
+      expect(wrapper.vm.model.age).toBe(51)
+      expect(wrapper.vm.model.$isDirty).toBe(true)
+      wrapper.vm.$watch('model', model => {
+        expect(model.age).toBe(50)
+        expect(model.$isDirty).toBe(false)
+      }, {
+        deep: true
+      })
+      wrapper.vm.$set(wrapper.vm.model, 'age', 50)
+    })
+  })
+
   describe('Reset method', () => {
     it('has method "$reset"', () => {
       const model = new GenericModel({ route }, data)
       expect(model.$reset).toBeInstanceOf(Function)
+    })
+
+    it('property "$reset" is from prototpe and not configurable, writable or deletable', () => {
+      const model = new GenericModel({ route }, data)
+      expect(Reflect.getOwnPropertyDescriptor(model, '$reset')).toBeUndefined()
+      expect('$reset' in model).toBe(true)
+      expect(() => {
+        model.$reset = 'writable'
+      }).toThrow()
+      expect(() => {
+        Object.defineProperty(model, '$reset', { value: 'configurable' })
+      }).toThrow()
+      expect(() => {
+        delete model.$reset
+      }).toThrow()
     })
 
     it('resets changes', async () => {
@@ -88,6 +203,21 @@ describe('GenericModel', () => {
     it('has observable method "$get"', () => {
       const model = new GenericModel({ route }, data)
       expect(model.$get).toBeInstanceOf(ObservableFunction)
+    })
+
+    it('property "$get" is from prototpe and not configurable, writable or deletable', () => {
+      const model = new GenericModel({ route }, data)
+      expect(Reflect.getOwnPropertyDescriptor(model, '$get')).toBeUndefined()
+      expect('$get' in model).toBe(true)
+      expect(() => {
+        model.$get = 'writable'
+      }).toThrow()
+      expect(() => {
+        Object.defineProperty(model, '$get', { value: 'configurable' })
+      }).toThrow()
+      expect(() => {
+        delete model.$get
+      }).toThrow()
     })
 
     it('throws for invalid route', async () => {
@@ -179,6 +309,21 @@ describe('GenericModel', () => {
     it('has observable method "$post"', () => {
       const model = new GenericModel({ route }, data)
       expect(model.$post).toBeInstanceOf(ObservableFunction)
+    })
+
+    it('property "$post" is from prototpe and not configurable, writable or deletable', () => {
+      const model = new GenericModel({ route }, data)
+      expect(Reflect.getOwnPropertyDescriptor(model, '$post')).toBeUndefined()
+      expect('$post' in model).toBe(true)
+      expect(() => {
+        model.$post = 'writable'
+      }).toThrow()
+      expect(() => {
+        Object.defineProperty(model, '$post', { value: 'configurable' })
+      }).toThrow()
+      expect(() => {
+        delete model.$post
+      }).toThrow()
     })
 
     it('sends a post request', async () => {
@@ -356,6 +501,21 @@ describe('GenericModel', () => {
     it('has observable method "$put"', () => {
       const model = new GenericModel({ route }, data)
       expect(model.$put).toBeInstanceOf(ObservableFunction)
+    })
+
+    it('property "$put" is from prototpe and not configurable, writable or deletable', () => {
+      const model = new GenericModel({ route }, data)
+      expect(Reflect.getOwnPropertyDescriptor(model, '$put')).toBeUndefined()
+      expect('$put' in model).toBe(true)
+      expect(() => {
+        model.$put = 'writable'
+      }).toThrow()
+      expect(() => {
+        Object.defineProperty(model, '$put', { value: 'configurable' })
+      }).toThrow()
+      expect(() => {
+        delete model.$put
+      }).toThrow()
     })
 
     it('throws for invalid route', async () => {
@@ -543,6 +703,21 @@ describe('GenericModel', () => {
       expect(model.$patch).toBeInstanceOf(ObservableFunction)
     })
 
+    it('property "$patch" is from prototpe and not configurable, writable or deletable', () => {
+      const model = new GenericModel({ route }, data)
+      expect(Reflect.getOwnPropertyDescriptor(model, '$patch')).toBeUndefined()
+      expect('$patch' in model).toBe(true)
+      expect(() => {
+        model.$patch = 'writable'
+      }).toThrow()
+      expect(() => {
+        Object.defineProperty(model, '$patch', { value: 'configurable' })
+      }).toThrow()
+      expect(() => {
+        delete model.$patch
+      }).toThrow()
+    })
+
     it('throws for invalid route', async () => {
       const route = schema.$route('not-existing')
       const model = new GenericModel({ route }, data)
@@ -578,6 +753,14 @@ describe('GenericModel', () => {
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client321'
         })
+      })
+
+      it('does not send a patch request if change is undone', async () => {
+        const model = new GenericModel({ route }, data)
+        model.name = 'client321'
+        model.name = 'client123'
+        await model.$patch()
+        expect(request).not.toHaveBeenCalled()
       })
 
       it('sends a patch request with simple new data fields', async () => {
@@ -856,6 +1039,21 @@ describe('GenericModel', () => {
     it('has observable method "$delete"', () => {
       const model = new GenericModel({ route }, data)
       expect(model.$delete).toBeInstanceOf(ObservableFunction)
+    })
+
+    it('property "$delete" is from prototpe and not configurable, writable or deletable', () => {
+      const model = new GenericModel({ route }, data)
+      expect(Reflect.getOwnPropertyDescriptor(model, '$delete')).toBeUndefined()
+      expect('$delete' in model).toBe(true)
+      expect(() => {
+        model.$delete = 'writable'
+      }).toThrow()
+      expect(() => {
+        Object.defineProperty(model, '$delete', { value: 'configurable' })
+      }).toThrow()
+      expect(() => {
+        delete model.$delete
+      }).toThrow()
     })
 
     it('throws for invalid route', async () => {

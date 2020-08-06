@@ -1,7 +1,7 @@
-import DeepProxy from '@/DeepProxy'
+import DeepProxy, { $base, $diff, $freeze } from '@/DeepProxy'
 import ObservableFunction from '@/ObservableFunction'
 import { PrimaryKeyError } from '@/errors'
-import { cloneDeep } from '@/utils'
+import { reflect, cloneDeep } from '@/utils'
 
 class GenericModel {
   #alias2column
@@ -14,61 +14,46 @@ class GenericModel {
     const cols = this.columnMappingFromSelect(select)
     this.#alias2column = new Map(cols)
     this.#column2alias = new Map(cols.map(([k, v]) => [v, k]))
-    this.#model = new DeepProxy(cloneDeep(data))
     this.#route = route
     this.#select = select
+    this.#model = new DeepProxy(cloneDeep(data))
 
     // ObservableFunctions need to be defined on the instance, because they keep state
-    // Using defineProperties to make them non-configurable, non-enumerable, non-writable
-    Object.defineProperties(this, {
-      $get: {
-        value: new ObservableFunction(this.$get.bind(this))
-      },
-      $post: {
-        value: new ObservableFunction(this.$post.bind(this))
-      },
-      $put: {
-        value: new ObservableFunction(this.$put.bind(this))
-      },
-      $patch: {
-        value: new ObservableFunction(this.$patch.bind(this))
-      },
-      $delete: {
-        value: new ObservableFunction(this.$delete.bind(this))
-      }
-    })
+    const $get = new ObservableFunction(this.$get.bind(this))
+    const $post = new ObservableFunction(this.$post.bind(this))
+    const $put = new ObservableFunction(this.$put.bind(this))
+    const $patch = new ObservableFunction(this.$patch.bind(this))
+    const $delete = new ObservableFunction(this.$delete.bind(this))
 
-    // proxies the call to fn to either the proxy target
-    // or #model object
-    function proxySwitch (fn, target, property, ...args) {
-      if (property in target) {
-        return Reflect[fn](target, property, ...args)
-      }
-      return Reflect[fn](this.#model, property, ...args)
-    }
-    function concatKeys (target) {
-      return Reflect.ownKeys(target).concat(Reflect.ownKeys(this.#model))
-    }
     return new Proxy(this, {
-      defineProperty: proxySwitch.bind(this, 'defineProperty'),
-      deleteProperty: proxySwitch.bind(this, 'deleteProperty'),
-      get: proxySwitch.bind(this, 'get'),
-      getOwnPropertyDescriptor: proxySwitch.bind(this, 'getOwnPropertyDescriptor'),
-      has: proxySwitch.bind(this, 'has'),
-      set: proxySwitch.bind(this, 'set'),
-      ownKeys: concatKeys.bind(this)
+      deleteProperty: reflect.bind(this.#model, 'deleteProperty', ['$get', '$post', '$put', '$patch', '$delete'], false),
+      defineProperty: reflect.bind(this.#model, 'defineProperty', ['$get', '$post', '$put', '$patch', '$delete'], false),
+      has: reflect.bind(this.#model, 'has', ['$get', '$post', '$put', '$patch', '$delete'], true),
+      getOwnPropertyDescriptor: reflect.bind(this.#model, 'getOwnPropertyDescriptor', ['$get', '$post', '$put', '$patch', '$delete'], undefined),
+      ownKeys: reflect.bind(this.#model, 'ownKeys', [], undefined),
+      set: reflect.bind(this.#model, 'set', ['$get', '$post', '$put', '$patch', '$delete'], false),
+      get: (target, property, receiver) => {
+        switch (property) {
+          case '$get': return $get
+          case '$post': return $post
+          case '$put': return $put
+          case '$patch': return $patch
+          case '$delete': return $delete
+          default: return Reflect.get(this.#model, property, receiver)
+        }
+      }
     })
   }
 
   setData (data, keepDiff = false) {
     if (keepDiff) {
-      const diff = this.#model.$diff
+      const diff = this.#model[$diff]
       Object.assign(this.#model, data)
-      this.#model.$freeze()
+      this.#model[$freeze]()
       Object.assign(this.#model, diff)
     } else {
       Object.assign(this.#model, data)
-      this.#model.$freeze()
+      this.#model[$freeze]()
     }
   }
 
@@ -90,7 +75,7 @@ class GenericModel {
 
   queryFromPKs () {
     if (this.#route.pks.length === 0) throw new PrimaryKeyError()
-    const base = this.#model.$base
+    const base = this.#model[$base]
     return this.#route.pks.reduce((q, pk) => {
       const alias = this.#column2alias.get(pk) ?? pk
       if (base[alias] === undefined || base[alias] === null) {
@@ -220,12 +205,13 @@ class GenericModel {
     if (!data || typeof data !== 'object') {
       throw new Error('Patch data must be an object.')
     }
+    const diff = this.#model[$diff]
     const patchData = Object.assign(
       {},
-      Object.keys(this.#model.$diff).reduce((acc, alias) => {
+      Object.keys(this.#model[$diff]).reduce((acc, alias) => {
         const col = this.#alias2column.get(alias) ?? alias
         if (this.#route.columns.includes(col)) {
-          acc[col] = this.#model.$diff[alias]
+          acc[col] = diff[alias]
         }
         return acc
       }, {}),
