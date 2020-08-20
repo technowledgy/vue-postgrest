@@ -7,15 +7,13 @@ class GenericModel {
   #alias2column
   #column2alias
   #model
-  #route
-  #select
+  #options
 
-  constructor ({ route, select }, data) {
-    const cols = this.columnMappingFromSelect(select)
+  constructor (options, data) {
+    const cols = this.columnMappingFromSelect(options.select)
     this.#alias2column = new Map(cols)
     this.#column2alias = new Map(cols.map(([k, v]) => [v, k]))
-    this.#route = route
-    this.#select = select
+    this.#options = options
     this.#model = new DeepProxy(cloneDeep(data))
 
     // ObservableFunctions need to be defined on the instance, because they keep state
@@ -45,7 +43,7 @@ class GenericModel {
     })
   }
 
-  setData (data, keepDiff = false) {
+  setData (data, keepDiff) {
     if (keepDiff) {
       const diff = this.#model[$diff]
       Object.assign(this.#model, data)
@@ -74,9 +72,9 @@ class GenericModel {
   }
 
   queryFromPKs () {
-    if (this.#route.pks.length === 0) throw new PrimaryKeyError()
+    if (this.#options.route.pks.length === 0) throw new PrimaryKeyError()
     const base = this.#model[$base]
-    return this.#route.pks.reduce((q, pk) => {
+    return this.#options.route.pks.reduce((q, pk) => {
       const alias = this.#column2alias.get(pk) ?? pk
       if (base[alias] === undefined || base[alias] === null) {
         throw new PrimaryKeyError(pk)
@@ -86,60 +84,47 @@ class GenericModel {
     }, {})
   }
 
-  async $get (signal, opts = {}) {
-    await this.#route.$ready
-    const { keepChanges, ...options } = Object.assign({}, opts)
+  async request ({ method, keepChanges = false }, signal, opts, ...data) {
+    await this.#options.route.$ready
+    const { columns, ...options } = opts
 
-    const query = this.queryFromPKs()
-    if (this.#select) {
-      query.select = this.#select
-    }
-    const resp = await this.#route.get(query, { ...options, accept: 'single', signal })
-    const body = await resp.json()
+    const query = method === 'post' ? {} : this.queryFromPKs()
+    query.select = this.#options.select
 
-    this.setData(body, keepChanges)
-    return body
-  }
-
-  async $post (signal, opts) {
-    await this.#route.$ready
-    const defaultOptions = { return: 'representation' }
-    const { columns, ...options } = Object.assign({}, defaultOptions, opts)
-
-    const query = {}
-    if (options.return === 'representation' && this.#select) {
-      query.select = this.#select
-    }
     if (columns) {
-      if (this.#route.columns) {
-        query.columns = columns.filter(c => this.#route.columns.includes(c))
+      if (this.#options.route.columns) {
+        query.columns = columns.filter(c => this.#options.route.columns.includes(c))
       } else {
         query.columns = columns
       }
     }
 
-    const postData = Object.assign(
-      {},
-      Object.keys(this.#model).reduce((acc, alias) => {
-        const col = this.#alias2column.get(alias) ?? alias
-        if (this.#route.columns) {
-          if (this.#route.columns.includes(col)) {
-            acc[col] = this.#model[alias]
+    // rename aliased columns
+    if (data[0]) {
+      data[0] = Object.assign(
+        {},
+        Object.keys(data[0]).reduce((acc, alias) => {
+          const col = this.#alias2column.get(alias) ?? alias
+          if (this.#options.route.columns) {
+            if (this.#options.route.columns.includes(col)) {
+              acc[col] = data[0][alias]
+            }
+          } else {
+            acc[col] = data[0][alias]
           }
-        } else {
-          acc[col] = this.#model[alias]
-        }
-        return acc
-      }, {})
-    )
+          return acc
+        }, {})
+      )
+    }
 
-    const resp = await this.#route.post(query, { ...options, accept: 'single', signal }, postData)
+    const resp = await this.#options.route[method](query, { ...options, accept: 'single', signal }, ...data)
 
-    if (options.return === 'representation') {
-      const body = await resp.json()
-      this.setData(body)
-      return body
-    } else if (resp.headers.get('Location')) {
+    let body
+    try {
+      body = await resp.json()
+    } catch {
+      if (!resp.headers.get('Location')) return
+      // for POST/PUT minimal
       const loc = new URLSearchParams(resp.headers.get('Location').replace(/^\/[^?]+\?/, ''))
       const ret = {}
       for (const [key, value] of loc.entries()) {
@@ -147,110 +132,42 @@ class GenericModel {
       }
       return ret
     }
+    this.setData(body, keepChanges)
+    return body
+  }
+
+  async $get (signal, opts = {}) {
+    const { keepChanges, ...options } = opts
+    return this.request({ method: 'get', keepChanges }, signal, options)
+  }
+
+  async $post (signal, opts = {}) {
+    const options = { return: 'representation', ...opts }
+    return this.request({ method: 'post' }, signal, options, this.#model)
   }
 
   async $put (signal, opts) {
-    await this.#route.$ready
-    const defaultOptions = { return: 'representation' }
-    const { columns, ...options } = Object.assign({}, defaultOptions, opts)
-
-    const query = this.queryFromPKs()
-    if (options.return === 'representation' && this.#select) {
-      query.select = this.#select
-    }
-    if (columns) {
-      query.columns = columns.filter(c => this.#route.columns.includes(c))
-    }
-
-    const putData = Object.assign(
-      {},
-      Object.keys(this.#model).reduce((acc, alias) => {
-        const col = this.#alias2column.get(alias) ?? alias
-        if (this.#route.columns.includes(col)) {
-          acc[col] = this.#model[alias]
-        }
-        return acc
-      }, {})
-    )
-
-    const resp = await this.#route.put(query, { ...options, accept: 'single', signal }, putData)
-
-    if (options.return === 'representation') {
-      const body = await resp.json()
-      this.setData(body)
-      return body
-    } else if (resp.headers.get('Location')) {
-      const loc = new URLSearchParams(resp.headers.get('Location').replace(/^\/[^?]+\?/, ''))
-      const ret = {}
-      for (const [key, value] of loc.entries()) {
-        ret[key] = value.replace(/^eq\./, '')
-      }
-      return ret
-    }
+    const options = { return: 'representation', ...opts }
+    return this.request({ method: 'put' }, signal, options, this.#model)
   }
 
-  async $patch (signal, data = {}, opts) {
-    await this.#route.$ready
-    const defaultOptions = { return: 'representation' }
-    const { columns, ...options } = Object.assign({}, defaultOptions, opts)
-
-    const query = this.queryFromPKs()
-    if (options.return === 'representation' && this.#select) {
-      query.select = this.#select
-    }
-    if (columns) {
-      query.columns = columns.filter(c => this.#route.columns.includes(c))
-    }
+  async $patch (signal, opts, data = {}) {
+    const options = { return: 'representation', ...opts }
 
     if (!data || typeof data !== 'object') {
       throw new Error('Patch data must be an object.')
     }
-    const diff = this.#model[$diff]
     const patchData = Object.assign(
       {},
-      Object.keys(this.#model[$diff]).reduce((acc, alias) => {
-        const col = this.#alias2column.get(alias) ?? alias
-        if (this.#route.columns.includes(col)) {
-          acc[col] = diff[alias]
-        }
-        return acc
-      }, {}),
-      Object.keys(data).reduce((acc, col) => {
-        if (data[col] !== undefined) {
-          acc[col] = data[col]
-        }
-        return acc
-      }, {})
+      this.#model[$diff],
+      data
     )
 
-    // no empty requests
-    if (Object.keys(patchData).length === 0) {
-      return
-    }
-
-    const resp = await this.#route.patch(query, { ...options, accept: 'single', signal }, patchData)
-
-    if (options.return === 'representation') {
-      const body = await resp.json()
-      this.setData(body)
-      return body
-    }
+    return this.request({ method: 'patch' }, signal, options, patchData)
   }
 
   async $delete (signal, options = {}) {
-    await this.#route.$ready
-    const query = this.queryFromPKs()
-    if (options.return === 'representation' && this.#select) {
-      query.select = this.#select
-    }
-
-    const resp = await this.#route.delete(query, { ...options, accept: 'single', signal })
-
-    if (options.return === 'representation') {
-      const body = await resp.json()
-      this.setData(body)
-      return body
-    }
+    return this.request({ method: 'delete' }, signal, options)
   }
 }
 

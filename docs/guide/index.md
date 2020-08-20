@@ -364,7 +364,7 @@ Just like the mixin method `pg.get`, the request-specific methods provided by a 
 
 **Note:** The model is updated after $patch requests by default and `initial state` is set to the updated data. If you don't want to update the model, e.g. when doing a partial patch, set the `$patch` option `return='minimal'`.
 
-The optional first argument to the `item.$patch` method is an object with patch data. The second argument to `$patch` is an options object.See [$patch](/api/#patch-data-options) for details.
+The first argument to the `item.$patch` method is an options object. The second argument to `$patch` is an object with additional patch data. See [$patch](/api/#patch-data-options) for details.
 
 A more extensive example could look like this:
 
@@ -395,10 +395,10 @@ A more extensive example could look like this:
     },
   methods () {
     async patch (hero) {
-      await hero.$patch({}, { columns: ['name'] })
+      await hero.$patch({ columns: ['name'] })
     },
     async powerUp (hero) {
-      await hero.$patch({ superhero: true })
+      await hero.$patch({}, { superhero: true })
     },
     async delete (hero) {
       await hero.$delete()
@@ -439,7 +439,7 @@ Using the `postgrest` component and it's slot scope for patching:
 ...
   methods: {
     async update (item) {
-      await item.$patch({ 'updated_by': this.$store.getters.userId })
+      await item.$patch({}, { 'updated_by': this.$store.getters.userId })
     }
   }
 ...

@@ -1165,15 +1165,15 @@ The data of a GenericModel is available directly on the instance in addition to 
   }
   ```
 
-### $patch([data, options])
+### $patch([options, data])
 
 - **Type:** `ObservableFunction`
 
 - **Arguments:**
 
-  - `{object} data`
-
   - `{object} options`
+
+  - `{object} data`
 
 - **Returns:** Response from the API
 
@@ -1213,7 +1213,7 @@ The data of a GenericModel is available directly on the instance in addition to 
     methods: {
       updateHeroAge (age) {
         this.pg.item.age = age
-        this.pg.item.$patch({ name: 'Younger Yoda '})
+        this.pg.item.$patch({}, { name: 'Younger Yoda '})
         // sends a patch request with the data: { age: age, name: 'Younger Yoda' }
       }
     }

@@ -370,13 +370,6 @@ describe('GenericModel', () => {
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', { select }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
 
-    it('does not set select part of query if return is "minimal"', async () => {
-      const select = ['id', 'name']
-      const model = new GenericModel({ route, select }, data)
-      await model.$post({ return: 'minimal' })
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'minimal', accept: 'single', signal: expect.any(AbortSignal) }, data)
-    })
-
     it('does not set columns part of query if option "columns" is set to undefined', async () => {
       const model = new GenericModel({ route }, data)
       await model.$post({ columns: undefined })
@@ -462,6 +455,10 @@ describe('GenericModel', () => {
     })
 
     it('keeps data when return is "minimal"', async () => {
+      request.mockReturnValueOnce({
+        json: async () => { throw new Error() },
+        headers: new Headers()
+      })
       const model = new GenericModel({ route }, data)
       model.name = 'client321'
       await model.$post({ return: 'minimal' })
@@ -480,7 +477,7 @@ describe('GenericModel', () => {
 
     it('returns the request\'s location header data with return=minimal', async () => {
       request.mockReturnValueOnce({
-        json: async () => mockReturn,
+        json: async () => { throw new Error() },
         headers: new Headers({
           Location: '/clients?id=eq.321'
         })
@@ -491,6 +488,10 @@ describe('GenericModel', () => {
     })
 
     it('doesn\'t return the request\'s return value for return=minimal without Location header', async () => {
+      request.mockReturnValueOnce({
+        json: async () => { throw new Error() },
+        headers: new Headers()
+      })
       const model = new GenericModel({ route }, data)
       const ret = await model.$post({ return: 'minimal' })
       expect(ret).toBeUndefined()
@@ -583,13 +584,6 @@ describe('GenericModel', () => {
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PUT', { 'id.eq': 123, select }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, data)
     })
 
-    it('does not set select part of query if return is "minimal"', async () => {
-      const select = ['id', 'name']
-      const model = new GenericModel({ route, select }, data)
-      await model.$put({ return: 'minimal' })
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PUT', { 'id.eq': 123 }, { return: 'minimal', accept: 'single', signal: expect.any(AbortSignal) }, data)
-    })
-
     it('does not set columns part of query if option "columns" is set to undefined', async () => {
       const model = new GenericModel({ route }, data)
       await model.$put({ columns: undefined })
@@ -662,6 +656,10 @@ describe('GenericModel', () => {
     })
 
     it('keeps data when return is "minimal"', async () => {
+      request.mockReturnValueOnce({
+        json: async () => { throw new Error() },
+        headers: new Headers()
+      })
       const model = new GenericModel({ route }, data)
       model.name = 'client321'
       await model.$put({ return: 'minimal' })
@@ -680,7 +678,7 @@ describe('GenericModel', () => {
 
     it('returns the request\'s location header data with return=minimal', async () => {
       request.mockReturnValueOnce({
-        json: async () => mockReturn,
+        json: async () => { throw new Error() },
         headers: new Headers({
           Location: '/clients?id=eq.321'
         })
@@ -691,6 +689,10 @@ describe('GenericModel', () => {
     })
 
     it('doesn\'t return the request\'s return value for return=minimal without Location header', async () => {
+      request.mockReturnValueOnce({
+        json: async () => { throw new Error() },
+        headers: new Headers()
+      })
       const model = new GenericModel({ route }, data)
       const ret = await model.$put({ return: 'minimal' })
       expect(ret).toBeUndefined()
@@ -740,12 +742,6 @@ describe('GenericModel', () => {
     })
 
     describe('called without data', () => {
-      it('does not send a patch request if no data was changed', async () => {
-        const model = new GenericModel({ route }, data)
-        await model.$patch()
-        expect(request).not.toHaveBeenCalled()
-      })
-
       it('sends a patch request with simple changed data fields', async () => {
         const model = new GenericModel({ route }, data)
         model.name = 'client321'
@@ -753,14 +749,6 @@ describe('GenericModel', () => {
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client321'
         })
-      })
-
-      it('does not send a patch request if change is undone', async () => {
-        const model = new GenericModel({ route }, data)
-        model.name = 'client321'
-        model.name = 'client123'
-        await model.$patch()
-        expect(request).not.toHaveBeenCalled()
       })
 
       it('sends a patch request with simple new data fields', async () => {
@@ -880,40 +868,34 @@ describe('GenericModel', () => {
     describe('called with data', () => {
       it('throws if argument is not an object', async () => {
         const model = new GenericModel({ route }, data)
-        await expect(model.$patch(null)).rejects.toThrow()
-        await expect(model.$patch(1)).rejects.toThrow()
+        await expect(model.$patch({}, null)).rejects.toThrow()
+        await expect(model.$patch({}, 1)).rejects.toThrow()
       })
 
       it('sends a patch request with argument', async () => {
         const model = new GenericModel({ route }, data)
-        await model.$patch({
+        await model.$patch({}, {
           name: 'client 222',
-          newField: true
+          new: true
         })
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client 222',
-          newField: true
+          new: true
         })
-      })
-
-      it('does not send a patch request for keys with value undefined', async () => {
-        const model = new GenericModel({ route }, data)
-        await model.$patch({ key: undefined })
-        expect(request).not.toHaveBeenCalled()
       })
 
       it('merges argument with changed data fields', async () => {
         const model = new GenericModel({ route }, data)
         model.name = 'client321'
         model.age = 66
-        await model.$patch({
+        await model.$patch({}, {
           name: 'client 222',
-          newField: true
+          new: true
         })
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client 222',
           age: 66,
-          newField: true
+          new: true
         })
       })
     })
@@ -927,7 +909,7 @@ describe('GenericModel', () => {
           headers: { prefer: 'custom-prefer-header', accept: 'custom-accept-header', 'x-header': 'custom-x-header' },
           accept: 'multiple'
         }
-        await model.$patch({}, options)
+        await model.$patch(options)
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { ...options, accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client321'
         })
@@ -937,18 +919,8 @@ describe('GenericModel', () => {
         const select = ['id', 'name']
         const model = new GenericModel({ route, select }, data)
         model.name = 'client321'
-        await model.$patch({}, { return: 'representation' })
+        await model.$patch({ return: 'representation' })
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, select }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
-          name: 'client321'
-        })
-      })
-
-      it('does not set select part of query if return is "minimal"', async () => {
-        const select = ['id', 'name']
-        const model = new GenericModel({ route, select }, data)
-        model.name = 'client321'
-        await model.$patch({}, { return: 'minimal' })
-        expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'minimal', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client321'
         })
       })
@@ -956,7 +928,7 @@ describe('GenericModel', () => {
       it('does not set columns part of query if option "columns" is set to undefined', async () => {
         const model = new GenericModel({ route }, data)
         model.name = 'client321'
-        await model.$patch({}, { columns: undefined })
+        await model.$patch({ columns: undefined })
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client321'
         })
@@ -965,7 +937,7 @@ describe('GenericModel', () => {
       it('sets columns part of query to user-defined columns if option "columns" is set', async () => {
         const model = new GenericModel({ route }, data)
         model.name = 'client321'
-        await model.$patch({}, { columns: ['age'] })
+        await model.$patch({ columns: ['age'] })
         expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PATCH', { 'id.eq': 123, columns: ['age'] }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
           name: 'client321'
         })
@@ -1002,16 +974,20 @@ describe('GenericModel', () => {
       it('updates model when return is "representation"', async () => {
         const model = new GenericModel({ route }, data)
         model.name = 'client321'
-        await model.$patch({}, { return: 'representation' })
+        await model.$patch({ return: 'representation' })
         expect(request).toHaveBeenCalled()
         model.$reset()
         expect(model).toMatchObject(mockReturn)
       })
 
       it('keeps data when return is "minimal"', async () => {
+        request.mockReturnValueOnce({
+          json: async () => { throw new Error() },
+          headers: new Headers()
+        })
         const model = new GenericModel({ route }, data)
         model.name = 'client321'
-        await model.$patch({}, { return: 'minimal' })
+        await model.$patch({ return: 'minimal' })
         expect(request).toHaveBeenCalled()
         expect(model).toMatchObject({
           ...data,
@@ -1028,9 +1004,13 @@ describe('GenericModel', () => {
     })
 
     it('doesn\'t return the request\'s return value for return=minimal', async () => {
+      request.mockReturnValueOnce({
+        json: async () => { throw new Error() },
+        headers: new Headers()
+      })
       const model = new GenericModel({ route }, data)
       model.name = 'client321'
-      const ret = await model.$patch({}, { return: 'minimal' })
+      const ret = await model.$patch({ return: 'minimal' })
       expect(ret).toBeUndefined()
     })
   })
@@ -1101,16 +1081,11 @@ describe('GenericModel', () => {
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123, select }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) })
     })
 
-    it('does not set select part of query if return is not "representation"', async () => {
-      const select = ['id', 'name']
-      const model = new GenericModel({ route, select }, data)
-      await model.$delete({ return: 'minimal' })
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123 }, { return: 'minimal', accept: 'single', signal: expect.any(AbortSignal) })
-      await model.$delete()
-      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'DELETE', { 'id.eq': 123 }, { accept: 'single', signal: expect.any(AbortSignal) })
-    })
-
     it('doesn\'t return the request\'s return value', async () => {
+      request.mockReturnValueOnce({
+        json: async () => { throw new Error() },
+        headers: new Headers()
+      })
       const model = new GenericModel({ route }, data)
       const ret = await model.$delete()
       expect(ret).toBeUndefined()
