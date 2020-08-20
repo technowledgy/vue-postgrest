@@ -4,15 +4,10 @@ import { PrimaryKeyError } from '@/errors'
 import { reflect, cloneDeep } from '@/utils'
 
 class GenericModel {
-  #alias2column
-  #column2alias
   #model
   #options
 
   constructor (options, data) {
-    const cols = this.columnMappingFromSelect(options.select)
-    this.#alias2column = new Map(cols)
-    this.#column2alias = new Map(cols.map(([k, v]) => [v, k]))
     this.#options = options
     this.#model = new DeepProxy(cloneDeep(data))
 
@@ -43,18 +38,6 @@ class GenericModel {
     })
   }
 
-  setData (data, keepDiff) {
-    if (keepDiff) {
-      const diff = this.#model[$diff]
-      Object.assign(this.#model, data)
-      this.#model[$freeze]()
-      Object.assign(this.#model, diff)
-    } else {
-      Object.assign(this.#model, data)
-      this.#model[$freeze]()
-    }
-  }
-
   columnMappingFromSelect (select) {
     if (!select) return []
     const kvPairs =
@@ -71,25 +54,31 @@ class GenericModel {
       .filter(Boolean)
   }
 
-  queryFromPKs () {
-    if (this.#options.route.pks.length === 0) throw new PrimaryKeyError()
-    const base = this.#model[$base]
-    return this.#options.route.pks.reduce((q, pk) => {
-      const alias = this.#column2alias.get(pk) ?? pk
-      if (base[alias] === undefined || base[alias] === null) {
-        throw new PrimaryKeyError(pk)
-      }
-      q[pk + '.eq'] = base[alias]
-      return q
-    }, {})
-  }
-
-  async request ({ method, keepChanges = false }, signal, opts, ...data) {
+  async request ({ method, keepChanges = false, queryPK = true }, signal, opts, ...data) {
     await this.#options.route.$ready
     const { columns, ...options } = opts
 
-    const query = method === 'post' ? {} : this.queryFromPKs()
-    query.select = this.#options.select
+    // re-create alias mapping every time, because "select" might have been changed between calls
+    const cols = this.columnMappingFromSelect(this.#options.select)
+    const alias2column = new Map(cols)
+    const column2alias = new Map(cols.map(([k, v]) => [v, k]))
+
+    const query = { select: this.#options.select }
+
+    if (queryPK) {
+      // we can't get/put/patch/delete on a route without PK
+      if (this.#options.route.pks.length === 0) throw new PrimaryKeyError()
+      // base = unmodified data, since we need to query on the old PK, if it was changed
+      const base = this.#model[$base]
+      this.#options.route.pks.forEach(pk => {
+        const alias = column2alias.get(pk) ?? pk
+        if (base[alias] === undefined || base[alias] === null) {
+          throw new PrimaryKeyError(pk)
+        }
+        // TODO: do we need .is for Boolean PKs?
+        query[pk + '.eq'] = base[alias]
+      })
+    }
 
     if (columns) {
       if (this.#options.route.columns) {
@@ -104,12 +93,8 @@ class GenericModel {
       data[0] = Object.assign(
         {},
         Object.keys(data[0]).reduce((acc, alias) => {
-          const col = this.#alias2column.get(alias) ?? alias
-          if (this.#options.route.columns) {
-            if (this.#options.route.columns.includes(col)) {
-              acc[col] = data[0][alias]
-            }
-          } else {
+          const col = alias2column.get(alias) ?? alias
+          if (!this.#options.route.columns || this.#options.route.columns.includes(col)) {
             acc[col] = data[0][alias]
           }
           return acc
@@ -126,13 +111,20 @@ class GenericModel {
       if (!resp.headers.get('Location')) return
       // for POST/PUT minimal
       const loc = new URLSearchParams(resp.headers.get('Location').replace(/^\/[^?]+\?/, ''))
-      const ret = {}
-      for (const [key, value] of loc.entries()) {
-        ret[key] = value.replace(/^eq\./, '')
-      }
-      return ret
+      return Object.fromEntries(Array.from(loc.entries()).map(([key, value]) => [key, value.replace(/^eq\./, '')]))
     }
-    this.setData(body, keepChanges)
+
+    // update instance with returned data
+    // TODO: do we need to delete missing keys?
+    if (keepChanges) {
+      const diff = this.#model[$diff]
+      Object.assign(this.#model, body)
+      this.#model[$freeze]()
+      Object.assign(this.#model, diff)
+    } else {
+      Object.assign(this.#model, body)
+      this.#model[$freeze]()
+    }
     return body
   }
 
@@ -143,7 +135,7 @@ class GenericModel {
 
   async $post (signal, opts = {}) {
     const options = { return: 'representation', ...opts }
-    return this.request({ method: 'post' }, signal, options, this.#model)
+    return this.request({ method: 'post', queryPK: false }, signal, options, this.#model)
   }
 
   async $put (signal, opts) {
