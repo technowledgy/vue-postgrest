@@ -12,7 +12,7 @@ yarn add vue-postgrest
 npm install vue-postgrest
 ```
 
-The default export provides the plugin to use in your `main.js`. When installing the plugin, you can pass the root URI of your postgREST server as a plugin option. All requests to the API made by the mixin, component or instance methods will use this URI as base.
+The default export provides the plugin to use in your `main.js`. When installing the plugin, you can pass the root URI of your PostgREST server as a plugin option. All requests to the API made by the mixin, component or instance methods will use this URI as base.
 
 ``` js
 import Vue from 'vue'
@@ -53,21 +53,19 @@ export default {
 
 ### Column Filtering
 
-To access the data sent by the server, use `pg.items`, which is an array holding the server response by default.
+To access the data sent by the server, use `this.pg`, which is an array holding the server response by default.
 
 ``` vue
 <template>
   <ul>
-    <li v-for="hero in pg.items" :key="hero.id">{{ hero.name }}</li>
+    <li v-for="hero in pg" :key="hero.id">{{ hero.name }}</li>
   </ul>
 </template>
 ```
 
-Using the mixin option `accept = 'single'` will set the `Accept` header to tell postgREST to return a single item unenclosed by an array. If `accept === 'single'` you can use `pg.item` to access the returned item.
+Using the mixin option `single: true` will set the `Accept` header to tell PostgREST to return a single item unenclosed by an array. In this case you can use `this.pg` to access the returned item directly.
 
-**Note:** The `accept` option can be set to `'text'` or `'binary'` as well, which are shortcuts to setting the appropriate header to tell postgREST to return text or binary data. If setting 'text' or 'binary' the response data will be available via `pg.data` or the slot prop `data`, respectively.
-
-The mixin option `query` is used to construct the postgREST query string. Use `query.select` for column filtering like this:
+The mixin option `query` is used to construct the PostgREST query string. Use `query.select` for column filtering like this:
 
 ``` vue
 <script>
@@ -101,7 +99,7 @@ The select key alternatively accepts an object with column names as keys. You ca
 
 ### Ordering
 
-To order your response, you can either pass an array of strings or an object to `pgConfig.order`. E.g.:
+To order your response, you can either pass an array of strings or an object to `query.order`. E.g.:
 
 ``` vue
 <script>
@@ -131,7 +129,7 @@ To order your response, you can either pass an array of strings or an object to 
 ### Row Filtering
 
 The `query` constructs column conditions from it's keys. Operators are dot-appendend to the key.
-E.g. to use multiple conditions on one column:
+E.g. to use multiple conditions:
 
 ``` vue
 <script>
@@ -139,8 +137,7 @@ E.g. to use multiple conditions on one column:
     query: {
       select: ['*'],
       'id.in': [1, 2, 3],
-      'age.gte': 50
-      }
+      'age.gte': 50    
     }
 ...
 </script>
@@ -179,32 +176,32 @@ PostgREST offers an easy way to handle relationships between tables/views. You c
 
 ### Loading / Refreshing
 
-For monitoring the current status of the request, you can use `vm.pg.get` which is an [ObservableFunction](/api/#observable-function). `pg.get.isPending` tells you, if a request is still pending:
+For monitoring the current status of the request, you can use `this.pg.$get` which is an [ObservableFunction](/api/#observable-function). `pg.$get.isPending` tells you, if a request is still pending:
 
 ``` vue
 <template>
-  <loading-spinner v-if="pg.get.isPending"/>
+  <loading-spinner v-if="pg.$get.isPending"/>
   <ul v-else>
-    <li v-for="hero in pg.items" :key="hero.id">{{ hero.name }}</li>
+    <li v-for="hero in pg" :key="hero.id">{{ hero.name }}</li>
   </ul>
 </template>
 ```
 
-You can call the `get` function to rerun the get request, e.g. if you need to refresh your data manually.
+You can call the `$get` function to rerun the get request, e.g. if you need to refresh your data manually.
 
-**Note:** The `get` function also exposes getters for information about failed requests, see [error handling](./#error-handling).
+**Note:** The `$get` function also exposes getters for information about failed requests, see [error handling](./#error-handling).
 
 ### Pagination
 
 Server side pagination can be achieved by setting the mixin options `limit` and `offset`. When used as a mixin option (or component prop), these options set the appropriate request headers automatically. When used inside a query object, limit and offset will be appended to the query string.
 
 **Range**
-To get information about the paginated response, the mixin provides the `pg.range` object, based on the response's `Content-Range` header. To get the total count of available rows, use the mixin option `count = 'exact'` which sets the corresponding `Prefer` header.
+To get information about the paginated response, the mixin provides the `pg.$range` object, based on the response's `Content-Range` header. To get the total count of available rows, use the mixin option `count = 'exact'` which sets the corresponding `Prefer` header.
 
 ``` vue
 <template>
 ...
-  <span>Displaying hero no. {{ pg.range.first }} to {{ pg.range.last }} of {{ pg.range.totalCount }} total Heroes</span>
+  <span>Displaying hero no. {{ pg.$range.first }} to {{ pg.$range.last }} of {{ pg.$range.totalCount }} total Heroes</span>
   <button @click="offset += 20">Next 20 Heroes</button>
   <button @click="offset -= 20" :disabled="offset - 20 < 0">Previous 20 Heroes</button>
 ...
@@ -257,23 +254,23 @@ The component takes the same options as the `pg` mixin as props and provides it'
       }"
       :limit="2"
       />
-      <template #default="{ get, items: heroes }">
-        <loading-spinner v-if="get.isPending"/>
+      <template #default="items">
+        <loading-spinner v-if="items.$get.isPending"/>
         <div v-else>
           Our new heroes are {{ heroes[0].name }} and {{ heroes[1].name }}!
         </div>
       </template>
     </postgrest>
     <!-- display the heroes list fetched by the mixin -->
-    <loading-spinner v-if="pg.get.isPending"/>
+    <loading-spinner v-if="pg.$get.isPending"/>
     <ul v-else>
-      <li v-for="hero in pg.items" :key="hero.id">{{ hero.name }}</li>
+      <li v-for="hero in pg" :key="hero.id">{{ hero.name }}</li>
     </ul>
   </div>
 </template>
 ```
 
-**Note:** If you encounter situations where it is more convenient to do this programmatically, you can also use instance methods! The `vm.$postgrest` exposes a [Route](/api/#postgrest-route) for each table/view that is available in your schema. We could then rewrite the above example like this:
+**Note:** If you encounter situations where it is more convenient to do this programmatically, you can also use instance methods! The `this.$postgrest` exposes a [Route](/api/#postgrest-route) for each table/view that is available in your schema. You could then rewrite the above example like this:
 
 ``` vue
 <template>
@@ -299,7 +296,7 @@ The component takes the same options as the `pg` mixin as props and provides it'
       ...
     },
     heroes () {
-      return this.pg.items
+      return this.pg
     }
   },
   async mounted () {
@@ -344,11 +341,11 @@ Getting an item, modifying it's data and patching it on the server can be as sim
         query: {
           'id.eq': 1
         },
-        accept: 'single'
+        single: true
       }
     },
     hero () {
-      return this.pg.item
+      return this.pg
     }
 ...
 </script>
@@ -360,11 +357,11 @@ The instance methods `$postgrest.ROUTE.METHOD` do not wrap the response in Gener
 
 ### Model State
 
-Just like the mixin method `pg.get`, the request-specific methods provided by a GenericModel are [ObservableFunctions](/api/#observablefunction). This means, you can check on the status of pending requests or errors via the respective getters. In addition, GenericModels provide the getter `item.$isDirty`, which indicates if the item's data changed from it's initial state, as well as a `$reset` method, which resets the data to it's initial state.
+Just like the mixin method `pg.$get`, the request-specific methods provided by a GenericModel are [ObservableFunctions](/api/#observablefunction). This means, you can check on the status of pending requests or errors via the respective getters. In addition, GenericModels provide the getter `model.$isDirty`, which indicates if the model's data changed from it's initial state, as well as a `model.$reset()` method, which resets the data to it's initial state.
 
 **Note:** The model is updated after $patch requests by default and `initial state` is set to the updated data. If you don't want to update the model, e.g. when doing a partial patch, set the `$patch` option `return='minimal'`.
 
-The first argument to the `item.$patch` method is an options object. The second argument to `$patch` is an object with additional patch data. See [$patch](/api/#patch-data-options) for details.
+The first argument to the `model.$patch` method is an options object. The second argument to `$patch` is an object with additional patch data. See [$patch](/api/#patch-data-options) for details.
 
 A more extensive example could look like this:
 
@@ -391,7 +388,7 @@ A more extensive example could look like this:
       }
     },
     heroes () {
-      return this.pg.items
+      return this.pg
     },
   methods () {
     async patch (hero) {
@@ -403,7 +400,7 @@ A more extensive example could look like this:
     async delete (hero) {
       await hero.$delete()
       // refresh the heroes list after delete
-      this.pg.get()
+      this.pg.$get()
     }
   }
 ...
@@ -422,8 +419,8 @@ Using the `postgrest` component and it's slot scope for patching:
       'age.gt': 25
     }"
     />
-    <template #default="{ get, items: heroes }">
-      <loading-spinner v-if="get.isPending"/>
+    <template #default="heroes">
+      <loading-spinner v-if="heroes.$get.isPending"/>
       <div v-else>
         <div v-for="hero in heroes" :key="hero.id">
           <input :class="{ dirty: hero.$isDirty }" type="text" v-model="hero.name"/>
@@ -446,11 +443,9 @@ Using the `postgrest` component and it's slot scope for patching:
 </script>
 ```
 
-**Note:** No request is sent, if `$isDirty === false` or no patch data object is passed!
-
 ## Creating Models
 
-When the mixin option `pg.newTemplate` is set, a new [GenericModel](/api/#genericmodel) is provided on `pg.newItem` (or the `postgrest` component slot scope). You can use it's `$post` method to send a post request on the specified `route`. Creating a new item, modifying it's data and posting it to the server could look like this:
+When the mixin option `single` is `false` (the default) `this.pg` is actually an instance of a [GenericCollection](/api/#genericcollection). The `GenericCollection` has a method `pg.$new(...)` to create new `GenericModel`s. You can then call `$post()` on the returned models to make a `POST` request.
 
 ``` vue
 <template>
@@ -462,19 +457,24 @@ When the mixin option `pg.newTemplate` is set, a new [GenericModel](/api/#generi
 
 <script>
 ...
+  data () {
+    return {
+      newItem: null
+    }
+  },
   computed: {
     pgConfig () {
       return {
-        route: 'heroes',
-        newTemplate: {
-          name: 'New Hero'
-        }
+        route: 'heroes'
       }
     }
   },
+  mounted () {
+    this.newItem = this.pg.$new({ name: 'New Hero' })
+  },
   methods: {
     async post () {
-      // setting return to minimal, so the newItem is not updated with the server response and can be reset to our newTemplate later
+      // setting return to minimal, so the newItem is not updated with the server response and can be reset to our mounted template later
       await this.newItem.$post({ return: 'minimal' })
       // resetting newItem to our initial template
       this.newItem.$reset()
@@ -495,32 +495,31 @@ Example for `$post()` upsert:
 ``` vue
 <template>
 ...
-  <input type="text" v-model="hero.name"/>
+  <input type="text" v-model="newHero.name"/>
   <button @click="post"/>Create Hero</button>
 ...
 </template>
 
 <script>
 ...
+  data () {
+    return {
+      newHero: null
+    }
+  },
   computed: {
     pgConfig () {
       return {
-        route: 'heroes',
-        newTemplate: {
-          name: 'New Hero'
-        },
-        query: {
-          'on_conflict': name
-        }
+        route: 'heroes'
       }
-    },
-    hero () {
-      return this.pg.newItem
     }
+  },
+  mounted () {
+    this.newHero = this.pg.$new({ name: 'New Hero' })
   },
   methods: {
     async post () {
-      await this.hero.$post({ resolution: 'merge-duplicates' })
+      await this.newHero.$post({ resolution: 'merge-duplicates', query: { on_conflict: 'name' } })
     }
   }
 ...
@@ -535,7 +534,7 @@ The mixin calls the `onError` hook on your component instance whenever a [FetchE
 
 ### GenericModel / Instance Methods / Stored Procedures
 
-All request-specific methods from a [GenericModel](/api/#genericmodel), as well as the [instance methods](/api/#instancemethods) and [stored procedure calls](/api/#postgrest-rpc-function-name-options-params) throw [AuthError](/api/#autherror) and [FetchError](/api/#fetcherror).
+All request-specific methods from a [GenericCollection](/api/#genericcollection) or [GenericModel](/api/#genericmodel), as well as the [instance methods](/api/#instancemethods) and [stored procedure calls](/api/#postgrest-rpc-function-name-options-params) throw [AuthError](/api/#autherror) and [FetchError](/api/#fetcherror).
 Additionally, the generic model methods throw [PrimaryKeyError](/api/#primarykeyerror).
 
 ::: tip
@@ -551,8 +550,8 @@ You can test whether a schema was found for the base URI by catching [SchemaNotF
       route="vehicles"
       query="{}"
       @error="handleError">
-      <div #default="{ get, items }">
-        <span v-if="get.hasErrors">Could not load vehicles...</span>
+      <div #default="items">
+        <span v-if="items.$get.hasErrors">Could not load vehicles...</span>
         <div v-else>
           <div v-for="item in items" :key="item.id">
             <input type="text" v-model="item.type" @blur="updateVehicle(item)"/>
@@ -577,7 +576,8 @@ export default {
         route: 'heroes',
         query: {
           'id.eq': 1
-        }
+        },
+        single: true
       }
     }
   },
@@ -595,7 +595,7 @@ export default {
     },
     async deleteHero () {
       try {
-        await this.pg.item.$delete()
+        await this.pg.$delete()
       } catch (e) {
         this.handleError(e)
       }
@@ -610,7 +610,7 @@ export default {
     handleError (err) {
       if (err instanceof AuthError) {
         // handle token error
-        // AuthError is thrown when postgREST rejects the token
+        // AuthError is thrown when PostgREST rejects the token
       } else if (err instanceof FetchError) {
         // handle error from fetch
         // FetchError is thrown when the reponse status code is >= 400
@@ -652,7 +652,7 @@ If you want to call a RPC before the schema is loaded, you can call `$postgrest.
 
 ## Authentication
 
-The most convenient way to set the `Authorization` header to include your jwt token is to use the [setDefaultToken](/api/#setdefaulttoken) method exported by the module. This method sets the token to use for all subsequent communication with the postgREST server.
+The most convenient way to set the `Authorization` header to include your jwt token is to use the [setDefaultToken](/api/#setdefaulttoken) method exported by the module. This method sets the token to use for all subsequent communication with the PostgREST server.
 
 ``` vue
 import { setDefaultToken } from 'vue-postgrest'

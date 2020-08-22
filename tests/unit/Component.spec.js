@@ -44,80 +44,41 @@ describe('Component', () => {
   })
 
   describe('Slot scope', () => {
-    it('provides observable get function if prop route is set', () => {
+    it('provides observable $get function', () => {
       ({ render, wrapper } = createComponent({ route: 'clients' }))
-      expect(render).toHaveBeenCalledWith(expect.objectContaining({
-        get: expect.any(ObservableFunction)
-      }))
+      expect(render.mock.calls[0][0].$get).toBeInstanceOf(ObservableFunction)
     })
 
-    it('provides items if accept is not set', async () => {
+    it('provides GenericCollection if single is not set', async () => {
       ({ render, wrapper } = await new Promise(resolve => {
-        const cc = createComponent({ route: 'clients', query: {} }, scope => {
-          if (scope.items) resolve(cc)
+        const cc = createComponent({ route: 'clients', query: {} }, async (items) => {
+          if (!items.$get.isPending) resolve(cc)
         })
       }))
-      expect(render).toHaveBeenCalledWith(expect.objectContaining({
-        items: expect.arrayContaining([expect.any(GenericModel)])
-      }))
+      // checking for Array here because Vue 2.x reactivity doesn't allow us to expose GenericCollection as the true prototype
+      expect(render).toHaveBeenCalledWith(expect.any(Array))
     })
 
-    it('provides item if accept is "single"', async () => {
+    it('provides GenericModel if single is true', async () => {
       ({ render, wrapper } = await new Promise(resolve => {
-        const cc = createComponent({ route: 'clients', query: {}, accept: 'single' }, scope => {
-          if (scope.item) resolve(cc)
+        const cc = createComponent({ route: 'clients', query: {}, single: true }, async (item) => {
+          if (!item.$get.isPending) resolve(cc)
         })
       }))
-      expect(render).toHaveBeenCalledWith(expect.objectContaining({
-        item: expect.any(GenericModel)
-      }))
+      expect(render).toHaveBeenCalledWith(expect.any(GenericModel))
     })
 
-    it('provides data if accept is "text"', async () => {
+    it('provides $range if available', async () => {
       ({ render, wrapper } = await new Promise(resolve => {
-        const cc = createComponent({ route: 'clients', query: {}, accept: 'text' }, scope => {
-          if (scope.data) resolve(cc)
+        const cc = createComponent({ route: 'clients', query: {}, limit: 2 }, async (items) => {
+          if (!items.$get.isPending) resolve(cc)
         })
       }))
-      expect(render).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.any(String)
-      }))
-    })
-
-    it('provides data if accept is "binary"', async () => {
-      ({ render, wrapper } = await new Promise(resolve => {
-        const cc = createComponent({ route: 'clients', query: {}, accept: 'binary' }, scope => {
-          if (scope.data) resolve(cc)
-        })
-      }))
-      expect(render).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.anything() // can't match Blob properly, because it's internal to node-fetch
-      }))
-    })
-
-    it('provides range if available', async () => {
-      ({ render, wrapper } = await new Promise(resolve => {
-        const cc = createComponent({ route: 'clients', query: {}, limit: 2 }, scope => {
-          if (scope.range) resolve(cc)
-        })
-      }))
-      expect(render).toHaveBeenCalledWith(expect.objectContaining({
-        range: expect.any(Object)
-      }))
-    })
-
-    it('does not provide newItem if "newTemplate" is not set', async () => {
-      ({ render, wrapper } = createComponent({ route: 'clients' }))
-      expect(render).toHaveBeenCalledWith(expect.not.objectContaining({
-        newItem: expect.any(GenericModel)
-      }))
-    })
-
-    it('provides newItem if "newTemplate" is set', async () => {
-      ({ render, wrapper } = createComponent({ route: 'clients', newTemplate: {} }))
-      expect(render).toHaveBeenCalledWith(expect.objectContaining({
-        newItem: expect.any(GenericModel)
-      }))
+      expect(render.mock.calls[2][0].$range).toMatchObject({
+        totalCount: undefined,
+        first: 0,
+        last: 1
+      })
     })
   })
 

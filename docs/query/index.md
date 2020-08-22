@@ -67,7 +67,7 @@ const query = {
 
 </Query>
 
-## Horizontal Filtering (Rows) <PostgrestDocs href="http://postgrest.org/en/latest/api.html#horizontal-filtering-rows"/>
+## Horizontal Filtering (Rows) <PostgrestDocs href="https://postgrest.org/en/latest/api.html#horizontal-filtering-rows"/>
 
 ### Column Conditions
 
@@ -166,7 +166,7 @@ const query = {
 
 </Query>
 
-## Vertical Filtering (Columns) <PostgrestDocs href="http://postgrest.org/en/latest/api.html#vertical-filtering-columns"/>
+## Vertical Filtering (Columns) <PostgrestDocs href="https://postgrest.org/en/latest/api.html#vertical-filtering-columns"/>
 
 ### Selecting
 
@@ -368,7 +368,7 @@ const query = {
 
 </Query>
 
-## Ordering <PostgrestDocs href="http://postgrest.org/en/latest/api.html#ordering"/>
+## Ordering <PostgrestDocs href="https://postgrest.org/en/latest/api.html#ordering"/>
 
 <Query>
 
@@ -428,7 +428,7 @@ const query = {
 
 </Query>
 
-## Limits and Pagination <PostgrestDocs href="http://postgrest.org/en/latest/api.html#limits-and-pagination"/>
+## Limits and Pagination <PostgrestDocs href="https://postgrest.org/en/latest/api.html#limits-and-pagination"/>
 
 <Query>
 
@@ -441,7 +441,7 @@ const query = {
 
 </Query>
 
-## Resource Embedding <PostgrestDocs href="http://postgrest.org/en/latest/api.html#resource-embedding"/>
+## Resource Embedding <PostgrestDocs href="https://postgrest.org/en/latest/api.html#resource-embedding"/>
 
 ::: tip
 If a field of the `select` object has a `select` key itself, it is handled as an embed, otherwise as a JSON field.
@@ -515,7 +515,7 @@ const query = {
 
 </Query>
 
-## Insertions / Updates <PostgrestDocs href="http://postgrest.org/en/latest/api.html#insertions-updates"/>
+## Insertions / Updates <PostgrestDocs href="https://postgrest.org/en/latest/api.html#insertions-updates"/>
 
 ### Columns
 

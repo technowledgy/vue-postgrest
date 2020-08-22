@@ -20,7 +20,7 @@ You can use the `<postgrest>` component:
 
 ``` html
 <postgrest route="ROUTE" query={}>
-  <template #default="{ items }">
+  <template #default="items">
     {{ items }}
   </template>
 </postgrest>
@@ -30,7 +30,7 @@ Use the `pg` mixin:
 
 ``` vue
 <template>
-  <div>{{ pg.items }}</div>
+  <div>{{ items }}</div>
 </template>
 
 <script>
@@ -44,6 +44,9 @@ export default {
         route: 'ROUTE',
         query: {}
       }
+    },
+    items () {
+      return this.pg
     }
   }
 }

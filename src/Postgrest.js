@@ -17,8 +17,8 @@ export default {
     query: {
       type: Object
     },
-    accept: {
-      type: String
+    single: {
+      type: Boolean
     },
     limit: {
       type: Number
@@ -28,9 +28,6 @@ export default {
     },
     count: {
       type: String
-    },
-    newTemplate: {
-      type: Object
     }
   },
   computed: {
@@ -40,11 +37,10 @@ export default {
         apiRoot: this.apiRoot,
         token: this.token,
         query: this.query,
-        accept: this.accept,
+        single: this.single,
         limit: this.limit,
         offset: this.offset,
-        count: this.count,
-        newTemplate: this.newTemplate
+        count: this.count
       }
     }
   },

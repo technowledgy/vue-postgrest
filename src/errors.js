@@ -18,7 +18,7 @@ class FetchError extends Error {
 
 class PrimaryKeyError extends Error {
   constructor (pk) {
-    super(`Primary key not found ${pk}`)
+    super(`Primary key not found ${pk ?? ''}`)
     this.name = 'PrimaryKeyError'
   }
 }

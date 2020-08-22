@@ -1,7 +1,7 @@
-import DeepProxy, { $base, $diff, $freeze } from '@/DeepProxy'
+import DeepProxy, { $diff, $freeze } from '@/DeepProxy'
 import ObservableFunction from '@/ObservableFunction'
 import { PrimaryKeyError } from '@/errors'
-import { reflect, cloneDeep } from '@/utils'
+import { cloneDeep, mapAliasesFromSelect, reflect } from '@/utils'
 
 class GenericModel {
   #model
@@ -38,46 +38,17 @@ class GenericModel {
     })
   }
 
-  columnMappingFromSelect (select) {
-    if (!select) return []
-    const kvPairs =
-      Array.isArray(select) ? select.map(k => [k, true])
-        : typeof select === 'string' ? select.split(',').map(k => [k, true])
-          : Object.entries(select)
-
-    return kvPairs
-      .map(([k, v]) => {
-        if (!v) return
-        const [alias, column] = k.split(':')
-        return [alias, column ?? alias]
-      })
-      .filter(Boolean)
-  }
-
-  async request ({ method, keepChanges = false, queryPK = true }, signal, opts, ...data) {
+  async request ({ method, keepChanges = false, needsQuery = true }, signal, opts, ...data) {
     await this.#options.route.$ready
     const { columns, ...options } = opts
 
-    // re-create alias mapping every time, because "select" might have been changed between calls
-    const cols = this.columnMappingFromSelect(this.#options.select)
-    const alias2column = new Map(cols)
-    const column2alias = new Map(cols.map(([k, v]) => [v, k]))
-
     const query = { select: this.#options.select }
 
-    if (queryPK) {
-      // we can't get/put/patch/delete on a route without PK
-      if (this.#options.route.pks.length === 0) throw new PrimaryKeyError()
-      // base = unmodified data, since we need to query on the old PK, if it was changed
-      const base = this.#model[$base]
-      this.#options.route.pks.forEach(pk => {
-        const alias = column2alias.get(pk) ?? pk
-        if (base[alias] === undefined || base[alias] === null) {
-          throw new PrimaryKeyError(pk)
-        }
-        // TODO: do we need .is for Boolean PKs?
-        query[pk + '.eq'] = base[alias]
-      })
+    if (needsQuery) {
+      const q = this.#options.query
+      if (!q) throw new PrimaryKeyError()
+      if (q instanceof PrimaryKeyError) throw q
+      Object.assign(query, q)
     }
 
     if (columns) {
@@ -88,19 +59,13 @@ class GenericModel {
       }
     }
 
-    // rename aliased columns
-    if (data[0]) {
-      data[0] = Object.assign(
-        {},
-        Object.keys(data[0]).reduce((acc, alias) => {
-          const col = alias2column.get(alias) ?? alias
-          if (!this.#options.route.columns || this.#options.route.columns.includes(col)) {
-            acc[col] = data[0][alias]
-          }
-          return acc
-        }, {})
+    // rename aliased columns and drop columns that don't exist on the route (e.g. joined columns)
+    data = data.map(data => {
+      return Object.fromEntries(
+        Object.entries(mapAliasesFromSelect(this.#options.select, data))
+          .filter(([col, v]) => !this.#options.route.columns || this.#options.route.columns.includes(col))
       )
-    }
+    })
 
     const resp = await this.#options.route[method](query, { ...options, accept: 'single', signal }, ...data)
 
@@ -135,7 +100,7 @@ class GenericModel {
 
   async $post (signal, opts = {}) {
     const options = { return: 'representation', ...opts }
-    return this.request({ method: 'post', queryPK: false }, signal, options, this.#model)
+    return this.request({ method: 'post', needsQuery: false }, signal, options, this.#model)
   }
 
   async $put (signal, opts) {

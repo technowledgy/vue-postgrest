@@ -1,6 +1,35 @@
-import { splitToObject } from '@/utils'
+import { createPKQuery, mapAliasesFromSelect, splitToObject } from '@/utils'
+import { PrimaryKeyError } from '@/errors'
 
 describe('utils', () => {
+  describe('createPKQuery', () => {
+    it('returns PrimaryKeyError without pks', () => {
+      expect(createPKQuery()).toBeInstanceOf(PrimaryKeyError)
+    })
+
+    it('throws with non-string keys', () => {
+      // non-string key is just any error that is not PrimaryKeyError
+      // those should be thrown instead of returned
+      expect(() => createPKQuery([Symbol('sym')])).toThrow()
+    })
+
+    it('returns PrimaryKeyError with missing key', () => {
+      expect(createPKQuery(['a'], { b: 1 })).toBeInstanceOf(PrimaryKeyError)
+    })
+
+    it('returns proper pk query', () => {
+      expect(createPKQuery(['a'], { a: 1, b: 2 })).toEqual({
+        'a.eq': 1
+      })
+    })
+  })
+
+  describe('mapAliasesFromSelect', () => {
+    it('returns same keys with empty select', () => {
+      expect(mapAliasesFromSelect(undefined, { a: 'a', b: 'b' })).toEqual({ a: 'a', b: 'b' })
+    })
+  })
+
   describe('splitToObject', () => {
     it('splits single pair', () => {
       expect(splitToObject('k=v')).toEqual({ k: 'v' })

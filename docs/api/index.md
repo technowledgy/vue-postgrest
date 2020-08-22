@@ -208,7 +208,7 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
   The access token used for authorizing the connection to the API. This options sets the `Authorization` header for all requests.
 
-  See also [Client Auth](http://postgrest.org/en/latest/auth.html#client-auth) in the PostgREST documentation.
+  See also [Client Auth](https://postgrest.org/en/latest/auth.html#client-auth) in the PostgREST documentation.
 
   ::: tip
   You can set this globally with the [setDefaultToken method](./#setdefaulttoken-token)!
@@ -241,7 +241,7 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
 - **Details:**
 
-  The query sent to the API is constructed from this option. See the [Query API](/query) as well as [API](http://postgrest.org/en/latest/api.html) in the PostgREST documentation for more details.
+  The query sent to the API is constructed from this option. See the [Query API](/query) as well as [API](https://postgrest.org/en/latest/api.html) in the PostgREST documentation for more details.
 
 - **Example:**
 
@@ -269,17 +269,17 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
   }
   ```
 
-### accept
+### single
 
-- **Type:** `String`
+- **Type:** `Boolean`
 
-- **Default:** `undefined`
+- **Default:** `false`
 
 - **Details:**
 
-  Accept header to set or one of the options 'single', 'binary' or 'text', which set the correct headers automatically. Default header is set to 'application/json'. If setting 'text' or 'binary' the response data will be available via `pg.data` or the slot prop `data`, respectively.
+  If set to true, the request will be made with the `Accept: application/vnd.pgrst.object+json` header and `this.pg` will be of type [GenericModel](./#genericmodel). If set to false (the default), the header will be `Accept: application/json` and `this.pg` will be of type [GenericCollection](./#genericcollection).
 
-  See also [Response Format](http://postgrest.org/en/latest/api.html#response-format) in the PostgREST documentation.
+  See also [Singular or Plural](https://postgrest.org/en/latest/api.html#singular-or-plural) in the PostgREST documentation.
 
 - **Example:**
 
@@ -296,7 +296,7 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
           query: {
             'id.eq': 1
           },
-          accept: 'single'
+          single: true
         }
       }
     }
@@ -311,9 +311,9 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
 - **Details:**
 
-  Limits the count of response items by setting `Range-Unit` and `Range` headers.
+  Limits the count of response items by setting `Range-Unit` and `Range` headers. Only used when `single: false` is set.
 
-  See also [Limits and Pagination](http://postgrest.org/en/latest/api.html#limits-and-pagination) in the PostgREST documentation.
+  See also [Limits and Pagination](https://postgrest.org/en/latest/api.html#limits-and-pagination) in the PostgREST documentation.
 
 - **Example:**
 
@@ -347,9 +347,9 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
 - **Details:**
 
-  Offset the response items, useful e.g. for pagination, by setting `Range-Unit` and `Range` headers.
+  Offset the response items, useful e.g. for pagination, by setting `Range-Unit` and `Range` headers. Only used when `single: false` is set.
 
-  See also [Limits and Pagination](http://postgrest.org/en/latest/api.html#limits-and-pagination) in the PostgREST documentation.
+  See also [Limits and Pagination](https://postgrest.org/en/latest/api.html#limits-and-pagination) in the PostgREST documentation.
 
 - **Example:**
 
@@ -382,9 +382,9 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
 - **Details:**
 
-  If set to `'exact'`, we request the total amount of items in the database that fit the filter query (disabled by default due to performance considerations) by setting the `Prefer` header accordingly.
+  If set to `'exact'`, we request the total amount of items in the database that fit the filter query (disabled by default due to performance considerations) by setting the `Prefer` header accordingly. Only used when `single: false` is set.
 
-  See also [Limits and Pagination](http://postgrest.org/en/latest/api.html#exact-count) in the PostgREST documentation.
+  See also [Limits and Pagination](https://postgrest.org/en/latest/api.html#exact-count) in the PostgREST documentation.
 
 - **Example:**
 
@@ -402,39 +402,6 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
             'age.gt': 150
           },
           count: 'exact'
-        }
-      }
-    }
-  }
-  ```
-
-### newTemplate
-
-- **Type:** `Object`
-
-- **Default:** `undefined`
-
-- **Details:**
-
-  If this option is set, the instance provides a `newItem` item with it's data set to the passed template. 
-
-- **Example:**
-
-  ``` js
-  import { pg } from 'vue-postgrest'
-
-  export default {
-    name: 'Component',
-    mixins: [pg],
-    data () {
-      return {
-        pgConfig: {
-          route: 'inhabitants',
-          newTemplate: {
-            age: 0,
-            name: 'Newborn',
-            city: 'Pau City'
-          }
         }
       }
     }
@@ -482,17 +449,15 @@ Hooks are called on the component instance that uses the `pg` mixin.
 
 ## Mixin Properties
 
-Using the `pg` mixin exposes `vm.pg` with the following properties.
+Using the `pg` mixin exposes `this.pg` with the following properties.
 
-### pg.items
+### pg
 
-- **Type:** `Array<GenericModel>`
-
-- **Provided if:** `query !== undefined && accept !== 'single'`
+- **Type:** `GenericCollection | GenericModel`
 
 - **Details:**
 
-  An array of [GenericModels](./#genericmodel) created from the API response.
+  Dependent on the `pgConfig.single` setting this is either of type [GenericCollection](./#genericcollection) or  [GenericModel](./#genericmodel). A GenericCollection is essentially just an Array of GenericModels with some additional methods. Both types have a `pg.$get()` method available to manually refresh the request.
 
 - **Example:**
 
@@ -512,176 +477,7 @@ Using the `pg` mixin exposes `vm.pg` with the following properties.
     },
     computed: {
       inhabitants () {
-        return this.pg.items
-      }
-    }
-  }
-  ```
-
-### pg.item
-
-- **Type:** `GenericModel`
-
-- **Provided if:** `query !== undefined && accept === 'single'`
-
-- **Details:**
-
-  A [GenericModel](./#genericmodel) created from the API response.
-
-- **Example:**
-
-  ``` js
-  import { pg } from 'vue-postgrest'
-
-  export default {
-    name: 'Component',
-    mixins: [pg],
-    data () {
-      return {
-        pgConfig: {
-          route: 'inhabitants',
-          query: {
-            'name.eq': 'Tion Medon'
-          }
-        }
-      }
-    },
-    computed: {
-      tion () {
-        return this.pg.item
-      }
-    }
-  }
-  ```
-
-### pg.newItem
-
-- **Type:** `GenericModel`
-
-- **Provided if:** `newTemplate`
-
-- **Details:**
-
-  A [GenericModel](./#genericmodel) created from the `newTemplate` option.
-
-- **Example:**
-
-  ``` js
-  import { pg } from 'vue-postgrest'
-
-  export default {
-    name: 'Component',
-    mixins: [pg],
-    data () {
-      return {
-        pgConfig: {
-          route: 'inhabitants',
-          newTemplate: {
-            name: 'New Inhabitant',
-            age: 150
-          }
-        }
-      }
-    },
-    methods: {
-      async post () {
-        await this.pg.newItem.post()
-      }
-    }
-  }
-  ```
-
-### pg.range
-
-- **Type:** `Object`
-
-- **Provided if:** API response sets `Content-Range` header
-
-- **Properties:**
-  - `{number} first` first retrieved item
-
-  - `{number} last` last retrieved item
-
-  - `{number} totalCount` total number of retrieved items, undefined if `count !== 'exact'`
-
-- **Details:**
-
-  An object describing the result of server-side pagination.
-
-- **Example:**
-
-    ``` js
-  import { pg } from 'vue-postgrest'
-
-  export default {
-    name: 'Component',
-    mixins: [pg],
-    data () {
-      return {
-        pgConfig: {
-          route: 'inhabitants',
-          query: {
-            'age.gt': 150
-          },
-          offset: 5,
-          limit: 10,
-          count: 'exact'
-        }
-      }
-    },
-    computed: {
-      firstItem () {
-        // first retrieved item
-        return this.pg.range.first
-      },
-      lastItem () {
-        // last retrieved item
-        return  this.pg.range.last
-      },
-      totalCount () {
-        // total number of retrieved items, undefined if option count !== 'exact'
-        return this.pg.range.totalCount
-      }
-    }
-  }
-  ```
-
-## Mixin Methods
-
-### pg.get()
-
-- **Type:** `ObservableFunction`
-
-- **Provided if:** `query !== undefined`
-
-- **Details:**
-
-  An [ObservableFunction](./#observablefunction) for re-sending the get request.
-
-- **Example:**
-
-  ``` js
-  import { pg } from 'vue-postgrest'
-
-  export default {
-    name: 'Component',
-    mixins: [pg],
-    data () {
-      return {
-        pgConfig: {
-          route: 'inhabitants',
-          query: {}
-        }
-      }
-    },
-    methods: {
-      refresh () {
-        this.pg.get()
-        if (this.pg.get.isPending) {
-          console.log('Get still pending...')
-        } else {
-          console.log('Fetched inhabitants: ', this.pg.items)
-        }
+        return this.pg
       }
     }
   }
@@ -933,14 +729,14 @@ The `<postgrest>` component accepts all [mixin options](./#mixin-options) as pro
   <postgrest
     route="planets"
     :query="{}"
-    accept="single"
+    single
     limit="10">
 </template>
 ```
 
-## Component Slot-scope
+## Component Slot Scope
 
-The `<postgrest>` component provides all [mixin properties](./#mixin-properties) as default slot scope, see above for details.
+The `<postgrest>` component provides the `pg` [mixin property](./#mixin-properties) as scope in the default slot, see above for details.
 
 - **Example**:
   
@@ -949,8 +745,8 @@ The `<postgrest>` component provides all [mixin properties](./#mixin-properties)
     <postgrest
       route="planets"
       :query="{}">
-      <template v-slot:default={ items: planets, get }>
-        <loading v-if="get.isPending"/>
+      <template v-slot:default="planets">
+        <loading v-if="planets.$get.isPending"/>
         <ul v-else>
           <li v-for="planet in planets" :key="planet.id">
             {{ planet.name }}
@@ -980,8 +776,8 @@ The `<postgrest>` component provides all [mixin properties](./#mixin-properties)
         route="planets"
         :query="{}"
         @error="handleError">
-        <template v-slot:default={ planets: items, get }>
-          <loading v-if="get.isPending"/>
+        <template v-slot:default="planets">
+          <loading v-if="planet.$get.isPending"/>
           <ul v-else>
             <li v-for="planet in planets" :key="planet.id">
               {{ planet.name }}
@@ -1008,6 +804,154 @@ The `<postgrest>` component provides all [mixin properties](./#mixin-properties)
     </script>
     ```
 
+## GenericCollection
+
+A GenericCollection is essentially an Array of GenericModels and inherits all Array methods. The following additional methods and getters are available:
+
+### $get([options])
+
+- **Type:** `ObservableFunction`
+
+- **Arguments:**
+
+  - `{object} options`
+
+- **Returns:** Response from the API
+
+- **Throws:** `AuthError | FetchError`
+
+- **Details:**
+
+  An [ObservableFunction](./#observablefunction) for re-sending the get request. All Options described in [postgrest route](./#postgrest-route) are available here as well, except for the `accept` option.
+
+- **Example:**
+
+  ``` js
+  import { pg } from 'vue-postgrest'
+
+  export default {
+    name: 'Component',
+    mixins: [pg],
+    data () {
+      return {
+        pgConfig: {
+          route: 'inhabitants',
+          query: {}
+        }
+      }
+    },
+    methods: {
+      refresh () {
+        this.pg.$get()
+        if (this.pg.$get.isPending) {
+          console.log('Get still pending...')
+        } else {
+          console.log('Fetched inhabitants: ', this.pg)
+        }
+      }
+    }
+  }
+  ```
+
+### $new(data)
+
+- **Type:** `Function`
+
+- **Arguments:**
+
+  - `{object} data`
+
+- **Returns:** `GenericModel`
+
+- **Details:**
+
+Creates and returns a new `GenericModel`, which can be used for a `$post()` call.
+
+- **Example:**
+
+  ``` js
+  import { pg } from 'vue-postgrest'
+
+  export default {
+    name: 'HeroesList',
+    mixins: [pg],
+    data () {
+      return {
+        newItem: null,
+        pgConfig: {
+          route: 'heroes'
+        }
+      }
+    },
+    mounted () {
+      this.newItem = this.pg.$new({
+        name: 'Yoda',
+        age: 999999999
+      })
+    },
+    methods: {
+      addHero () {
+        this.newItem.$post()
+      }
+    }
+  }
+  ```
+
+### $range
+
+- **Type:** `Object`
+
+- **Provided if:** API response sets `Content-Range` header
+
+- **Properties:**
+  - `{number} first` first retrieved item
+
+  - `{number} last` last retrieved item
+
+  - `{number} totalCount` total number of retrieved items, undefined if `count !== 'exact'`
+
+- **Details:**
+
+  An object describing the result of server-side pagination.
+
+- **Example:**
+
+    ``` js
+  import { pg } from 'vue-postgrest'
+
+  export default {
+    name: 'Component',
+    mixins: [pg],
+    data () {
+      return {
+        pgConfig: {
+          route: 'inhabitants',
+          query: {
+            'age.gt': 150
+          },
+          offset: 5,
+          limit: 10,
+          count: 'exact'
+        }
+      }
+    },
+    computed: {
+      firstItem () {
+        // first retrieved item
+        return this.pg.$range.first
+      },
+      lastItem () {
+        // last retrieved item
+        return  this.pg.$range.last
+      },
+      totalCount () {
+        // total number of retrieved items, undefined if option count !== 'exact'
+        return this.pg.$range.totalCount
+      }
+    }
+  }
+  ```
+
 ## GenericModel
 
 The data of a GenericModel is available directly on the instance in addition to the following methods and getters:
@@ -1028,7 +972,7 @@ The data of a GenericModel is available directly on the instance in addition to 
 
   An [ObservableFunction](./#observablefunction) for a get request. Available `options` are:
 
-    - `{boolean} keepChanges` If true, local changes to the item are protected from being overwritten by fetched data and only unchanged fields are updated.
+    - `{boolean} keepChanges` If true, local changes to the model are protected from being overwritten by fetched data and only unchanged fields are updated.
 
     - All Options described in [postgrest route](./#postgrest-route) are available here as well. **Note:** The `accept` option is not valid here - the `Accept` header will always be set to `'single'` if not overwritten via the `headers` object.
 
@@ -1047,13 +991,13 @@ The data of a GenericModel is available directly on the instance in addition to 
           query: {
             'id.eq': this.$store.getters.userId
           },
-          accept: 'single'
+          single: true
         }
       }
     },
     methods: {
-      updateUser () {
-        this.pg.item.$get()
+      reloadUser () {
+        this.pg.$get()
       }
     }
   }
@@ -1081,7 +1025,7 @@ The data of a GenericModel is available directly on the instance in addition to 
 
     - All Options described in [postgrest route](./#postgrest-route) are available here as well. **Note:** The `accept` option is not valid here - the `Accept` header will always be set to `'single'` if not overwritten via the `headers` object.
 
-  If option `return` is set to `'representation'`, which is the default value, the item is updated with the response from the server.
+  If option `return` is set to `'representation'`, which is the default value, the model is updated with the response from the server.
   
   If option `return` is set to `'minimal'` and the `Location` header is set, the location header is returned as an object.
 
@@ -1095,18 +1039,21 @@ The data of a GenericModel is available directly on the instance in addition to 
     mixins: [pg],
     data () {
       return {
+        newHero: null,
         pgConfig: {
-          route: 'heroes',
-          newTemplate: {
-            name: 'Yoda',
-            age: '999999999'
-          }
+          route: 'heroes'
         }
       }
     },
+    mounted () {
+      this.newHero = this.pg.$new({
+        name: 'Yoda',
+        age: 999999999
+      })
+    },
     methods: {
       addHero () {
-        this.pg.newItem.$post()
+        this.newHero.$post()
       }
     }
   }
@@ -1134,7 +1081,7 @@ The data of a GenericModel is available directly on the instance in addition to 
 
     - All Options described in [postgrest route](./#postgrest-route) are available here as well. **Note:** The `accept` option is not valid here - the `Accept` header will always be set to `'single'` if not overwritten via the `headers` object.
 
-  If option `return` is set to `'representation'`, which is the default value, the item is updated with the response from the server.
+  If option `return` is set to `'representation'`, which is the default value, the model is updated with the response from the server.
   
   If option `return` is set to `'minimal'` and the `Location` header is set, the location header is returned as an object.
 
@@ -1148,18 +1095,22 @@ The data of a GenericModel is available directly on the instance in addition to 
     mixins: [pg],
     data () {
       return {
+        newHero: null,
         pgConfig: {
-          route: 'heroes',
-          newTemplate: {
-            name: 'Yoda',
-            age: '999999999'
-          }
+          route: 'heroes'
         }
       }
     },
+    mounted () {
+      this.newHero = this.pg.$new({
+        name: 'Yoda',
+        age: 999999999
+      })
+    },
     methods: {
       upsertHero () {
-        this.pg.newItem.$put()
+        // Assuming "name" is the primary key, because PUT needs a PK set
+        this.newHero.$put()
       }
     }
   }
@@ -1181,7 +1132,7 @@ The data of a GenericModel is available directly on the instance in addition to 
 
 - **Details:**
 
-  An [ObservableFunction](./#observablefunction) for a patch request. The patch function also accepts an object as first argument with fields that should be patched, properties declared in this object take precedence over fields changed on the item directly. Available `options` are:
+  An [ObservableFunction](./#observablefunction) for a patch request. The patch function also accepts an object as first argument with fields that should be patched, properties declared in this object take precedence over fields changed on the model directly. Available `options` are:
 
     - `{array<string>} columns` Sets `columns` parameter on request to improve performance on updates/inserts
 
@@ -1189,7 +1140,7 @@ The data of a GenericModel is available directly on the instance in addition to 
 
     - All Options described in [postgrest route](./#postgrest-route) are available here as well. **Note:** The `accept` option is not valid here - the `Accept` header will always be set to `'single'` if not overwritten via the `headers` object.
 
-  If option `return` is set to `'representation'`, which is the default value, the item is updated with the response from the server.
+  If option `return` is set to `'representation'`, which is the default value, the model is updated with the response from the server.
 
 - **Example:**
 
@@ -1212,8 +1163,8 @@ The data of a GenericModel is available directly on the instance in addition to 
     },
     methods: {
       updateHeroAge (age) {
-        this.pg.item.age = age
-        this.pg.item.$patch({}, { name: 'Younger Yoda '})
+        this.pg.age = age
+        this.pg.$patch({}, { name: 'Younger Yoda '})
         // sends a patch request with the data: { age: age, name: 'Younger Yoda' }
       }
     }
@@ -1240,7 +1191,7 @@ The data of a GenericModel is available directly on the instance in addition to 
 
     - All Options described in [postgrest route](./#postgrest-route) are available here as well. **Note:** The `accept` option is not valid here - the `Accept` header will always be set to `'single'` if not overwritten via the `headers` object.
 
-  If option `return` is set to `'representation'`, the item is updated with the response from the server.
+  If option `return` is set to `'representation'`, the model is updated with the response from the server.
 
 - **Example:**
 
@@ -1257,14 +1208,14 @@ The data of a GenericModel is available directly on the instance in addition to 
           query: {
             'name.eq': 'Yoda'
           },
-          accept: 'single'
+          single: true
         }
       }
     },
     methods: {
-      deleteYoda (age) {
+      deleteYoda () {
         // oh, no!
-        this.pg.item.$delete()
+        this.pg.$delete()
       }
     }
   }
@@ -1276,7 +1227,7 @@ The data of a GenericModel is available directly on the instance in addition to 
 
 - **Details:**
 
-  Indicating whether the item data has changed from its inital state.
+  Indicating whether the model data has changed from its inital state.
 
 - **Example:**
 
@@ -1293,14 +1244,14 @@ The data of a GenericModel is available directly on the instance in addition to 
           query: {
             'name.eq': 'Yoda'
           },
-          accept: 'single'
+          single: true
         }
       }
     },
     methods: {
       updateHero () {
-        if (this.pg.item.$isDirty) {
-          this.pg.item.$patch()
+        if (this.pg.$isDirty) {
+          this.pg.$patch()
         }
       }
     }
@@ -1313,7 +1264,7 @@ The data of a GenericModel is available directly on the instance in addition to 
 
 - **Details:**
 
-  Reset the item data to it's initial state.
+  Reset the model data to it's initial state.
 
 - **Example:**
 
@@ -1336,10 +1287,10 @@ The data of a GenericModel is available directly on the instance in addition to 
     },
     methods: {
       changeAge (age) {
-        this.item.age = age
+        this.pg.age = age
       },
       resetHero () {
-        this.item.$reset()
+        this.pg.$reset()
       }
     }
   }
@@ -1365,11 +1316,11 @@ An ObservableFunction has the following Vue-reactive properties indicating it's 
 
   ``` javascript
   try {
-    this.pg.item.$delete()
+    this.pg.$delete()
   } catch (e) {
     if (e instanceof AuthError) {
       this.handleAuthError()
-      this.pg.item.$delete.clear(e)
+      this.pg.$delete.clear(e)
     } else {
       // error e.g. rendered in template
     }
