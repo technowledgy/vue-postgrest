@@ -4,7 +4,8 @@ import GenericModel from '@/GenericModel'
 const mixin = {
   data () {
     return {
-      pg: null
+      pg: null,
+      test: {}
     }
   },
   watch: {
@@ -37,7 +38,7 @@ const mixin = {
         })
         if (single && !(this.pg instanceof GenericModel)) {
           this.pg = new GenericModel(options, {})
-        } else if (!single && !(this.pg instanceof Array)) {
+        } else if (!single && !(this.pg instanceof GenericCollection)) {
           this.pg = new GenericCollection(options)
         }
       }
@@ -46,7 +47,7 @@ const mixin = {
       deep: true,
       immediate: true,
       async handler (cfg) {
-        if (this.pg instanceof Array || cfg.query) {
+        if (this.pg instanceof GenericCollection || cfg.query) {
           try {
             await this.pg?.$get()
           } catch (e) {

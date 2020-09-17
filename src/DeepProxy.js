@@ -25,142 +25,137 @@ class DeepProxy {
         target[k] = new DeepProxy(v)
       }
     })
-    return new Proxy(target, this)
-  }
+    return new Proxy(target, {
+      getPrototypeOf: () => {
+        return Reflect.getPrototypeOf(this)
+      },
+      get: (target, property, receiver) => {
+        switch (property) {
+          // returns the changed subfields on the first level for GenericModel PATCH
+          // on any nested levels the full (potentially changed) object is returned
+          case $diff:
+            return Object.assign(
+              Object.fromEntries(
+                Object.entries(receiver)
+                  .filter(([k, v]) => v && v[$isDeepProxy] && v.$isDirty)
+              ),
+              this.#diff
+            )
 
-  get (target, property, receiver) {
-    switch (property) {
-      // returns the changed subfields on the first level for GenericModel PATCH
-      // on any nested levels the full (potentially changed) object is returned
-      case $diff:
-        return Object.assign(
-          Object.fromEntries(
-            Object.entries(receiver)
-              .filter(([k, v]) => v && v[$isDeepProxy] && v.$isDirty)
-          ),
-          this.#diff
-        )
-
-      // promotes the changes in $diff to target, to make them persistent
-      case $freeze:
-        return () => {
-          // freeze this
-          Reflect.ownKeys(this.#diff).forEach(k => {
-            const desc = Reflect.getOwnPropertyDescriptor(this.#diff, k)
-            if (typeof desc.value === 'object' && desc.value !== null && !desc.value[$isDeepProxy]) {
-              desc.value = new DeepProxy(desc.value)
+          // promotes the changes in $diff to target, to make them persistent
+          case $freeze:
+            return () => {
+              // freeze this
+              Reflect.ownKeys(this.#diff).forEach(k => {
+                const desc = Reflect.getOwnPropertyDescriptor(this.#diff, k)
+                if (typeof desc.value === 'object' && desc.value !== null && !desc.value[$isDeepProxy]) {
+                  desc.value = new DeepProxy(desc.value)
+                }
+                Reflect.defineProperty(target, k, desc)
+                Reflect.deleteProperty(this.#diff, k)
+              })
+              // freeze children
+              Object.values(target)
+                .filter(v => v && v[$isDeepProxy])
+                .forEach(c => c[$freeze]())
             }
-            Reflect.defineProperty(target, k, desc)
-            Reflect.deleteProperty(this.#diff, k)
-          })
-          // freeze children
-          Object.values(target)
-            .filter(v => v && v[$isDeepProxy])
-            .forEach(c => c[$freeze]())
+
+          // id ourselves
+          case $isDeepProxy: return true
+
+          // recursive check for any changed fields
+          case '$isDirty':
+            // eslint-disable-next-line no-case-declarations
+            const thisIsDirty = Reflect.ownKeys(this.#diff).length > 0
+            // eslint-disable-next-line no-case-declarations
+            const childrenAreDirty = Object.values(target)
+              .filter(v => v && v[$isDeepProxy])
+              .some(c => c.$isDirty)
+            return thisIsDirty || childrenAreDirty
+
+          // remove any diffs
+          case '$reset':
+            return () => {
+              // reset children
+              Object.values(target)
+                .filter(v => v && v[$isDeepProxy])
+                .forEach(c => c.$reset())
+              // reset this
+              Reflect.ownKeys(this.#diff).forEach(k => Reflect.deleteProperty(receiver, k))
+            }
         }
 
-      // id ourselves
-      case $isDeepProxy: return true
-
-      // recursive check for any changed fields
-      case '$isDirty':
-        // eslint-disable-next-line no-case-declarations
-        const thisIsDirty = Reflect.ownKeys(this.#diff)
-          .filter(k => k !== '__ob__')
-          .length > 0
-        // eslint-disable-next-line no-case-declarations
-        const childrenAreDirty = Object.values(target)
-          .filter(v => v && v[$isDeepProxy])
-          .some(c => c.$isDirty)
-        return thisIsDirty || childrenAreDirty
-
-      // remove any diffs
-      case '$reset':
-        return () => {
-          // reset children
-          Object.values(target)
-            .filter(v => v && v[$isDeepProxy])
-            .forEach(c => c.$reset())
-          // reset this
-          Reflect.ownKeys(this.#diff).forEach(k => Reflect.deleteProperty(receiver, k))
+        // during initialization #prop is still at 0 at the beginning
+        // setting this to 0 removes the existing items
+        // however later, when new props are added, it is > target
+        // max solves that
+        if (Array.isArray(target) && property === 'length') {
+          return Math.max(target.length, this.#props.length)
         }
-    }
 
-    // during initialization #prop is still at 0 at the beginning
-    // setting this to 0 removes the existing items
-    // however later, when new props are added, it is > target
-    // max solves that
-    if (Array.isArray(target) && property === 'length') {
-      return Math.max(target.length, this.#props.length)
-    }
+        if (property in this.#props) return Reflect.get(this.#props, property)
 
-    if (property in this.#props) return Reflect.get(this.#props, property)
+        return Reflect.get(target, property, receiver)
+      },
+      set: (target, property, value, receiver) => {
+        // not allowed, because it's hardcoded in "get"
+        if ([$diff, $freeze, $isDeepProxy, '$isDirty', '$reset'].includes(property)) return false
 
-    return Reflect.get(target, property)
-  }
+        // invoke this on #props as well to make Vues reactivity work
+        Reflect.set(this.#props, property, value)
 
-  set (target, property, value, receiver) {
-    // not allowed, because it's hardcoded in "get"
-    if ([$diff, $freeze, $isDeepProxy, '$isDirty', '$reset'].includes(property)) return false
+        // since we're saving #diff as an object, we don't need to keep track of length
+        if (Array.isArray(target) && property === 'length') {
+          return true
+        }
 
-    // invoke this on #props as well to make Vues reactivity work
-    Reflect.set(this.#props, property, value)
+        // setting it to the old value removes the #diff
+        if (value === target[property]) {
+          return Reflect.deleteProperty(this.#diff, property)
+        }
 
-    // since we're saving #diff as an object, we don't need to keep track of length
-    if (Array.isArray(target) && property === 'length') {
-      return true
-    }
+        // (re)-define the property in case it doesn't exist yet
+        return Reflect.defineProperty(this.#diff, property, {
+          value,
+          enumerable: true,
+          configurable: true
+        })
+      },
+      defineProperty: (target, property, descriptor) => {
+        // not allowed, because it's hardcoded in "get"
+        if ([$diff, $freeze, $isDeepProxy, '$isDirty', '$reset'].includes(property)) return false
 
-    // setting it to the old value removes the #diff
-    if (value === target[property]) {
-      return Reflect.deleteProperty(this.#diff, property)
-    }
+        return Reflect.defineProperty(this.#props, property, descriptor)
+      },
+      deleteProperty: (target, property) => {
+        // not allowed, because it's hardcoded in "get"
+        if ([$diff, $freeze, $isDeepProxy, '$isDirty', '$reset'].includes(property)) return false
 
-    // (re)-define the property in case it doesn't exist yet
-    return Reflect.defineProperty(this.#diff, property, {
-      value,
-      enumerable: true,
-      configurable: true
+        if (property in target) {
+          // set back to default value
+          Reflect.set(this.#props, property, target[property])
+        } else {
+          Reflect.deleteProperty(this.#props, property)
+        }
+        return Reflect.deleteProperty(this.#diff, property)
+      },
+      getOwnPropertyDescriptor: (target, property) => {
+        // return undefined, because those are inherited from the faked prototype
+        if ([$diff, $freeze, $isDeepProxy, '$isDirty', '$reset'].includes(property)) return
+
+        if (property in this.#props) return Reflect.getOwnPropertyDescriptor(this.#props, property)
+
+        return Reflect.getOwnPropertyDescriptor(target, property)
+      },
+      has: (target, propertyKey) => {
+        // hardcoded in "get"
+        if ([$diff, $freeze, $isDeepProxy, '$isDirty', '$reset'].includes(propertyKey)) return true
+        return Reflect.has(target, propertyKey) || Reflect.has(this.#props, propertyKey)
+      },
+      ownKeys: (target) => {
+        return Array.from(new Set([...Reflect.ownKeys(target), ...Reflect.ownKeys(this.#props)]))
+      }
     })
-  }
-
-  defineProperty (target, property, descriptor) {
-    // not allowed, because it's hardcoded in "get"
-    if ([$diff, $freeze, $isDeepProxy, '$isDirty', '$reset'].includes(property)) return false
-
-    return Reflect.defineProperty(this.#props, property, descriptor)
-  }
-
-  deleteProperty (target, property) {
-    // not allowed, because it's hardcoded in "get"
-    if ([$diff, $freeze, $isDeepProxy, '$isDirty', '$reset'].includes(property)) return false
-
-    if (property in target) {
-      // set back to default value
-      Reflect.set(this.#props, property, target[property])
-    } else {
-      Reflect.deleteProperty(this.#props, property)
-    }
-    return Reflect.deleteProperty(this.#diff, property)
-  }
-
-  getOwnPropertyDescriptor (target, property) {
-    // return undefined, because those are inherited from the faked prototype
-    if ([$diff, $freeze, $isDeepProxy, '$isDirty', '$reset'].includes(property)) return
-
-    if (property in this.#props) return Reflect.getOwnPropertyDescriptor(this.#props, property)
-
-    return Reflect.getOwnPropertyDescriptor(target, property)
-  }
-
-  has (target, propertyKey) {
-    // hardcoded in "get"
-    if ([$diff, $freeze, $isDeepProxy, '$isDirty', '$reset'].includes(propertyKey)) return true
-    return Reflect.has(target, propertyKey) || Reflect.has(this.#props, propertyKey)
-  }
-
-  ownKeys (target) {
-    return Array.from(new Set([...Reflect.ownKeys(target), ...Reflect.ownKeys(this.#props)]))
   }
 }
 

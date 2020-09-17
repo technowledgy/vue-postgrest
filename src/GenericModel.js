@@ -1,44 +1,17 @@
 import DeepProxy, { $diff, $freeze } from '@/DeepProxy'
-import ObservableFunction from '@/ObservableFunction'
 import { PrimaryKeyError } from '@/errors'
-import { cloneDeep, mapAliasesFromSelect, reflect } from '@/utils'
+import { cloneDeep, createReactivePrototype, mapAliasesFromSelect } from '@/utils'
 
-class GenericModel {
-  #model
+class GenericModel extends DeepProxy {
   #options
 
   constructor (options, data) {
+    super(cloneDeep(data))
     this.#options = options
-    this.#model = new DeepProxy(cloneDeep(data))
-
-    // ObservableFunctions need to be defined on the instance, because they keep state
-    const $get = new ObservableFunction(this.$get.bind(this))
-    const $post = new ObservableFunction(this.$post.bind(this))
-    const $put = new ObservableFunction(this.$put.bind(this))
-    const $patch = new ObservableFunction(this.$patch.bind(this))
-    const $delete = new ObservableFunction(this.$delete.bind(this))
-
-    return new Proxy(this, {
-      deleteProperty: reflect.bind(this.#model, 'deleteProperty', ['$get', '$post', '$put', '$patch', '$delete'], false),
-      defineProperty: reflect.bind(this.#model, 'defineProperty', ['$get', '$post', '$put', '$patch', '$delete'], false),
-      has: reflect.bind(this.#model, 'has', ['$get', '$post', '$put', '$patch', '$delete'], true),
-      getOwnPropertyDescriptor: reflect.bind(this.#model, 'getOwnPropertyDescriptor', ['$get', '$post', '$put', '$patch', '$delete'], undefined),
-      ownKeys: reflect.bind(this.#model, 'ownKeys', [], undefined),
-      set: reflect.bind(this.#model, 'set', ['$get', '$post', '$put', '$patch', '$delete'], false),
-      get: (target, property, receiver) => {
-        switch (property) {
-          case '$get': return $get
-          case '$post': return $post
-          case '$put': return $put
-          case '$patch': return $patch
-          case '$delete': return $delete
-          default: return Reflect.get(this.#model, property, receiver)
-        }
-      }
-    })
+    return createReactivePrototype(this)
   }
 
-  async request ({ method, keepChanges = false, needsQuery = true }, signal, opts, ...data) {
+  async #request ({ method, keepChanges = false, needsQuery = true }, signal, opts, ...data) {
     await this.#options.route.$ready
     const { columns, ...options } = opts
 
@@ -82,30 +55,30 @@ class GenericModel {
     // update instance with returned data
     // TODO: do we need to delete missing keys?
     if (keepChanges) {
-      const diff = this.#model[$diff]
-      Object.assign(this.#model, body)
-      this.#model[$freeze]()
-      Object.assign(this.#model, diff)
+      const diff = this[$diff]
+      Object.assign(this, body)
+      this[$freeze]()
+      Object.assign(this, diff)
     } else {
-      Object.assign(this.#model, body)
-      this.#model[$freeze]()
+      Object.assign(this, body)
+      this[$freeze]()
     }
     return body
   }
 
   async $get (signal, opts = {}) {
     const { keepChanges, ...options } = opts
-    return this.request({ method: 'get', keepChanges }, signal, options)
+    return this.#request({ method: 'get', keepChanges }, signal, options)
   }
 
   async $post (signal, opts = {}) {
     const options = { return: 'representation', ...opts }
-    return this.request({ method: 'post', needsQuery: false }, signal, options, this.#model)
+    return this.#request({ method: 'post', needsQuery: false }, signal, options, this)
   }
 
   async $put (signal, opts) {
     const options = { return: 'representation', ...opts }
-    return this.request({ method: 'put' }, signal, options, this.#model)
+    return this.#request({ method: 'put' }, signal, options, this)
   }
 
   async $patch (signal, opts, data = {}) {
@@ -116,15 +89,15 @@ class GenericModel {
     }
     const patchData = Object.assign(
       {},
-      this.#model[$diff],
+      this[$diff],
       data
     )
 
-    return this.request({ method: 'patch' }, signal, options, patchData)
+    return this.#request({ method: 'patch' }, signal, options, patchData)
   }
 
   async $delete (signal, options = {}) {
-    return this.request({ method: 'delete' }, signal, options)
+    return this.#request({ method: 'delete' }, signal, options)
   }
 }
 

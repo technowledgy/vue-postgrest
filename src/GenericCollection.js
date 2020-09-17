@@ -1,36 +1,22 @@
 import GenericModel from '@/GenericModel'
-import ObservableFunction from '@/ObservableFunction'
-import { createPKQuery, mapAliasesFromSelect, reflect } from '@/utils'
+import { createPKQuery, createReactivePrototype, mapAliasesFromSelect } from '@/utils'
 
 class GenericCollection extends Array {
   #options
   #proxy
-  #range
+  #range = {}
 
   constructor (options, ...models) {
     super()
     this.#options = options
 
-    // ObservableFunctions need to be defined on the instance, because they keep state
-    const $get = new ObservableFunction(this.$get.bind(this))
-    // $new needs to access private #proxy instance field - need to bind it to this
-    const $new = this.$new.bind(this)
-
-    this.#range = {}
-
-    this.#proxy = new Proxy(this, {
-      deleteProperty: reflect.bind(this, 'deleteProperty', ['$get', '$new', '$range'], false),
-      defineProperty: reflect.bind(this, 'defineProperty', ['$get', '$new', '$range'], false),
+    this.#proxy = new Proxy(createReactivePrototype(this), {
       get: (target, property, receiver) => {
-        switch (property) {
-          case '$get': return $get
-          case '$new': return $new
-          case '$range': return this.#range
-          default: return Reflect.get(target, property, receiver)
-        }
+        if (property === '$range') return this.#range
+        return Reflect.get(target, property, receiver)
       },
       set: (target, property, value, receiver) => {
-        if (['length', '__proto__'].includes(property)) return Reflect.set(target, property, value, receiver)
+        if (property === 'length') return Reflect.set(target, property, value, receiver)
 
         if (typeof value !== 'object' || !value) {
           throw new Error('Can only add objects to GenericCollection')

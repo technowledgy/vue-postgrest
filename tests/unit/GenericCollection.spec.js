@@ -1,3 +1,4 @@
+import { shallowMount } from '@vue/test-utils'
 import GenericCollection from '@/GenericCollection'
 import GenericModel from '@/GenericModel'
 import ObservableFunction from '@/ObservableFunction'
@@ -106,13 +107,65 @@ describe('GenericCollection', () => {
     expect(collection[1]).toBeUndefined()
   })
 
+  describe('Vue reacts', () => {
+    const Component = {
+      render () {},
+      data: () => ({ collection: null }),
+      mounted () {
+        this.collection = new GenericCollection({ route })
+      }
+    }
+    let wrapper
+
+    beforeEach(() => {
+      wrapper = shallowMount(Component)
+    })
+    afterEach(() => wrapper.destroy())
+
+    it('to added items via push', () => {
+      expect.assertions(1)
+      wrapper.vm.$watch('collection', collection => {
+        expect(collection.length).toBe(1)
+      })
+      wrapper.vm.collection.push({})
+    })
+
+    it('to added items via set', () => {
+      expect.assertions(1)
+      wrapper.vm.$watch('collection', collection => {
+        expect(collection.length).toBe(1)
+      })
+      wrapper.vm.$set(wrapper.vm.collection, 0, {})
+    })
+
+    it('to added items via $new', () => {
+      expect.assertions(1)
+      wrapper.vm.$watch('collection', collection => {
+        expect(collection.length).toBe(1)
+      })
+      wrapper.vm.collection.$new({})
+    })
+
+    it('to added items via $get', () => {
+      expect.assertions(1)
+      wrapper.vm.$watch('collection', collection => {
+        expect(collection.length).toBe(2)
+      })
+      request.mockReturnValueOnce({
+        json: async () => mockReturn,
+        headers: new Headers()
+      })
+      return wrapper.vm.collection.$get()
+    })
+  })
+
   describe('Get method', () => {
     it('has observable method "$get"', () => {
       const collection = new GenericCollection()
       expect(collection.$get).toBeInstanceOf(ObservableFunction)
     })
 
-    it('property "$get" is from prototpe and not configurable, writable or deletable', () => {
+    it('property "$get" is from prototype and not configurable, writable or deletable', () => {
       const collection = new GenericCollection({ route, query: { 'id.gt': 1 } })
       expect(Reflect.getOwnPropertyDescriptor(collection, '$get')).toBeUndefined()
       expect('$get' in collection).toBe(true)
@@ -206,7 +259,7 @@ describe('GenericCollection', () => {
       expect(collection.$new).toBeInstanceOf(Function)
     })
 
-    it('property "$new" is from prototpe and not configurable, writable or deletable', () => {
+    it('property "$new" is from prototype and not configurable, writable or deletable', () => {
       const collection = new GenericCollection({ route, query: { 'id.gt': 1 } })
       expect(Reflect.getOwnPropertyDescriptor(collection, '$new')).toBeUndefined()
       expect('$new' in collection).toBe(true)

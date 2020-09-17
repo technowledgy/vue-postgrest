@@ -2,6 +2,7 @@ import Vue from 'vue'
 import { shallowMount } from '@vue/test-utils'
 import flushPromises from 'flush-promises'
 import Postgrest, { pg } from '@/index'
+import GenericCollection from '@/GenericCollection'
 import GenericModel from '@/GenericModel'
 
 // mock request function with actual call included (spy)
@@ -117,8 +118,7 @@ describe('Mixin', () => {
     })
 
     it('provides pg of type GenericCollection', () => {
-      // checking for Array here because Vue 2.x reactivity doesn't allow us to expose GenericCollection as the true prototype
-      expect(wrapper.vm.pg).toBeInstanceOf(Array)
+      expect(wrapper.vm.pg).toBeInstanceOf(GenericCollection)
     })
 
     it('pg does make a call without query', async () => {
