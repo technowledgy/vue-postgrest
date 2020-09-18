@@ -82,26 +82,6 @@ describe('ObservableFunction', () => {
     })
   })
 
-  describe('nPending', () => {
-    it('has prop with default 0', () => {
-      expect(fn.nPending).toBe(0)
-    })
-
-    it('corresponds to number of async functions pending', async () => {
-      expect.assertions(4)
-      expect(fn.nPending).toBe(0)
-      const p1 = fn(new Promise((resolve) => resolve()))
-      expect(fn.nPending).toBe(1)
-      const p2 = fn(new Promise((resolve) => resolve()))
-      expect(fn.nPending).toBe(2)
-      await p1
-      // not possible to properly test the (1) case between those two, because both promises are resolved together
-      // expect(fn.nPending).toBe(1)
-      await p2
-      expect(fn.nPending).toBe(0)
-    })
-  })
-
   describe('error handling', () => {
     it('has "hasError" prop with default false', () => {
       expect(fn.hasError).toBe(false)
@@ -173,15 +153,11 @@ describe('ObservableFunction', () => {
 
   describe('reactivity', () => {
     it('props are reactive', async () => {
-      expect.assertions(4)
+      expect.assertions(3)
       const vueInstance = new Vue({ data: () => ({ fn }) })
       const unwatchIsPending = vueInstance.$watch('fn.isPending', (isPending) => {
         expect(isPending).toBe(true)
         unwatchIsPending()
-      })
-      const unwatchNPending = vueInstance.$watch('fn.nPending', (nPending) => {
-        expect(nPending).toBe(1)
-        unwatchNPending()
       })
       const unwatchHasError = vueInstance.$watch('fn.hasError', (hasError) => {
         expect(hasError).toBe(true)

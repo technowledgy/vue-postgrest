@@ -25,12 +25,8 @@ class ObservableFunction extends Function {
 
   pending = []
 
-  get nPending () {
-    return this.pending.length
-  }
-
   get isPending () {
-    return this.nPending > 0
+    return this.pending.length > 0
   }
 
   errors = []
