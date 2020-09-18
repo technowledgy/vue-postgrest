@@ -46,9 +46,11 @@ function createReactivePrototype (target) {
   const makeEnumerableAndObservableProxy = new Proxy(target, {
     defineProperty: (target, key, descriptor) => {
       descriptor.enumerable = true
-      descriptor.value = descriptor.value.bind(target)
-      if (descriptor.value[Symbol.toStringTag] === 'AsyncFunction') {
-        descriptor.value = new ObservableFunction(descriptor.value)
+      if (descriptor.value instanceof Function) {
+        descriptor.value = descriptor.value.bind(target)
+        if (descriptor.value[Symbol.toStringTag] === 'AsyncFunction') {
+          descriptor.value = new ObservableFunction(descriptor.value)
+        }
       }
       return Reflect.defineProperty(target, key, descriptor)
     }
