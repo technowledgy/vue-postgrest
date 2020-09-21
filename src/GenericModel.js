@@ -1,14 +1,16 @@
-import DeepProxy, { $diff, $freeze } from '@/DeepProxy'
+import Vue from 'vue'
 import { PrimaryKeyError } from '@/errors'
-import { cloneDeep, createReactivePrototype, mapAliasesFromSelect } from '@/utils'
+import { $diff, $freeze, createDiffProxy, createReactivePrototype, mapAliasesFromSelect } from '@/utils'
 
-class GenericModel extends DeepProxy {
+class GenericModel {
   #options
+  #proxy
 
   constructor (options, data) {
-    super(cloneDeep(data))
     this.#options = options
-    return createReactivePrototype(this)
+    Object.assign(this, data)
+    this.#proxy = createReactivePrototype(createDiffProxy(this), this)
+    return this.#proxy
   }
 
   async #request ({ method, keepChanges = false, needsQuery = true }, signal, opts, ...data) {
@@ -55,13 +57,13 @@ class GenericModel extends DeepProxy {
     // update instance with returned data
     // TODO: do we need to delete missing keys?
     if (keepChanges) {
-      const diff = this[$diff]
-      Object.assign(this, body)
-      this[$freeze]()
-      Object.assign(this, diff)
+      const diff = this.#proxy[$diff]
+      Object.entries(body).forEach(([key, value]) => Vue.set(this.#proxy, key, value))
+      this.#proxy[$freeze]()
+      Object.entries(diff).forEach(([key, value]) => Vue.set(this.#proxy, key, value))
     } else {
-      Object.assign(this, body)
-      this[$freeze]()
+      Object.entries(body).forEach(([key, value]) => Vue.set(this.#proxy, key, value))
+      this.#proxy[$freeze]()
     }
     return body
   }
@@ -73,12 +75,12 @@ class GenericModel extends DeepProxy {
 
   async $post (signal, opts = {}) {
     const options = { return: 'representation', ...opts }
-    return this.#request({ method: 'post', needsQuery: false }, signal, options, this)
+    return this.#request({ method: 'post', needsQuery: false }, signal, options, this.#proxy)
   }
 
   async $put (signal, opts) {
     const options = { return: 'representation', ...opts }
-    return this.#request({ method: 'put' }, signal, options, this)
+    return this.#request({ method: 'put' }, signal, options, this.#proxy)
   }
 
   async $patch (signal, opts, data = {}) {
@@ -89,7 +91,7 @@ class GenericModel extends DeepProxy {
     }
     const patchData = Object.assign(
       {},
-      this[$diff],
+      this.#proxy[$diff],
       data
     )
 

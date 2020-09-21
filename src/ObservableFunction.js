@@ -5,7 +5,7 @@ import { createReactivePrototype } from '@/utils'
 class ObservableFunction extends Function {
   constructor (fn) {
     super()
-    return new Proxy(createReactivePrototype(this), {
+    return new Proxy(createReactivePrototype(this, this), {
       apply: async (target, thisArg, argumentsList) => {
         const controller = new AbortController()
         this.pending.push(controller)

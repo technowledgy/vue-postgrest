@@ -10,7 +10,7 @@ class GenericCollection extends Array {
     super()
     this.#options = options
 
-    this.#proxy = new Proxy(createReactivePrototype(this), {
+    this.#proxy = new Proxy(createReactivePrototype(this, this), {
       get: (target, property, receiver) => {
         if (property === '$range') return this.#range
         return Reflect.get(target, property, receiver)

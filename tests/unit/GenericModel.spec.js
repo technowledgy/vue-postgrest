@@ -48,14 +48,11 @@ describe('GenericModel', () => {
       }
     })
 
-    it('resets the data fields for "delete"', () => {
+    it('deletes fields on top-level', () => {
       const model = new GenericModel({}, data)
       for (const prop in data) {
-        model[prop] = 'test'
-        expect(model[prop]).toBe('test')
         delete model[prop]
-        expect(prop in model).toBe(true)
-        expect(model[prop]).toBe(data[prop])
+        expect(prop in model).toBe(false)
       }
     })
 
@@ -76,7 +73,7 @@ describe('GenericModel', () => {
 
     it('property "$isDirty" is from prototpe and not configurable, writable or deletable', () => {
       const model = new GenericModel({}, data)
-      expect(Reflect.getOwnPropertyDescriptor(model, '$isDirty')).toBeUndefined()
+      expect(Object.getOwnPropertyDescriptor(model, '$isDirty')).toBeUndefined()
       expect('$isDirty' in model).toBe(true)
       expect(() => {
         model.$isDirty = 'writable'
@@ -95,6 +92,55 @@ describe('GenericModel', () => {
       model.name = 'client321'
       expect(model.$isDirty).toBe(true)
       model.name = data.name
+      expect(model.$isDirty).toBe(false)
+    })
+
+    it('sets prop "$isDirty" for nested objects', async () => {
+      const model = new GenericModel({}, {
+        obj: { a: 'a' }
+      })
+      expect(model.$isDirty).toBe(false)
+      model.obj.a = 'b'
+      expect(model.$isDirty).toBe(true)
+      model.obj.a = 'a'
+      expect(model.$isDirty).toBe(false)
+    })
+
+    it('sets prop "$isDirty" for nested objects when deleting keys', async () => {
+      const model = new GenericModel({}, {
+        obj: { a: 'a' }
+      })
+      expect(model.$isDirty).toBe(false)
+      delete model.obj.a
+      expect(model.obj.a).toBeUndefined()
+      expect('a' in model.obj).toBe(false)
+      expect(Object.getOwnPropertyDescriptor(model.obj, 'a')).toBeUndefined()
+      expect(model.$isDirty).toBe(true)
+      model.obj.a = 'a'
+      expect(model.$isDirty).toBe(false)
+    })
+
+    it('sets prop "$isDirty" for nested arrays', async () => {
+      const model = new GenericModel({}, {
+        arr: [1]
+      })
+      expect(model.$isDirty).toBe(false)
+      model.arr.push(2)
+      expect(model.$isDirty).toBe(true)
+      model.arr.pop()
+      expect(model.$isDirty).toBe(false)
+    })
+
+    it('sets prop "$isDirty" for nested arrays when deleting items', async () => {
+      const model = new GenericModel({}, {
+        arr: [1]
+      })
+      expect(model.$isDirty).toBe(false)
+      model.arr.pop()
+      expect(model.arr[0]).toBeUndefined()
+      expect(model.arr.length).toBe(0)
+      expect(model.$isDirty).toBe(true)
+      model.arr.push(1)
       expect(model.$isDirty).toBe(false)
     })
   })
@@ -132,15 +178,14 @@ describe('GenericModel', () => {
       wrapper.vm.$set(wrapper.vm.model, 'new', 'value')
     })
 
-    it('to reset field via $delete', () => {
-      expect.assertions(5)
+    it('to deleted fields', () => {
+      expect.assertions(4)
       wrapper.vm.model.age += 1
       expect(wrapper.vm.model.age).toBe(51)
       expect(wrapper.vm.model.$isDirty).toBe(true)
       wrapper.vm.$watch('model', model => {
-        expect('age' in model).toBe(true)
-        expect(model.age).toBe(50)
-        expect(model.$isDirty).toBe(false)
+        expect('age' in model).toBe(false)
+        expect(model.$isDirty).toBe(true)
       }, {
         deep: true
       })
@@ -159,6 +204,23 @@ describe('GenericModel', () => {
         deep: true
       })
       wrapper.vm.$set(wrapper.vm.model, 'age', 50)
+    })
+
+    it('to changes to nested arrays', async () => {
+      expect.assertions(5)
+      wrapper.vm.model = new GenericModel({}, {
+        arr: [1, 2, 3]
+      })
+      wrapper.vm.$watch('model', model => {
+        expect(model.arr).toMatchObject([1, 3])
+        expect(model.$isDirty).toBe(true)
+      }, {
+        deep: true
+      })
+      expect(wrapper.vm.model.$isDirty).toBe(false)
+      wrapper.vm.model.arr.splice(1, 1)
+      expect(wrapper.vm.model.arr).toMatchObject([1, 3])
+      expect(wrapper.vm.model.$isDirty).toBe(true)
     })
   })
 
