@@ -10,7 +10,7 @@
     "test": "vue-cli-service test:unit",
     "test:watch": "vue-cli-service test:unit --watchAll",
     "lint": "vue-cli-service lint",
-    "lint:watch": "nodemon -q -x 'yarn -s lint'",
+    "lint:watch": "nodemon -q -x 'clear && yarn -s lint'",
     "pre-version": "yarn test && yarn lint && yarn build",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs"
