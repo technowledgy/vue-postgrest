@@ -61,7 +61,7 @@ class Query extends URL {
   _parseSelectObject (obj, jsonChain = []) {
     return Object.entries(obj).map(([k, v]) => {
       // ignore falsy values - will be filtered out
-      if (!v) return
+      if (!v) return false
       // embedding resources with sub queries
       if (v?.select) {
         const alias = k.split(':', 1)[0].split('!', 1)[0]
@@ -136,7 +136,7 @@ class Query extends URL {
 
   _parseConditions (obj, jsonPrefix = '') {
     return Object.entries(obj).map(([key, value]) => {
-      if (value === undefined) return
+      if (value === undefined) return false
       // throw away alias - just used to allow the same condition more than once on one object
       const aliasKey = key.split(':')
       key = aliasKey[1] ?? aliasKey[0]
