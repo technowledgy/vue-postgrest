@@ -260,6 +260,14 @@ describe('GenericModel', () => {
       model.$reset()
       expect(model.arr).toEqual([])
     })
+
+    it('resets changes to objects', async () => {
+      const model = new GenericModel({}, { ...data, obj: { value: 'original' } })
+      model.obj.value = 'changed'
+      expect(model.obj.value).toBe('changed')
+      model.$reset()
+      expect(model.obj.value).toBe('original')
+    })
   })
 
   describe('Get method', () => {

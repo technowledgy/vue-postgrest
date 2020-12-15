@@ -31,7 +31,7 @@ function createDiffProxy (target) {
           }
 
         case '$reset':
-          return () => copy(base, target)
+          return () => copy(base, target, '$reset')
       }
       return Reflect.get(target, property, receiver)
     },
@@ -44,10 +44,14 @@ function createDiffProxy (target) {
 }
 
 // copies target keys to base and creates DiffProxies everywhere
-function copy (target, base) {
+function copy (target, base, recurse) {
   Object.entries(target).forEach(([k, v]) => {
-    if (typeof v === 'object' && v !== null && !v[$isDiffProxy]) {
-      target[k] = createDiffProxy(v)
+    if (typeof v === 'object' && v !== null) {
+      if (v[$isDiffProxy]) {
+        v[recurse]?.()
+      } else {
+        target[k] = createDiffProxy(v)
+      }
     }
     // create base copy for diffs and reset
     base[k] = target[k]
