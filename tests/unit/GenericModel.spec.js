@@ -120,6 +120,19 @@ describe('GenericModel', () => {
       expect(model.$isDirty).toBe(false)
     })
 
+    it('sets prop "$isDirty" on newly created nested objects', async () => {
+      const model = new GenericModel({}, {
+        obj: null
+      })
+      expect(model.$isDirty).toBe(false)
+      model.obj = { new: 'object' }
+      expect(model.obj.new).toBe('object')
+      expect(model.$isDirty).toBe(true)
+      expect(model.obj.$isDirty).toBe(true)
+      model.obj = null
+      expect(model.$isDirty).toBe(false)
+    })
+
     it('sets prop "$isDirty" for nested arrays', async () => {
       const model = new GenericModel({}, {
         arr: [1]

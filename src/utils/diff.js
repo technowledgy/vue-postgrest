@@ -5,7 +5,7 @@ const $diff = Symbol('diff')
 const $freeze = Symbol('freeze')
 const $isDiffProxy = Symbol('isDiffProxy')
 
-function createDiffProxy (target) {
+function createDiffProxy (target, parentDirty = false) {
   const base = Array.isArray(target) ? [] : {}
   copy(target, base)
   return new Proxy(target, {
@@ -22,6 +22,7 @@ function createDiffProxy (target) {
         case $isDiffProxy: return true
 
         case '$isDirty':
+          if (parentDirty) return true
           if (Array.isArray(target)) {
             if (target.length !== base.length) return true
             return target.filter((v, k) => v !== base[k] || (v && v[$isDiffProxy] && v.$isDirty)).length > 0
@@ -35,11 +36,16 @@ function createDiffProxy (target) {
       }
       return Reflect.get(target, property, receiver)
     },
+    set (target, property, value, receiver) {
+      if (typeof value === 'object' && value !== null && !value[$isDiffProxy]) {
+        value = createDiffProxy(value, true)
+      }
+      return reflectHelper.call('set', [$diff, $freeze, $isDiffProxy, '$isDirty', '$reset'], false, target, property, value, receiver)
+    },
     defineProperty: reflectHelper.bind('defineProperty', [$diff, $freeze, $isDiffProxy, '$isDirty', '$reset'], false),
     deleteProperty: reflectHelper.bind('deleteProperty', [$diff, $freeze, $isDiffProxy, '$isDirty', '$reset'], false),
     getOwnPropertyDescriptor: reflectHelper.bind('getOwnPropertyDescriptor', [$diff, $freeze, $isDiffProxy, '$isDirty', '$reset'], undefined),
-    has: reflectHelper.bind('has', [$diff, $freeze, $isDiffProxy, '$isDirty', '$reset'], true),
-    set: reflectHelper.bind('set', [$diff, $freeze, $isDiffProxy, '$isDirty', '$reset'], false)
+    has: reflectHelper.bind('has', [$diff, $freeze, $isDiffProxy, '$isDirty', '$reset'], true)
   })
 }
 
