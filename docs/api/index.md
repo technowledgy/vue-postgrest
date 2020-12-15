@@ -380,11 +380,21 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
 - **Default:** `undefined`
 
+- **Options:**
+
+  - `exact`
+  - `planned`
+  - `estimated`
+
 - **Details:**
 
-  If set to `'exact'`, we request the total amount of items in the database that fit the filter query (disabled by default due to performance considerations) by setting the `Prefer` header accordingly. Only used when `single: false` is set.
+  Only used when `single: false` is set.
 
-  See also [Limits and Pagination](https://postgrest.org/en/latest/api.html#exact-count) in the PostgREST documentation.
+  See PostgREST docs for details on those options:
+
+  - [Exact Count](https://postgrest.org/en/latest/api.html#exact-count)
+  - [Planned Count](https://postgrest.org/en/latest/api.html#planned-count)
+  - [Estimated Count](https://postgrest.org/en/latest/api.html#estimated-count)
 
 - **Example:**
 
@@ -908,7 +918,7 @@ Creates and returns a new `GenericModel`, which can be used for a `$post()` call
 
   - `{number} last` last retrieved item
 
-  - `{number} totalCount` total number of retrieved items, undefined if `count !== 'exact'`
+  - `{number} totalCount` total number of retrieved items, undefined if `count` is not set
 
 - **Details:**
 
@@ -931,7 +941,7 @@ Creates and returns a new `GenericModel`, which can be used for a `$post()` call
           },
           offset: 5,
           limit: 10,
-          count: 'exact'
+          count: 'estimated'
         }
       }
     },
@@ -945,7 +955,7 @@ Creates and returns a new `GenericModel`, which can be used for a `$post()` call
         return  this.pg.$range.last
       },
       totalCount () {
-        // total number of retrieved items, undefined if option count !== 'exact'
+        // total number of retrieved items, undefined if option count is not set
         return this.pg.$range.totalCount
       }
     }
