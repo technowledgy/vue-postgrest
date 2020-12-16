@@ -1042,10 +1042,11 @@ describe('GenericModel', () => {
       })
 
       it('updates model when return is "representation"', async () => {
-        const model = new GenericModel({ route, query }, data)
+        const model = new GenericModel({ route, query }, { ...data, obj: {} })
         model.name = 'client321'
         await model.$patch({ return: 'representation' })
         expect(request).toHaveBeenCalled()
+        expect(model.$isDirty).toBe(false)
         model.$reset()
         expect(model).toMatchObject(mockReturn)
       })

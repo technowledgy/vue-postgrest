@@ -17,7 +17,10 @@ function createDiffProxy (target, parentDirty = false) {
           )
 
         case $freeze:
-          return () => copy(target, base)
+          return () => {
+            parentDirty = false
+            copy(target, base, $freeze)
+          }
 
         case $isDiffProxy: return true
 
