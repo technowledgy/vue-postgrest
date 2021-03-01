@@ -80,7 +80,7 @@ async function request (apiRoot, token, route, method, query = {}, options = {},
     }).then(throwWhenStatusNotOk)
   } catch (err) {
     if (err.resp?.headers.get('WWW-Authenticate')) {
-      const authError = splitToObject(err.resp.headers.get('WWW-Authenticate').replace(/^Bearer /, ''))
+      const authError = Object.assign(err, splitToObject(err.resp.headers.get('WWW-Authenticate').replace(/^Bearer /, '')))
       throw new AuthError(authError)
     } else {
       throw err

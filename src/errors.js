@@ -1,6 +1,6 @@
 class AuthError extends Error {
   constructor (err) {
-    super(err.error_description)
+    super(err.message || err.error_description)
     this.name = 'AuthError'
     Object.assign(this, err)
   }
@@ -8,7 +8,7 @@ class AuthError extends Error {
 
 class FetchError extends Error {
   constructor (resp, body) {
-    super(resp.statusText)
+    super(resp.message || resp.statusText)
     this.name = 'FetchError'
     this.resp = resp
     this.status = resp.status

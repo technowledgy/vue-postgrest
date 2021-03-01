@@ -1,5 +1,6 @@
 import request from '@/request'
 import GenericModel from '@/GenericModel'
+import { FetchError, AuthError } from '@/errors'
 
 describe('request method', () => {
   beforeEach(() => {
@@ -32,6 +33,33 @@ describe('request method', () => {
     expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
       method: 'DELETE'
     }))
+  })
+
+  it('correctly throws FetchError with full error body', async () => {
+    expect.assertions(5)
+    try {
+      await request('/api', '', '404', 'GET', {})
+    } catch (e) {
+      expect(e instanceof FetchError).toBe(true)
+      expect(e.code).toBe('404 error code')
+      expect(e.hint).toBe('404 error hint')
+      expect(e.details).toBe('404 error details')
+      expect(e.message).toBe('404 error message')
+    }
+  })
+
+  it('correctly throws AuthError with full error body', async () => {
+    expect.assertions(5)
+    try {
+      await request('/autherror', 'expired-token', '', 'GET', {})
+      console.log(fetch.mock.calls[0][1].headers)
+    } catch (e) {
+      expect(e instanceof AuthError).toBe(true)
+      expect(e.code).toBe('401 error code')
+      expect(e.hint).toBe('401 error hint')
+      expect(e.details).toBe('401 error details')
+      expect(e.message).toBe('401 error message')
+    }
   })
 
   it('does not throw if query argument is undefined', async () => {
