@@ -44,6 +44,10 @@ class GenericCollection extends Array {
     return this.#proxy
   }
 
+  map (...args) {
+    return Array.from(this).map(...args)
+  }
+
   async $get (signal, opts = {}) {
     await this.#options.route.$ready
     // remove accept and route from options, to prevent overriding it
