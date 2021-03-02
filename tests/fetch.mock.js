@@ -148,7 +148,12 @@ export default async req => {
     case '/404':
     case '/api/404':
       return {
-        body: '{}',
+        body: JSON.stringify({
+          hint: '404 error hint',
+          details: '404 error details',
+          code: '404 error code',
+          message: '404 error message'
+        }),
         init: {
           status: 404,
           statusText: 'Not found',
@@ -160,9 +165,15 @@ export default async req => {
     default:
       if (req.headers.get('Authorization') === 'Bearer expired-token') {
         return {
-          body: '',
+          body: JSON.stringify({
+            hint: '401 error hint',
+            details: '401 error details',
+            code: '401 error code',
+            message: '401 error message'
+          }),
           init: {
             status: 401,
+            statusText: 'Not authorized',
             headers: {
               'WWW-Authenticate': 'Bearer error="invalid_token", error_description="JWT expired"'
             }
