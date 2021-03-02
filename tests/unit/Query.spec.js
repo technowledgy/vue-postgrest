@@ -112,6 +112,11 @@ describe('Query', () => {
       }
     }, 'not.and=(grade.gte.91,student.is.false,not.or(age.gte.15,age.not.is.null))')
 
+    itt('ignores empty logical operator', {
+      and: {},
+      or: {}
+    }, '')
+
     itt('supports full-text search operator options in key', { 'my_tsv.fts(french)': 'amusant' }, 'my_tsv=fts(french).amusant')
 
     itt('supports "in" operator with array', { 'id.in': [1, 2, 3] }, 'id=in.(1,2,3)')
