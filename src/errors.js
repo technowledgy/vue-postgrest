@@ -1,18 +1,20 @@
-class AuthError extends Error {
-  constructor (err) {
-    super(err.message || err.error_description)
-    this.name = 'AuthError'
-    Object.assign(this, err)
-  }
-}
+import { splitToObject } from '@/utils'
 
 class FetchError extends Error {
   constructor (resp, body) {
-    super(resp.message || resp.statusText)
+    super(resp.statusText)
     this.name = 'FetchError'
     this.resp = resp
     this.status = resp.status
     Object.assign(this, body)
+  }
+}
+
+class AuthError extends FetchError {
+  constructor (resp, body) {
+    super(resp, body)
+    this.name = 'AuthError'
+    Object.assign(this, splitToObject(resp.headers.get('WWW-Authenticate').replace(/^Bearer /, '')))
   }
 }
 
@@ -37,6 +39,9 @@ async function throwWhenStatusNotOk (resp) {
     try {
       body = await resp.json()
     } catch {}
+    if (resp.headers.get('WWW-Authenticate')) {
+      throw new AuthError(resp, body)
+    }
     throw new FetchError(resp, body)
   }
   return resp

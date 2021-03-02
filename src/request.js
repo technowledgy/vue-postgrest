@@ -1,6 +1,5 @@
 import Query from '@/Query'
-import { splitToObject } from '@/utils'
-import { throwWhenStatusNotOk, AuthError } from '@/errors'
+import { throwWhenStatusNotOk } from '@/errors'
 
 const acceptHeaderMap = {
   '': 'application/json',
@@ -70,22 +69,13 @@ async function request (apiRoot, token, route, method, query = {}, options = {},
 
   const url = new Query(apiRoot, route, query)
 
-  try {
-    // send all body types the fetch api recognizes as described here https://developer.mozilla.org/de/docs/Web/API/WindowOrWorkerGlobalScope/fetch as-is, stringify the rest
-    return await fetch(url.toString(), {
-      method,
-      headers,
-      body: isJSONBody ? JSON.stringify(body) : body,
-      signal: options.signal
-    }).then(throwWhenStatusNotOk)
-  } catch (err) {
-    if (err.resp?.headers.get('WWW-Authenticate')) {
-      const authError = Object.assign(err, splitToObject(err.resp.headers.get('WWW-Authenticate').replace(/^Bearer /, '')))
-      throw new AuthError(authError)
-    } else {
-      throw err
-    }
-  }
+  // send all body types the fetch api recognizes as described here https://developer.mozilla.org/de/docs/Web/API/WindowOrWorkerGlobalScope/fetch as-is, stringify the rest
+  return await fetch(url.toString(), {
+    method,
+    headers,
+    body: isJSONBody ? JSON.stringify(body) : body,
+    signal: options.signal
+  }).then(throwWhenStatusNotOk)
 }
 
 export default request
