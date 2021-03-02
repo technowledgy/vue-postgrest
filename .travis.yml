@@ -32,4 +32,4 @@ stages:
   - lint
   - test
   - name: deploy
-    if: branch = master
+    if: branch = main
