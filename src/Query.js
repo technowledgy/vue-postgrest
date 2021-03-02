@@ -146,6 +146,7 @@ class Query extends URL {
         const strValue = this._parseConditions(value).map(({ key: k, value: v }) => {
           return isLogicalOperator(k) ? `${k}${v}` : `${k}.${v}`
         }).join(',')
+        if (!strValue) return undefined
         return {
           key,
           value: `(${strValue})`
