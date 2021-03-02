@@ -107,6 +107,14 @@ describe('GenericCollection', () => {
     expect(collection[1]).toBeUndefined()
   })
 
+  it('returns regular Array on .map(..)', () => {
+    const collection = new GenericCollection({ route }, ...data)
+    const ids = collection.map(model => model.id)
+    expect(ids).not.toBeInstanceOf(GenericCollection)
+    expect(Array.isArray(ids)).toBe(true)
+    expect(ids).toEqual([1, 2])
+  })
+
   describe('Vue reacts', () => {
     const Component = {
       render () {},
