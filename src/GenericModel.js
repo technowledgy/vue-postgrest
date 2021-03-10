@@ -95,6 +95,11 @@ class GenericModel {
       data
     )
 
+    if (Object.keys(patchData).length === 0) {
+      // avoid sending an empty patch request
+      return this.#proxy
+    }
+
     return this.#request({ method: 'patch' }, signal, options, patchData)
   }
 

@@ -798,20 +798,26 @@ describe('GenericModel', () => {
 
     it('throws without route', async () => {
       const model = new GenericModel({}, data)
-      await expect(model.$patch()).rejects.toThrow()
+      await expect(model.$patch({}, { avoid: 'empty' })).rejects.toThrow()
     })
 
     it('throws without query', async () => {
       const model = new GenericModel({ route }, data)
-      await expect(model.$patch()).rejects.toThrow(PrimaryKeyError)
+      await expect(model.$patch({}, { avoid: 'empty' })).rejects.toThrow(PrimaryKeyError)
     })
 
     it('throws with pk error query', async () => {
       const model = new GenericModel({ route, query: new PrimaryKeyError() }, data)
-      await expect(model.$patch()).rejects.toThrow(PrimaryKeyError)
+      await expect(model.$patch({}, { avoid: 'empty' })).rejects.toThrow(PrimaryKeyError)
     })
 
     describe('called without data', () => {
+      it('does not send an empty patch request', async () => {
+        const model = new GenericModel({ route, query }, data)
+        await model.$patch()
+        expect(request).not.toHaveBeenCalled()
+      })
+
       it('sends a patch request with simple changed data fields', async () => {
         const model = new GenericModel({ route, query }, data)
         model.name = 'client321'
