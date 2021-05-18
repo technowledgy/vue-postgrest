@@ -92,6 +92,20 @@ The `vue-postgrest` module exports a plugin, a mixin and several helper function
   }
   ```
 
+### usePostgrest(apiRoot, token)
+
+- **Type:** `Function`
+
+- **Arguments:**
+  - `{string} apiRoot`
+  - `{string} token`
+
+- **Returns:** `Schema`
+
+- **Usage:**
+
+  Used to create a new schema for the specified baseUri with the specified default auth token. If `apiRoot` is undefined, the apiRoot of the existing Schema is used.
+
 ### AuthError
 
 Instances of AuthError are thrown when the server rejects the authentication token.
