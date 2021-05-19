@@ -8,9 +8,7 @@ export default {
     Vue.config.optionMergeStrategies.onError = Vue.config.optionMergeStrategies.created
     Vue.component('postgrest', Postgrest)
     Object.defineProperty(Vue.prototype, '$postgrest', {
-      get () {
-        return usePostgrest()
-      }
+      get: usePostgrest
     })
     setDefaultRoot(options.apiRoot)
   }
