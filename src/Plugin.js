@@ -1,5 +1,6 @@
 import Postgrest from './Postgrest'
-import Schema, { setDefaultRoot } from './Schema'
+import { setDefaultRoot } from './Schema'
+import usePostgrest from './use'
 
 export default {
   install (Vue, options = {}) {
@@ -7,9 +8,7 @@ export default {
     Vue.config.optionMergeStrategies.onError = Vue.config.optionMergeStrategies.created
     Vue.component('postgrest', Postgrest)
     Object.defineProperty(Vue.prototype, '$postgrest', {
-      get () {
-        return new Schema()
-      }
+      get: usePostgrest
     })
     setDefaultRoot(options.apiRoot)
   }
