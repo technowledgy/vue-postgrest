@@ -1,5 +1,4 @@
-module.exports = {
-  preset: '@vue/cli-plugin-unit-jest',
+export default {
   collectCoverage: true,
   collectCoverageFrom: [
     '<rootDir>/src/**'
@@ -8,8 +7,22 @@ module.exports = {
     'lcov',
     'text-summary'
   ],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1'
+  },
   setupFilesAfterEnv: [
     '<rootDir>/tests/setup.js'
   ],
-  testURL: 'http://localhost/nested/path'
+  testEnvironment: 'jsdom',
+  testMatch: [
+    '**/tests/unit/**/*.spec.js'
+  ],
+  testURL: 'http://localhost/nested/path',
+  transform: {
+    '^.+\\.js$': 'babel-jest'
+  },
+  watchPlugins: [
+    'jest-watch-typeahead/filename',
+    'jest-watch-typeahead/testname'
+  ]
 }
