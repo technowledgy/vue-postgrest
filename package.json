@@ -27,7 +27,7 @@
     "@vue/test-utils": "1.2.0",
     "@vuepress/plugin-active-header-links": "^1.8.2",
     "@vuepress/plugin-back-to-top": "^1.8.2",
-    "core-js": "^3.12.1",
+    "core-js": "^3.13.0",
     "coveralls": "^3.1.0",
     "eslint": "^7.27.0",
     "eslint-plugin-import": "^2.23.3",
