@@ -128,7 +128,7 @@ To order your response, you can either pass an array of strings or an object to 
 
 ### Row Filtering
 
-The `query` constructs column conditions from it's keys. Operators are dot-appendend to the key.
+The `query` constructs column conditions from it's keys. Operators are dot-appended to the key.
 E.g. to use multiple conditions:
 
 ``` vue
@@ -236,7 +236,7 @@ To get information about the paginated response, the mixin provides the `pg.$ran
 
 ### Multiple Requests
 
-Sometimes it may be neccessary to access multiple tables/views or query the same route twice the from the same component. You can use the `postgrest` component for this.
+Sometimes it may be necessary to access multiple tables/views or query the same route twice the from the same component. You can use the `postgrest` component for this.
 
 The component takes the same options as the `pg` mixin as props and provides it's scope as slot props, so you can use it in your template like this:
 
@@ -613,7 +613,7 @@ export default {
         // AuthError is thrown when PostgREST rejects the token
       } else if (err instanceof FetchError) {
         // handle error from fetch
-        // FetchError is thrown when the reponse status code is >= 400
+        // FetchError is thrown when the response status code is >= 400
       }
     }
   }
