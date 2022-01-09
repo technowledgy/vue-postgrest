@@ -143,11 +143,11 @@ E.g. to use multiple conditions:
 </script>
 ```
 
-When passing arrays, the resulting query string is constructed based on the used operator! See [Arrays]((/query/#arrays)). Furthermore, `undefined` values will exclude the column condition from the query string - this can be useful if you create your query object dynamically.
+When passing arrays, the resulting query string is constructed based on the used operator! See [Arrays](/query/#arrays). Furthermore, `undefined` values will exclude the column condition from the query string - this can be useful if you create your query object dynamically.
 
 
 ::: tip
-For convenient creation of range objects see [Range Objects](/query/range-objects)!
+For convenient creation of range objects see [Range Objects](/query/#range-objects)!
 :::
 
 ### Embedding
