@@ -1253,7 +1253,7 @@ The data of a GenericModel is available directly on the instance in addition to 
 
 - **Details:**
 
-  Indicating whether the model data has changed from its inital state.
+  Indicating whether the model data has changed from its initial state.
 
 - **Example:**
 
