@@ -4,12 +4,12 @@ import { defineConfig } from 'vite'
 import { createVuePlugin } from 'vite-plugin-vue2'
 import copy from 'rollup-plugin-copy'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+const repoDir = dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.js'),
+      entry: resolve(repoDir, 'src/index.js'),
       formats: ['es', 'cjs']
     },
     minify: false,
@@ -35,7 +35,7 @@ export default defineConfig({
     alias: [
       {
         find: /^@/,
-        replacement: resolve(__dirname, 'src')
+        replacement: resolve(repoDir, 'src')
       }
     ]
   }
