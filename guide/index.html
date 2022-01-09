@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Guide | vue-postgrest</title>
-    <meta name="generator" content="VuePress 1.8.2">
+    <meta name="generator" content="VuePress 1.9.5">
     
     <meta name="description" content="PostgREST integration for Vue.js">
     
-    <link rel="preload" href="/vue-postgrest/assets/css/0.styles.01296f2f.css" as="style"><link rel="preload" href="/vue-postgrest/assets/js/app.1085cba4.js" as="script"><link rel="preload" href="/vue-postgrest/assets/js/2.7c8cda5a.js" as="script"><link rel="preload" href="/vue-postgrest/assets/js/12.d9150949.js" as="script"><link rel="prefetch" href="/vue-postgrest/assets/js/10.7f782830.js"><link rel="prefetch" href="/vue-postgrest/assets/js/11.1f79ff64.js"><link rel="prefetch" href="/vue-postgrest/assets/js/13.9f5c44a2.js"><link rel="prefetch" href="/vue-postgrest/assets/js/14.cd0736d1.js"><link rel="prefetch" href="/vue-postgrest/assets/js/3.cf01abcf.js"><link rel="prefetch" href="/vue-postgrest/assets/js/4.3944b394.js"><link rel="prefetch" href="/vue-postgrest/assets/js/5.54b1aadb.js"><link rel="prefetch" href="/vue-postgrest/assets/js/6.cdeb9367.js"><link rel="prefetch" href="/vue-postgrest/assets/js/7.f4785fcf.js"><link rel="prefetch" href="/vue-postgrest/assets/js/8.311d3592.js"><link rel="prefetch" href="/vue-postgrest/assets/js/9.555c4896.js">
-    <link rel="stylesheet" href="/vue-postgrest/assets/css/0.styles.01296f2f.css">
+    <link rel="preload" href="/vue-postgrest/assets/css/0.styles.be6c58e2.css" as="style"><link rel="preload" href="/vue-postgrest/assets/js/app.4789aa9f.js" as="script"><link rel="preload" href="/vue-postgrest/assets/js/2.738befd0.js" as="script"><link rel="preload" href="/vue-postgrest/assets/js/11.86fc12b4.js" as="script"><link rel="prefetch" href="/vue-postgrest/assets/js/10.fd8d9156.js"><link rel="prefetch" href="/vue-postgrest/assets/js/12.9be315df.js"><link rel="prefetch" href="/vue-postgrest/assets/js/13.e7b6ff2f.js"><link rel="prefetch" href="/vue-postgrest/assets/js/3.7c12271c.js"><link rel="prefetch" href="/vue-postgrest/assets/js/4.a01c9182.js"><link rel="prefetch" href="/vue-postgrest/assets/js/5.bb4f0d09.js"><link rel="prefetch" href="/vue-postgrest/assets/js/6.c664b848.js"><link rel="prefetch" href="/vue-postgrest/assets/js/7.fba544ae.js"><link rel="prefetch" href="/vue-postgrest/assets/js/8.9ec77f5e.js"><link rel="prefetch" href="/vue-postgrest/assets/js/9.3945cfe9.js">
+    <link rel="stylesheet" href="/vue-postgrest/assets/css/0.styles.be6c58e2.css">
   </head>
   <body>
     <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/vue-postgrest/" class="home-link router-link-active"><!----> <span class="site-name">vue-postgrest</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"> <a href="https://github.com/technowledgy/vue-postgrest" target="_blank" rel="noopener noreferrer" class="repo-link">
@@ -22,18 +22,18 @@
 <span class="token keyword">import</span> VuePostgrest <span class="token keyword">from</span> <span class="token string">'vue-postgrest'</span>
 
 Vue<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span>VuePostgrest<span class="token punctuation">,</span> <span class="token punctuation">{</span>
-  apiRoot<span class="token operator">:</span>  <span class="token string">'/api/v1/'</span>
+  <span class="token literal-property property">apiRoot</span><span class="token operator">:</span>  <span class="token string">'/api/v1/'</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span>
 </code></pre></div><p>When installed, the plugin registers the <code>postgrest</code> component globally on your vue instance for use in your templates, as well as several instance methods on <code>vm.$postgrest</code>. The most convenient way is to use the <code>pg</code> mixin, though.</p> <div class="custom-block warning"><p class="custom-block-title">WARNING</p> <p>You have to install the plugin, even if you only use the mixin in your components!</p></div> <h2 id="retrieving-data"><a href="#retrieving-data" class="header-anchor">#</a> Retrieving Data</h2> <p>To use the mixin, provide a <code>pgConfig</code> object on your component instance with the <code>route</code> option set to the table/view you want to query:</p> <div class="language-vue extra-class"><pre class="language-vue"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script"><span class="token language-javascript">
 <span class="token keyword">import</span> <span class="token punctuation">{</span> pg <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'vue-postgrest'</span>
 
 <span class="token keyword">export</span> <span class="token keyword">default</span> <span class="token punctuation">{</span>
-  name<span class="token operator">:</span> <span class="token string">'HeroesList'</span><span class="token punctuation">,</span>
-  mixins<span class="token operator">:</span> <span class="token punctuation">[</span>pg<span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">name</span><span class="token operator">:</span> <span class="token string">'HeroesList'</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">mixins</span><span class="token operator">:</span> <span class="token punctuation">[</span>pg<span class="token punctuation">]</span><span class="token punctuation">,</span>
   <span class="token function">data</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token keyword">return</span> <span class="token punctuation">{</span>
-      pgConfig<span class="token operator">:</span> <span class="token punctuation">{</span>
-        route<span class="token operator">:</span> <span class="token string">'heroes'</span>
+      <span class="token literal-property property">pgConfig</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token literal-property property">route</span><span class="token operator">:</span> <span class="token string">'heroes'</span>
       <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">}</span>
@@ -46,21 +46,21 @@ Vue<span class="token punctuation">.</span><span class="token function">use</spa
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>template</span><span class="token punctuation">&gt;</span></span>
 </code></pre></div><p>Using the mixin option <code>single: true</code> will set the <code>Accept</code> header to tell PostgREST to return a single item unenclosed by an array. In this case you can use <code>this.pg</code> to access the returned item directly.</p> <p>The mixin option <code>query</code> is used to construct the PostgREST query string. Use <code>query.select</code> for column filtering like this:</p> <div class="language-vue extra-class"><pre class="language-vue"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script"><span class="token language-javascript">
 <span class="token operator">...</span>
-  pgConfig<span class="token operator">:</span> <span class="token punctuation">{</span>
-    query<span class="token operator">:</span> <span class="token punctuation">{</span>
-      select<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token string">'name'</span><span class="token punctuation">]</span>
+  <span class="token literal-property property">pgConfig</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token literal-property property">query</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token literal-property property">select</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token string">'name'</span><span class="token punctuation">]</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">}</span>
 <span class="token operator">...</span>
 </span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
 </code></pre></div><p>The select key alternatively accepts an object with column names as keys. You can use aliasing and casting like this:</p> <div class="language-vue extra-class"><pre class="language-vue"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script"><span class="token language-javascript">
 <span class="token operator">...</span>
-  pgConfig<span class="token operator">:</span> <span class="token punctuation">{</span>
-    query<span class="token operator">:</span> <span class="token punctuation">{</span>
-      select<span class="token operator">:</span> <span class="token punctuation">{</span>
-        id<span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
-        <span class="token string">'fullName:name'</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
-        <span class="token string">'age::text'</span><span class="token operator">:</span> <span class="token boolean">true</span>
+  <span class="token literal-property property">pgConfig</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token literal-property property">query</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token literal-property property">select</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token literal-property property">id</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+        <span class="token string-property property">'fullName:name'</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+        <span class="token string-property property">'age::text'</span><span class="token operator">:</span> <span class="token boolean">true</span>
       <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">}</span>
@@ -68,9 +68,9 @@ Vue<span class="token punctuation">.</span><span class="token function">use</spa
 </span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
 </code></pre></div><h3 id="ordering"><a href="#ordering" class="header-anchor">#</a> Ordering</h3> <p>To order your response, you can either pass an array of strings or an object to <code>query.order</code>. E.g.:</p> <div class="language-vue extra-class"><pre class="language-vue"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script"><span class="token language-javascript">
 <span class="token operator">...</span>
-    query<span class="token operator">:</span> <span class="token punctuation">{</span>
-      select<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'*'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
-      order<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'id.asc'</span><span class="token punctuation">,</span> <span class="token string">'name.desc'</span><span class="token punctuation">]</span>
+    <span class="token literal-property property">query</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token literal-property property">select</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'*'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">order</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'id.asc'</span><span class="token punctuation">,</span> <span class="token string">'name.desc'</span><span class="token punctuation">]</span>
     <span class="token punctuation">}</span>
 <span class="token operator">...</span>
 </span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
@@ -79,11 +79,11 @@ Vue<span class="token punctuation">.</span><span class="token function">use</spa
 
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script"><span class="token language-javascript">
 <span class="token operator">...</span>
-    query<span class="token operator">:</span> <span class="token punctuation">{</span>
-      select<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'*'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
-      order<span class="token operator">:</span> <span class="token punctuation">{</span>
-        id<span class="token operator">:</span> <span class="token string">'asc'</span><span class="token punctuation">,</span>
-        name<span class="token operator">:</span> <span class="token string">'desc'</span>
+    <span class="token literal-property property">query</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token literal-property property">select</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'*'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">order</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token literal-property property">id</span><span class="token operator">:</span> <span class="token string">'asc'</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">name</span><span class="token operator">:</span> <span class="token string">'desc'</span>
       <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
 <span class="token operator">...</span>
@@ -91,25 +91,25 @@ Vue<span class="token punctuation">.</span><span class="token function">use</spa
 </code></pre></div><h3 id="row-filtering"><a href="#row-filtering" class="header-anchor">#</a> Row Filtering</h3> <p>The <code>query</code> constructs column conditions from it's keys. Operators are dot-appendend to the key.
 E.g. to use multiple conditions:</p> <div class="language-vue extra-class"><pre class="language-vue"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script"><span class="token language-javascript">
 <span class="token operator">...</span>
-    query<span class="token operator">:</span> <span class="token punctuation">{</span>
-      select<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'*'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
-      <span class="token string">'id.in'</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
-      <span class="token string">'age.gte'</span><span class="token operator">:</span> <span class="token number">50</span>    
+    <span class="token literal-property property">query</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token literal-property property">select</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'*'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+      <span class="token string-property property">'id.in'</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+      <span class="token string-property property">'age.gte'</span><span class="token operator">:</span> <span class="token number">50</span>    
     <span class="token punctuation">}</span>
 <span class="token operator">...</span>
 </span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
-</code></pre></div><p>When passing arrays, the resulting query string is constructed based on the used operator! See <a href="/vue-postgrest/guide/(/query/#arrays)">Arrays</a>. Furthermore, <code>undefined</code> values will exclude the column condition from the query string - this can be useful if you create your query object dynamically.</p> <div class="custom-block tip"><p class="custom-block-title">TIP</p> <p>For convenient creation of range objects see <a href="/query/range-objects">Range Objects</a>!</p></div> <h3 id="embedding"><a href="#embedding" class="header-anchor">#</a> Embedding</h3> <p>PostgREST offers an easy way to handle relationships between tables/views. You can leverage this by using the embed syntax in your queries. The syntax to filter, order or select embeds corresponds to the root level of the query object:</p> <div class="language-vue extra-class"><pre class="language-vue"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script"><span class="token language-javascript">
+</code></pre></div><p>When passing arrays, the resulting query string is constructed based on the used operator! See <a href="/vue-postgrest/query/#arrays">Arrays</a>. Furthermore, <code>undefined</code> values will exclude the column condition from the query string - this can be useful if you create your query object dynamically.</p> <div class="custom-block tip"><p class="custom-block-title">TIP</p> <p>For convenient creation of range objects see <a href="/vue-postgrest/query/#range-objects">Range Objects</a>!</p></div> <h3 id="embedding"><a href="#embedding" class="header-anchor">#</a> Embedding</h3> <p>PostgREST offers an easy way to handle relationships between tables/views. You can leverage this by using the embed syntax in your queries. The syntax to filter, order or select embeds corresponds to the root level of the query object:</p> <div class="language-vue extra-class"><pre class="language-vue"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script"><span class="token language-javascript">
 <span class="token operator">...</span>
-    query<span class="token operator">:</span> <span class="token punctuation">{</span>
-      select<span class="token operator">:</span> <span class="token punctuation">{</span>
-        id<span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
-        name<span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
-        superpowers<span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
-        <span class="token string">'cars:vehicles'</span><span class="token operator">:</span> <span class="token punctuation">{</span>
-          select<span class="token operator">:</span> <span class="token string">'*'</span><span class="token punctuation">,</span>
-          <span class="token string">'type.eq'</span><span class="token operator">:</span> <span class="token string">'car'</span>
+    <span class="token literal-property property">query</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token literal-property property">select</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token literal-property property">id</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">name</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">superpowers</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+        <span class="token string-property property">'cars:vehicles'</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token literal-property property">select</span><span class="token operator">:</span> <span class="token string">'*'</span><span class="token punctuation">,</span>
+          <span class="token string-property property">'type.eq'</span><span class="token operator">:</span> <span class="token string">'car'</span>
         <span class="token punctuation">}</span><span class="token punctuation">,</span>
-      <span class="token string">'id.eq'</span><span class="token operator">:</span> <span class="token number">1</span>
+      <span class="token string-property property">'id.eq'</span><span class="token operator">:</span> <span class="token number">1</span>
     <span class="token punctuation">}</span>
 <span class="token operator">...</span>
 </span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
@@ -132,22 +132,22 @@ To get information about the paginated response, the mixin provides the <code>pg
 <span class="token operator">...</span>
   <span class="token function">data</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token keyword">return</span> <span class="token punctuation">{</span>
-      offset<span class="token operator">:</span> <span class="token number">0</span>
+      <span class="token literal-property property">offset</span><span class="token operator">:</span> <span class="token number">0</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">}</span><span class="token punctuation">,</span>
-  computed<span class="token operator">:</span> <span class="token punctuation">{</span>
+  <span class="token literal-property property">computed</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token function">pgConfig</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
       <span class="token keyword">return</span> <span class="token punctuation">{</span>
-        route<span class="token operator">:</span> <span class="token string">'heroes'</span><span class="token punctuation">,</span>
-        query<span class="token operator">:</span> <span class="token punctuation">{</span>
-          select<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'*'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
-          vehicles<span class="token operator">:</span> <span class="token punctuation">{</span>
-            select<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'*'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
-            limit<span class="token operator">:</span> <span class="token number">5</span>
+        <span class="token literal-property property">route</span><span class="token operator">:</span> <span class="token string">'heroes'</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">query</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token literal-property property">select</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'*'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+          <span class="token literal-property property">vehicles</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token literal-property property">select</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'*'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">limit</span><span class="token operator">:</span> <span class="token number">5</span>
           <span class="token punctuation">}</span>
         <span class="token punctuation">}</span><span class="token punctuation">,</span>
-        limit<span class="token operator">:</span> <span class="token number">20</span><span class="token punctuation">,</span>
-        offset<span class="token operator">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>offset
+        <span class="token literal-property property">limit</span><span class="token operator">:</span> <span class="token number">20</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">offset</span><span class="token operator">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>offset
       <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">}</span>
@@ -195,10 +195,10 @@ To get information about the paginated response, the mixin provides the <code>pg
 <span class="token operator">...</span>
   <span class="token function">data</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token keyword">return</span> <span class="token punctuation">{</span>
-      latestHeroes<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+      <span class="token literal-property property">latestHeroes</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">}</span><span class="token punctuation">,</span>
-  computed<span class="token operator">:</span> <span class="token punctuation">{</span>
+  <span class="token literal-property property">computed</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token function">pgConfig</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
       <span class="token operator">...</span>
     <span class="token punctuation">}</span><span class="token punctuation">,</span>
@@ -211,12 +211,12 @@ To get information about the paginated response, the mixin provides the <code>pg
     <span class="token keyword">await</span> <span class="token keyword">this</span><span class="token punctuation">.</span>$postgrest<span class="token punctuation">.</span>$ready
     <span class="token comment">// fetch the latest two new heroes</span>
     <span class="token keyword">const</span> resp <span class="token operator">=</span> <span class="token keyword">await</span> <span class="token keyword">this</span><span class="token punctuation">.</span>$postgrest<span class="token punctuation">.</span>heroes<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
-      select<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
-      order<span class="token operator">:</span> <span class="token punctuation">{</span>
-        <span class="token string">'created_at'</span><span class="token operator">:</span> <span class="token string">'desc'</span>
+      <span class="token literal-property property">select</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">order</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token string-property property">'created_at'</span><span class="token operator">:</span> <span class="token string">'desc'</span>
       <span class="token punctuation">}</span>
     <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
-      limit<span class="token operator">:</span> <span class="token number">2</span>
+      <span class="token literal-property property">limit</span><span class="token operator">:</span> <span class="token number">2</span>
     <span class="token punctuation">}</span><span class="token punctuation">)</span>
     <span class="token comment">// convert fetch response to json</span>
     <span class="token keyword">this</span><span class="token punctuation">.</span>latestHeroes <span class="token operator">=</span> <span class="token keyword">await</span> resp<span class="token punctuation">.</span><span class="token function">json</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
@@ -232,14 +232,14 @@ To get information about the paginated response, the mixin provides the <code>pg
 
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script"><span class="token language-javascript">
 <span class="token operator">...</span>
-  computed<span class="token operator">:</span> <span class="token punctuation">{</span>
+  <span class="token literal-property property">computed</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token function">pgConfig</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
       <span class="token keyword">return</span> <span class="token punctuation">{</span>
-        route<span class="token operator">:</span> <span class="token string">'heroes'</span><span class="token punctuation">,</span>
-        query<span class="token operator">:</span> <span class="token punctuation">{</span>
-          <span class="token string">'id.eq'</span><span class="token operator">:</span> <span class="token number">1</span>
+        <span class="token literal-property property">route</span><span class="token operator">:</span> <span class="token string">'heroes'</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">query</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token string-property property">'id.eq'</span><span class="token operator">:</span> <span class="token number">1</span>
         <span class="token punctuation">}</span><span class="token punctuation">,</span>
-        single<span class="token operator">:</span> <span class="token boolean">true</span>
+        <span class="token literal-property property">single</span><span class="token operator">:</span> <span class="token boolean">true</span>
       <span class="token punctuation">}</span>
     <span class="token punctuation">}</span><span class="token punctuation">,</span>
     <span class="token function">hero</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -261,11 +261,11 @@ To get information about the paginated response, the mixin provides the <code>pg
 
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script"><span class="token language-javascript">
 <span class="token operator">...</span>
-  computed<span class="token operator">:</span> <span class="token punctuation">{</span>
+  <span class="token literal-property property">computed</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token function">pgConfig</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
       <span class="token keyword">return</span> <span class="token punctuation">{</span>
-        route<span class="token operator">:</span> <span class="token string">'heroes'</span><span class="token punctuation">,</span>
-        query<span class="token operator">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+        <span class="token literal-property property">route</span><span class="token operator">:</span> <span class="token string">'heroes'</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">query</span><span class="token operator">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
       <span class="token punctuation">}</span>
     <span class="token punctuation">}</span><span class="token punctuation">,</span>
     <span class="token function">heroes</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -273,10 +273,10 @@ To get information about the paginated response, the mixin provides the <code>pg
     <span class="token punctuation">}</span><span class="token punctuation">,</span>
   <span class="token function">methods</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token keyword">async</span> <span class="token function">patch</span> <span class="token punctuation">(</span><span class="token parameter">hero</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-      <span class="token keyword">await</span> hero<span class="token punctuation">.</span><span class="token function">$patch</span><span class="token punctuation">(</span><span class="token punctuation">{</span> columns<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">]</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+      <span class="token keyword">await</span> hero<span class="token punctuation">.</span><span class="token function">$patch</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">columns</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">]</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
     <span class="token punctuation">}</span><span class="token punctuation">,</span>
     <span class="token keyword">async</span> <span class="token function">powerUp</span> <span class="token punctuation">(</span><span class="token parameter">hero</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-      <span class="token keyword">await</span> hero<span class="token punctuation">.</span><span class="token function">$patch</span><span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> superhero<span class="token operator">:</span> <span class="token boolean">true</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+      <span class="token keyword">await</span> hero<span class="token punctuation">.</span><span class="token function">$patch</span><span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token literal-property property">superhero</span><span class="token operator">:</span> <span class="token boolean">true</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
     <span class="token punctuation">}</span><span class="token punctuation">,</span>
     <span class="token keyword">async</span> <span class="token keyword">delete</span> <span class="token punctuation">(</span>hero<span class="token punctuation">)</span> <span class="token punctuation">{</span>
       <span class="token keyword">await</span> hero<span class="token punctuation">.</span>$<span class="token keyword">delete</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
@@ -310,9 +310,9 @@ To get information about the paginated response, the mixin provides the <code>pg
 
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script"><span class="token language-javascript">
 <span class="token operator">...</span>
-  methods<span class="token operator">:</span> <span class="token punctuation">{</span>
+  <span class="token literal-property property">methods</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token keyword">async</span> <span class="token function">update</span> <span class="token punctuation">(</span><span class="token parameter">item</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-      <span class="token keyword">await</span> item<span class="token punctuation">.</span><span class="token function">$patch</span><span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token string">'updated_by'</span><span class="token operator">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>$store<span class="token punctuation">.</span>getters<span class="token punctuation">.</span>userId <span class="token punctuation">}</span><span class="token punctuation">)</span>
+      <span class="token keyword">await</span> item<span class="token punctuation">.</span><span class="token function">$patch</span><span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token string-property property">'updated_by'</span><span class="token operator">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>$store<span class="token punctuation">.</span>getters<span class="token punctuation">.</span>userId <span class="token punctuation">}</span><span class="token punctuation">)</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">}</span>
 <span class="token operator">...</span>
@@ -328,20 +328,20 @@ To get information about the paginated response, the mixin provides the <code>pg
 <span class="token operator">...</span>
   <span class="token function">data</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token keyword">return</span> <span class="token punctuation">{</span>
-      newItem<span class="token operator">:</span> <span class="token keyword">null</span>
+      <span class="token literal-property property">newItem</span><span class="token operator">:</span> <span class="token keyword">null</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">}</span><span class="token punctuation">,</span>
-  computed<span class="token operator">:</span> <span class="token punctuation">{</span>
+  <span class="token literal-property property">computed</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token function">pgConfig</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
       <span class="token keyword">return</span> <span class="token punctuation">{</span>
-        route<span class="token operator">:</span> <span class="token string">'heroes'</span>
+        <span class="token literal-property property">route</span><span class="token operator">:</span> <span class="token string">'heroes'</span>
       <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">}</span><span class="token punctuation">,</span>
   <span class="token function">mounted</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token keyword">this</span><span class="token punctuation">.</span>newItem <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>pg<span class="token punctuation">.</span>$<span class="token keyword">new</span><span class="token punctuation">(</span><span class="token punctuation">{</span> name<span class="token operator">:</span> <span class="token string">'New Hero'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>newItem <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>pg<span class="token punctuation">.</span>$<span class="token keyword">new</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">name</span><span class="token operator">:</span> <span class="token string">'New Hero'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span><span class="token punctuation">,</span>
-  methods<span class="token operator">:</span> <span class="token punctuation">{</span>
+  <span class="token literal-property property">methods</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token keyword">async</span> <span class="token function">post</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
       <span class="token comment">// setting return to minimal, so the newItem is not updated with the server response and can be reset to our mounted template later</span>
       <span class="token keyword">await</span> <span class="token keyword">this</span><span class="token punctuation">.</span>newItem<span class="token punctuation">.</span><span class="token function">$post</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token keyword">return</span><span class="token operator">:</span> <span class="token string">'minimal'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
@@ -362,22 +362,22 @@ To get information about the paginated response, the mixin provides the <code>pg
 <span class="token operator">...</span>
   <span class="token function">data</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token keyword">return</span> <span class="token punctuation">{</span>
-      newHero<span class="token operator">:</span> <span class="token keyword">null</span>
+      <span class="token literal-property property">newHero</span><span class="token operator">:</span> <span class="token keyword">null</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">}</span><span class="token punctuation">,</span>
-  computed<span class="token operator">:</span> <span class="token punctuation">{</span>
+  <span class="token literal-property property">computed</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token function">pgConfig</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
       <span class="token keyword">return</span> <span class="token punctuation">{</span>
-        route<span class="token operator">:</span> <span class="token string">'heroes'</span>
+        <span class="token literal-property property">route</span><span class="token operator">:</span> <span class="token string">'heroes'</span>
       <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">}</span><span class="token punctuation">,</span>
   <span class="token function">mounted</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token keyword">this</span><span class="token punctuation">.</span>newHero <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>pg<span class="token punctuation">.</span>$<span class="token keyword">new</span><span class="token punctuation">(</span><span class="token punctuation">{</span> name<span class="token operator">:</span> <span class="token string">'New Hero'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>newHero <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>pg<span class="token punctuation">.</span>$<span class="token keyword">new</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">name</span><span class="token operator">:</span> <span class="token string">'New Hero'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span><span class="token punctuation">,</span>
-  methods<span class="token operator">:</span> <span class="token punctuation">{</span>
+  <span class="token literal-property property">methods</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token keyword">async</span> <span class="token function">post</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-      <span class="token keyword">await</span> <span class="token keyword">this</span><span class="token punctuation">.</span>newHero<span class="token punctuation">.</span><span class="token function">$post</span><span class="token punctuation">(</span><span class="token punctuation">{</span> resolution<span class="token operator">:</span> <span class="token string">'merge-duplicates'</span><span class="token punctuation">,</span> query<span class="token operator">:</span> <span class="token punctuation">{</span> on_conflict<span class="token operator">:</span> <span class="token string">'name'</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+      <span class="token keyword">await</span> <span class="token keyword">this</span><span class="token punctuation">.</span>newHero<span class="token punctuation">.</span><span class="token function">$post</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">resolution</span><span class="token operator">:</span> <span class="token string">'merge-duplicates'</span><span class="token punctuation">,</span> <span class="token literal-property property">query</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token literal-property property">on_conflict</span><span class="token operator">:</span> <span class="token string">'name'</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">}</span>
 <span class="token operator">...</span>
@@ -407,16 +407,16 @@ Additionally, the generic model methods throw <a href="/vue-postgrest/api/#prima
 <span class="token keyword">import</span> <span class="token punctuation">{</span> pg<span class="token punctuation">,</span> AuthError<span class="token punctuation">,</span> FetchError <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'vue-postgrest'</span>
 
 <span class="token keyword">export</span> <span class="token keyword">default</span> <span class="token punctuation">{</span>
-  name<span class="token operator">:</span> <span class="token string">'Component'</span><span class="token punctuation">,</span>
-  mixins<span class="token operator">:</span> <span class="token punctuation">[</span>pg<span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">name</span><span class="token operator">:</span> <span class="token string">'Component'</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">mixins</span><span class="token operator">:</span> <span class="token punctuation">[</span>pg<span class="token punctuation">]</span><span class="token punctuation">,</span>
   <span class="token function">data</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token keyword">return</span> <span class="token punctuation">{</span>
-      pgConfig<span class="token operator">:</span> <span class="token punctuation">{</span>
-        route<span class="token operator">:</span> <span class="token string">'heroes'</span><span class="token punctuation">,</span>
-        query<span class="token operator">:</span> <span class="token punctuation">{</span>
-          <span class="token string">'id.eq'</span><span class="token operator">:</span> <span class="token number">1</span>
+      <span class="token literal-property property">pgConfig</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token literal-property property">route</span><span class="token operator">:</span> <span class="token string">'heroes'</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">query</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token string-property property">'id.eq'</span><span class="token operator">:</span> <span class="token number">1</span>
         <span class="token punctuation">}</span><span class="token punctuation">,</span>
-        single<span class="token operator">:</span> <span class="token boolean">true</span>
+        <span class="token literal-property property">single</span><span class="token operator">:</span> <span class="token boolean">true</span>
       <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">}</span><span class="token punctuation">,</span>
@@ -424,7 +424,7 @@ Additionally, the generic model methods throw <a href="/vue-postgrest/api/#prima
   <span class="token function">onError</span> <span class="token punctuation">(</span><span class="token parameter">err</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">handleError</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
   <span class="token punctuation">}</span><span class="token punctuation">,</span>
-  methods<span class="token operator">:</span> <span class="token punctuation">{</span>
+  <span class="token literal-property property">methods</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token keyword">async</span> <span class="token function">destroyPlanets</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
       <span class="token keyword">try</span> <span class="token punctuation">{</span>
         <span class="token keyword">await</span> <span class="token keyword">this</span><span class="token punctuation">.</span>$postgrest<span class="token punctuation">.</span>rpc<span class="token punctuation">.</span><span class="token function">destroyAllPlanets</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
@@ -460,17 +460,17 @@ Additionally, the generic model methods throw <a href="/vue-postgrest/api/#prima
 </span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
 </code></pre></div><h2 id="stored-procedures"><a href="#stored-procedures" class="header-anchor">#</a> Stored Procedures</h2> <p>For calling stored procedures, the instance method <code>$postgrest.rpc</code> is provided. On loading the schema, all available stored procedures are registered here. The stored procedure call accepts an object containing the parameters that are passed to the stored procedure and an options object. By default, RPCs are called with the request method <code>POST</code>, you can set the rpc option <code>get: true</code> if you want to call a RPC with <code>GET</code> instead. For setting the <code>Accept</code> header, use the option <code>accept</code>.</p> <div class="language-vue extra-class"><pre class="language-vue"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script"><span class="token language-javascript">
 <span class="token keyword">export</span> <span class="token keyword">default</span> <span class="token punctuation">{</span>
-  name<span class="token operator">:</span> <span class="token string">'Component'</span><span class="token punctuation">,</span>
-  methods<span class="token operator">:</span> <span class="token punctuation">{</span>
+  <span class="token literal-property property">name</span><span class="token operator">:</span> <span class="token string">'Component'</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">methods</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token keyword">async</span> <span class="token function">destroyAllPlanets</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
       <span class="token comment">// wait till schema is loaded</span>
       <span class="token keyword">await</span> <span class="token keyword">this</span><span class="token punctuation">.</span>$postgrest<span class="token punctuation">.</span>$ready
-      <span class="token keyword">const</span> result <span class="token operator">=</span> <span class="token keyword">await</span> <span class="token keyword">this</span><span class="token punctuation">.</span>$postgrest<span class="token punctuation">.</span>rpc<span class="token punctuation">.</span><span class="token function">destroyplanets</span><span class="token punctuation">(</span><span class="token punctuation">{</span> countdown<span class="token operator">:</span> <span class="token boolean">false</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> 
-        accept<span class="token operator">:</span> <span class="token string">'text'</span><span class="token punctuation">,</span>
-        headers<span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token string">'Warning'</span><span class="token operator">:</span> <span class="token string">'Will cause problems!'</span> <span class="token punctuation">}</span>
+      <span class="token keyword">const</span> result <span class="token operator">=</span> <span class="token keyword">await</span> <span class="token keyword">this</span><span class="token punctuation">.</span>$postgrest<span class="token punctuation">.</span>rpc<span class="token punctuation">.</span><span class="token function">destroyplanets</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">countdown</span><span class="token operator">:</span> <span class="token boolean">false</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> 
+        <span class="token literal-property property">accept</span><span class="token operator">:</span> <span class="token string">'text'</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">headers</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token string-property property">'Warning'</span><span class="token operator">:</span> <span class="token string">'Will cause problems!'</span> <span class="token punctuation">}</span>
       <span class="token punctuation">}</span><span class="token punctuation">)</span>
       <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">await</span> result<span class="token punctuation">.</span><span class="token function">text</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">!==</span> <span class="token string">'all gone!'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">this</span><span class="token punctuation">.</span>$postgrest<span class="token punctuation">.</span>rpc<span class="token punctuation">.</span><span class="token function">destroyplanets</span><span class="token punctuation">(</span><span class="token punctuation">{</span> force<span class="token operator">:</span> <span class="token boolean">true</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>$postgrest<span class="token punctuation">.</span>rpc<span class="token punctuation">.</span><span class="token function">destroyplanets</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">force</span><span class="token operator">:</span> <span class="token boolean">true</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
       <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">}</span>
@@ -479,13 +479,13 @@ Additionally, the generic model methods throw <a href="/vue-postgrest/api/#prima
 </code></pre></div><div class="custom-block tip"><p class="custom-block-title">TIP</p> <p>If you want to call a RPC before the schema is loaded, you can call <code>$postgrest.rpc</code> directly by passing the name of the stored procedure that should be called as the first argument, followed by the rpc parameters and options. See <a href="/vue-postgrest/api/#postgrest-rpc-function-name-options-params">RPC</a> for details.</p></div> <h2 id="authentication"><a href="#authentication" class="header-anchor">#</a> Authentication</h2> <p>The most convenient way to set the <code>Authorization</code> header to include your jwt token is to use the <a href="/vue-postgrest/api/#setdefaulttoken">setDefaultToken</a> method exported by the module. This method sets the token to use for all subsequent communication with the PostgREST server.</p> <div class="language-vue extra-class"><pre class="language-vue"><code>import { setDefaultToken } from 'vue-postgrest'
 
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script"><span class="token language-javascript">
-  name<span class="token operator">:</span> <span class="token string">'App'</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">name</span><span class="token operator">:</span> <span class="token string">'App'</span><span class="token punctuation">,</span>
   <span class="token function">mounted</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token function">setDefaultToken</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>$store<span class="token punctuation">.</span>getters<span class="token punctuation">.</span>authToken<span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
-</code></pre></div><p>If you want to overwrite the token used for specific requests, you can either use the mixin option <code>token</code> or the component prop, respectively.</p> <p>To handle rejected requests due to token errors, use the <code>AuthError</code> that is thrown when the server rejects your token, see <a href="/vue-postgrest/guide/#handling-errors">Handling Errors</a> for details.</p> <div class="custom-block tip"><p class="custom-block-title">TIP</p> <p>You can use the instance method <code>$postgrest</code> to create a new schema. If you set the first argument (<code>apiRoot</code>) to undefined, a new schema is created with the base URI used by the default schema. You can pass an auth token as the second argument, which will then be used for subsequent requests with the new schema.</p></div></div> <footer class="page-edit"><div class="edit-link"><a href="https://github.com/technowledgy/vue-postgrest/edit/master/docs/guide/index.md" target="_blank" rel="noopener noreferrer">Edit this page</a> <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></div> <div class="last-updated"><span class="prefix">Last Updated:</span> <span class="time">8/22/2020, 7:59:03 PM</span></div></footer> <!----> </main></div><div class="global-ui"><!----></div></div>
-    <script src="/vue-postgrest/assets/js/app.1085cba4.js" defer></script><script src="/vue-postgrest/assets/js/2.7c8cda5a.js" defer></script><script src="/vue-postgrest/assets/js/12.d9150949.js" defer></script>
+</code></pre></div><p>If you want to overwrite the token used for specific requests, you can either use the mixin option <code>token</code> or the component prop, respectively.</p> <p>To handle rejected requests due to token errors, use the <code>AuthError</code> that is thrown when the server rejects your token, see <a href="/vue-postgrest/guide/#handling-errors">Handling Errors</a> for details.</p> <div class="custom-block tip"><p class="custom-block-title">TIP</p> <p>You can use the instance method <code>$postgrest</code> to create a new schema. If you set the first argument (<code>apiRoot</code>) to undefined, a new schema is created with the base URI used by the default schema. You can pass an auth token as the second argument, which will then be used for subsequent requests with the new schema.</p></div></div> <footer class="page-edit"><div class="edit-link"><a href="https://github.com/technowledgy/vue-postgrest/edit/master/docs/guide/index.md" target="_blank" rel="noopener noreferrer">Edit this page</a> <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></div> <div class="last-updated"><span class="prefix">Last Updated:</span> <span class="time">1/9/2022, 12:53:05 PM</span></div></footer> <!----> </main></div><div class="global-ui"><!----></div></div>
+    <script src="/vue-postgrest/assets/js/app.4789aa9f.js" defer></script><script src="/vue-postgrest/assets/js/2.738befd0.js" defer></script><script src="/vue-postgrest/assets/js/11.86fc12b4.js" defer></script>
   </body>
 </html>
