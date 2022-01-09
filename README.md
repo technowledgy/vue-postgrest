@@ -1,9 +1,9 @@
 <div align="center">
 
-[![Travis (.org)](https://img.shields.io/travis/technowledgy/vue-postgrest)](https://travis-ci.org/technowledgy/vue-postgrest)
-[![Coveralls github](https://img.shields.io/coveralls/github/technowledgy/vue-postgrest)](https://coveralls.io/github/technowledgy/vue-postgrest)
-[![Depfu](https://img.shields.io/depfu/technowledgy/vue-postgrest)](https://depfu.com/repos/github/technowledgy/vue-postgrest)
-[![NPM](https://img.shields.io/npm/l/vue-postgrest)](https://github.com/technowledgy/vue-postgrest/blob/main/LICENSE)
+[![GitHub Actions](https://img.shields.io/github/workflow/status/technowledgy/vue-postgrest/Push%20to%20main)](https://github.com/technowledgy/vue-postgrest/actions/workflows/push.yaml)
+[![Coveralls GitHub](https://img.shields.io/coveralls/github/technowledgy/vue-postgrest)](https://coveralls.io/github/technowledgy/vue-postgrest)
+[![Dependabot](https://img.shields.io/badge/dependabot-enabled-success)](https://github.com/technowledgy/vue-postgrest/blob/main/package.json)
+[![License](https://img.shields.io/npm/l/vue-postgrest)](https://github.com/technowledgy/vue-postgrest/blob/main/LICENSE)
 [![npm](https://img.shields.io/npm/v/vue-postgrest)](https://www.npmjs.com/package/vue-postgrest)
 
 </div>
