@@ -5,6 +5,7 @@
 [![Dependabot](https://img.shields.io/badge/dependabot-enabled-success)](https://github.com/technowledgy/vue-postgrest/blob/main/package.json)
 [![License](https://img.shields.io/npm/l/vue-postgrest)](https://github.com/technowledgy/vue-postgrest/blob/main/LICENSE)
 [![npm](https://img.shields.io/npm/v/vue-postgrest)](https://www.npmjs.com/package/vue-postgrest)
+![vue](https://img.shields.io/badge/vue-2.x-brightgreen)
 
 </div>
 
