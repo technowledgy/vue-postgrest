@@ -59,4 +59,4 @@ Or you can directly use the instance method provided on your Vue instance:
 this.$postgrest.ROUTE.get()
 ```
 
-For in depth documentation see the [API](/api) and [Query](/query) documentation.
+For in depth documentation see the [API](/vue-postgrest/api) and [Query](/vue-postgrest/query) documentation.

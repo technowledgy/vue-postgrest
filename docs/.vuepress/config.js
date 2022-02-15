@@ -6,6 +6,7 @@ module.exports = {
   themeConfig: {
     repo: 'technowledgy/vue-postgrest',
     docsDir: 'docs',
+    docsBranch: 'main',
     editLinks: true,
     smoothScroll: true,
     sidebarDepth: 2,
