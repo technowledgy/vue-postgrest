@@ -143,11 +143,11 @@ E.g. to use multiple conditions:
 </script>
 ```
 
-When passing arrays, the resulting query string is constructed based on the used operator! See [Arrays](/query/#arrays). Furthermore, `undefined` values will exclude the column condition from the query string - this can be useful if you create your query object dynamically.
+When passing arrays, the resulting query string is constructed based on the used operator! See [Arrays](../query/#arrays). Furthermore, `undefined` values will exclude the column condition from the query string - this can be useful if you create your query object dynamically.
 
 
 ::: tip
-For convenient creation of range objects see [Range Objects](/query/#range-objects)!
+For convenient creation of range objects see [Range Objects](../query/#range-objects)!
 :::
 
 ### Embedding
@@ -172,11 +172,11 @@ PostgREST offers an easy way to handle relationships between tables/views. You c
 </script>
 ```
 
-**Important:** If you omit the `select` key in an embed object, it is assumed that you want to access a JSON-field instead of embedding a resource! See [JSON Columns](/query/#json-columns) for details.
+**Important:** If you omit the `select` key in an embed object, it is assumed that you want to access a JSON-field instead of embedding a resource! See [JSON Columns](../query/#json-columns) for details.
 
 ### Loading / Refreshing
 
-For monitoring the current status of the request, you can use `this.pg.$get` which is an [ObservableFunction](/api/#observable-function). `pg.$get.isPending` tells you, if a request is still pending:
+For monitoring the current status of the request, you can use `this.pg.$get` which is an [ObservableFunction](../api/#observable-function). `pg.$get.isPending` tells you, if a request is still pending:
 
 ``` vue
 <template>
@@ -270,7 +270,7 @@ The component takes the same options as the `pg` mixin as props and provides it'
 </template>
 ```
 
-**Note:** If you encounter situations where it is more convenient to do this programmatically, you can also use instance methods! The `this.$postgrest` exposes a [Route](/api/#postgrest-route) for each table/view that is available in your schema. You could then rewrite the above example like this:
+**Note:** If you encounter situations where it is more convenient to do this programmatically, you can also use instance methods! The `this.$postgrest` exposes a [Route](../api/#postgrest-route) for each table/view that is available in your schema. You could then rewrite the above example like this:
 
 ``` vue
 <template>
@@ -321,7 +321,7 @@ The component takes the same options as the `pg` mixin as props and provides it'
 
 ## Modifying Data
 
-Each item provided by the mixin or the component is a [Generic Model](/api/#genericmodel), which is a wrapper for the entity received from the server with some added methods and getters. 
+Each item provided by the mixin or the component is a [Generic Model](../api/#genericmodel), which is a wrapper for the entity received from the server with some added methods and getters. 
 
 Getting an item, modifying it's data and patching it on the server can be as simple as:
 
@@ -357,11 +357,11 @@ The instance methods `$postgrest.ROUTE.METHOD` do not wrap the response in Gener
 
 ### Model State
 
-Just like the mixin method `pg.$get`, the request-specific methods provided by a GenericModel are [ObservableFunctions](/api/#observablefunction). This means, you can check on the status of pending requests or errors via the respective getters. In addition, GenericModels provide the getter `model.$isDirty`, which indicates if the model's data changed from it's initial state, as well as a `model.$reset()` method, which resets the data to it's initial state.
+Just like the mixin method `pg.$get`, the request-specific methods provided by a GenericModel are [ObservableFunctions](../api/#observablefunction). This means, you can check on the status of pending requests or errors via the respective getters. In addition, GenericModels provide the getter `model.$isDirty`, which indicates if the model's data changed from it's initial state, as well as a `model.$reset()` method, which resets the data to it's initial state.
 
 **Note:** The model is updated after $patch requests by default and `initial state` is set to the updated data. If you don't want to update the model, e.g. when doing a partial patch, set the `$patch` option `return='minimal'`.
 
-The first argument to the `model.$patch` method is an options object. The second argument to `$patch` is an object with additional patch data. See [$patch](/api/#patch-data-options) for details.
+The first argument to the `model.$patch` method is an options object. The second argument to `$patch` is an object with additional patch data. See [$patch](../api/#patch-data-options) for details.
 
 A more extensive example could look like this:
 
@@ -445,7 +445,7 @@ Using the `postgrest` component and it's slot scope for patching:
 
 ## Creating Models
 
-When the mixin option `single` is `false` (the default) `this.pg` is actually an instance of a [GenericCollection](/api/#genericcollection). The `GenericCollection` has a method `pg.$new(...)` to create new `GenericModel`s. You can then call `$post()` on the returned models to make a `POST` request.
+When the mixin option `single` is `false` (the default) `this.pg` is actually an instance of a [GenericCollection](../api/#genericcollection). The `GenericCollection` has a method `pg.$new(...)` to create new `GenericModel`s. You can then call `$post()` on the returned models to make a `POST` request.
 
 ``` vue
 <template>
@@ -488,7 +488,7 @@ When the mixin option `single` is `false` (the default) `this.pg` is actually an
 
 You can do an upsert (insert or update, when it already exists) with either a `POST` or a `PUT` request. To make a `PUT` request, just call `$put()` on the model - but make sure to set the primary key on the model first.
 
-Alternatively, you can use all options that a [route](/api/#postgrest-route) offers with `$post()`. To perform an upsert, you can pass the `resolution` option, which sets the resolution part of the `Prefer` header. To set the `on_conflict` query string parameter, see [Query](/query/#on-conflict).
+Alternatively, you can use all options that a [route](../api/#postgrest-route) offers with `$post()`. To perform an upsert, you can pass the `resolution` option, which sets the resolution part of the `Prefer` header. To set the `on_conflict` query string parameter, see [Query](../query/#on-conflict).
 
 Example for `$post()` upsert:
 
@@ -530,15 +530,15 @@ Example for `$post()` upsert:
 
 ### Mixin / Component
 
-The mixin calls the `onError` hook on your component instance whenever a [FetchError](/api/#fetcherror) or an [AuthError](/api/#autherror) is thrown. To react to errors from the `postgrest` component, use the `error` event. The error object is passed to the hook/event.
+The mixin calls the `onError` hook on your component instance whenever a [FetchError](../api/#fetcherror) or an [AuthError](../api/#autherror) is thrown. To react to errors from the `postgrest` component, use the `error` event. The error object is passed to the hook/event.
 
 ### GenericModel / Instance Methods / Stored Procedures
 
-All request-specific methods from a [GenericCollection](/api/#genericcollection) or [GenericModel](/api/#genericmodel), as well as the [instance methods](/api/#instancemethods) and [stored procedure calls](/api/#postgrest-rpc-function-name-options-params) throw [AuthError](/api/#autherror) and [FetchError](/api/#fetcherror).
-Additionally, the generic model methods throw [PrimaryKeyError](/api/#primarykeyerror).
+All request-specific methods from a [GenericCollection](../api/#genericcollection) or [GenericModel](../api/#genericmodel), as well as the [instance methods](../api/#instancemethods) and [stored procedure calls](../api/#postgrest-rpc-function-name-options-params) throw [AuthError](../api/#autherror) and [FetchError](../api/#fetcherror).
+Additionally, the generic model methods throw [PrimaryKeyError](../api/#primarykeyerror).
 
 ::: tip
-You can test whether a schema was found for the base URI by catching [SchemaNotFoundError](/api/#schemanotfounderror) on [$postgrest.$ready](/api/#postgrest-ready).
+You can test whether a schema was found for the base URI by catching [SchemaNotFoundError](../api/#schemanotfounderror) on [$postgrest.$ready](../api/#postgrest-ready).
 :::
 
 ### Full Example
@@ -647,12 +647,12 @@ export default {
 ```
 
 ::: tip
-If you want to call a RPC before the schema is loaded, you can call `$postgrest.rpc` directly by passing the name of the stored procedure that should be called as the first argument, followed by the rpc parameters and options. See [RPC](/api/#postgrest-rpc-function-name-options-params) for details.
+If you want to call a RPC before the schema is loaded, you can call `$postgrest.rpc` directly by passing the name of the stored procedure that should be called as the first argument, followed by the rpc parameters and options. See [RPC](../api/#postgrest-rpc-function-name-options-params) for details.
 :::
 
 ## Authentication
 
-The most convenient way to set the `Authorization` header to include your jwt token is to use the [setDefaultToken](/api/#setdefaulttoken) method exported by the module. This method sets the token to use for all subsequent communication with the PostgREST server.
+The most convenient way to set the `Authorization` header to include your jwt token is to use the [setDefaultToken](../api/#setdefaulttoken) method exported by the module. This method sets the token to use for all subsequent communication with the PostgREST server.
 
 ``` vue
 import { setDefaultToken } from 'vue-postgrest'

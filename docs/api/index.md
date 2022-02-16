@@ -257,7 +257,7 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
 - **Details:**
 
-  The query sent to the API is constructed from this option. See the [Query API](/query) as well as [API](https://postgrest.org/en/latest/api.html) in the PostgREST documentation for more details.
+  The query sent to the API is constructed from this option. See the [Query API](../query) as well as [API](https://postgrest.org/en/latest/api.html) in the PostgREST documentation for more details.
 
 - **Example:**
 
@@ -544,7 +544,7 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
     
     - `{string} method` one of `'OPTIONS'`, `'GET'`, `'HEAD'`, `'POST'`, `'PATCH'`, `'PUT'` or `'DELETE'`
     
-    - `{object} query` see [Query](/query)
+    - `{object} query` see [Query](../query)
 
     - `{object} options` additional options, see below
 
