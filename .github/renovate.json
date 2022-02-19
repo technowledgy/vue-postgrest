@@ -1,0 +1,19 @@
+{
+  "extends": [
+    "config:js-lib",
+    "npm:unpublishSafe",
+    "schedule:earlyMondays"
+  ],
+  "packageRules": [
+    {
+      "matchFiles": ["package.json"],
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "groupName": "devDependencies"
+    },
+    {
+      "matchPackageNames": ["vue"],
+      "allowedVersions": "<3.0.0"
+    }
+  ]
+}
