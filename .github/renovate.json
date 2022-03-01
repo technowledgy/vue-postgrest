@@ -1,7 +1,6 @@
 {
   "extends": [
     "config:js-lib",
-    "npm:unpublishSafe",
     "schedule:earlyMondays"
   ],
   "packageRules": [
