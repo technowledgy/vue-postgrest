@@ -15,7 +15,7 @@ function createComponent (props, cb) {
   const wrapper = shallowMount(Postgrest, {
     propsData: props,
     listeners: {
-      /* eslint-disable node/no-callback-literal */
+      /* eslint-disable n/no-callback-literal */
       error: evt => cb('error', evt)
     },
     scopedSlots: {

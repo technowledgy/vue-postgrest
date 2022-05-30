@@ -847,7 +847,7 @@ describe('GenericModel', () => {
         it('that are changed as a whole', async () => {
           const model = new GenericModel({ route, query }, {
             ...data,
-            nestedField: nestedField
+            nestedField
           })
           const newNestedField = {
             newParent: {

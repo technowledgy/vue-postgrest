@@ -356,7 +356,7 @@ describe('request method', () => {
       const body = new Blob()
       await request('/api', '', 'clients', 'POST', {}, {}, body)
       expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
-        body: body
+        body
       }))
     })
 
@@ -364,7 +364,7 @@ describe('request method', () => {
       const body = new FormData()
       await request('/api', '', 'clients', 'POST', {}, {}, body)
       expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
-        body: body
+        body
       }))
     })
 
