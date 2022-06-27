@@ -11,6 +11,10 @@
       "groupName": "devDependencies"
     },
     {
+      "matchPackageNames": ["@vue/test-utils"],
+      "allowedVersions": "<2.0.0"
+    },
+    {
       "matchPackageNames": ["vue"],
       "allowedVersions": "<3.0.0"
     }
