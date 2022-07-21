@@ -14,10 +14,12 @@ export default {
     '<rootDir>/tests/setup.js'
   ],
   testEnvironment: 'jsdom',
+  testEnvironmentOptions: {
+    url: 'http://localhost/nested/path'
+  },
   testMatch: [
     '**/tests/unit/**/*.spec.js'
   ],
-  testURL: 'http://localhost/nested/path',
   transform: {
     '^.+\\.js$': 'babel-jest'
   },
