@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'url'
 import { dirname, resolve } from 'path'
 import { defineConfig } from 'vite'
-import { createVuePlugin } from 'vite-plugin-vue2'
+import vue from '@vitejs/plugin-vue2'
 import copy from 'rollup-plugin-copy'
 
 const repoDir = dirname(fileURLToPath(import.meta.url))
@@ -23,7 +23,7 @@ export default defineConfig({
     sourcemap: true
   },
   plugins: [
-    createVuePlugin(),
+    vue(),
     copy({
       targets: [
         { src: 'package.json.cjs', dest: 'dist/cjs', rename: 'package.json' }
