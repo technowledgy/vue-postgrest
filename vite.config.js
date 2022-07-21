@@ -8,6 +8,7 @@ const repoDir = dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   build: {
+    commonjsOptions: { include: [] },
     lib: {
       entry: resolve(repoDir, 'src/index.js'),
       formats: ['es', 'cjs']
@@ -21,6 +22,9 @@ export default defineConfig({
       }
     },
     sourcemap: true
+  },
+  optimizeDeps: {
+    disabled: false
   },
   plugins: [
     vue(),
