@@ -43,8 +43,15 @@ function createReactivePrototype (target, boundThis) {
       return Reflect.defineProperty(target, key, descriptor)
     }
   })
-  // call observer's walk method to pick up on the newly created props
-  target.__ob__.walk(makeNonEnumerableProxy)
+  // copy observer's walk method to pick up on the newly created props
+  function walk (obj) {
+    const keys = Object.keys(obj)
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i]
+      Vue.util.defineReactive(obj, key)
+    }
+  }
+  walk(makeNonEnumerableProxy)
   // wrap in proxy to hide instanced proto props
   return new Proxy(target, {
     defineProperty: reflectHelper.bind('defineProperty', keys, false),
