@@ -15,7 +15,8 @@
       "allowedVersions": "<2.0.0"
     },
     {
-      "matchPackageNames": ["vue"],
+      "matchPackageNames": ["vue", "vue-template-compiler"],
+      "groupName": "vue",
       "allowedVersions": "<3.0.0"
     }
   ]
