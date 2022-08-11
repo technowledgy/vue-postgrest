@@ -24,6 +24,82 @@ describe('ObservableFunction', () => {
     })
   })
 
+  describe('hasReturned', () => {
+    it('has prop with default false', () => {
+      expect(fn.hasReturned).toBe(false)
+    })
+
+    it('is still false while first request is pending', async () => {
+      expect.assertions(2)
+      expect(fn.hasReturned).toBe(false)
+      const p = fn(new Promise((resolve) => resolve()))
+      expect(fn.hasReturned).toBe(false)
+      await p
+    })
+
+    it('is still false when first request is rejected', async () => {
+      expect.assertions(3)
+      expect(fn.hasReturned).toBe(false)
+      const p = fn(new Promise((resolve, reject) => reject(new Error())))
+      expect(fn.hasReturned).toBe(false)
+      try {
+        await p
+      } catch {
+        expect(fn.hasReturned).toBe(false)
+      }
+    })
+
+    it('is true when first request is resolved', async () => {
+      expect.assertions(3)
+      expect(fn.hasReturned).toBe(false)
+      const p = fn(new Promise((resolve) => resolve()))
+      expect(fn.hasReturned).toBe(false)
+      await p
+      expect(fn.hasReturned).toBe(true)
+    })
+
+    it('is still true when second request is pending', async () => {
+      expect.assertions(4)
+      expect(fn.hasReturned).toBe(false)
+      const p1 = fn(new Promise((resolve) => resolve()))
+      expect(fn.hasReturned).toBe(false)
+      await p1
+      expect(fn.hasReturned).toBe(true)
+      const p2 = fn(new Promise((resolve) => resolve()))
+      expect(fn.hasReturned).toBe(true)
+      await p2
+    })
+
+    it('is still true when second request is resolved', async () => {
+      expect.assertions(5)
+      expect(fn.hasReturned).toBe(false)
+      const p1 = fn(new Promise((resolve) => resolve()))
+      expect(fn.hasReturned).toBe(false)
+      await p1
+      expect(fn.hasReturned).toBe(true)
+      const p2 = fn(new Promise((resolve) => resolve()))
+      expect(fn.hasReturned).toBe(true)
+      await p2
+      expect(fn.hasReturned).toBe(true)
+    })
+
+    it('is still true when second request is rejected', async () => {
+      expect.assertions(5)
+      expect(fn.hasReturned).toBe(false)
+      const p1 = fn(new Promise((resolve) => resolve()))
+      expect(fn.hasReturned).toBe(false)
+      await p1
+      expect(fn.hasReturned).toBe(true)
+      const p2 = fn(new Promise((resolve, reject) => reject(new Error())))
+      expect(fn.hasReturned).toBe(true)
+      try {
+        await p2
+      } catch {
+        expect(fn.hasReturned).toBe(true)
+      }
+    })
+  })
+
   describe('pending', () => {
     it('has prop with default empty array', () => {
       expect(fn.pending).toMatchObject([])
