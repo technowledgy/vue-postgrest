@@ -12,6 +12,7 @@ class ObservableFunction extends Function {
         try {
           const ret = await fn(controller.signal, ...argumentsList)
           this.clear()
+          this.hasReturned = true
           return ret
         } catch (e) {
           this.errors.push(e)
@@ -22,6 +23,8 @@ class ObservableFunction extends Function {
       }
     })
   }
+
+  hasReturned = false
 
   pending = []
 

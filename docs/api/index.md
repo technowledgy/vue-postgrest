@@ -1369,6 +1369,14 @@ An ObservableFunction has the following Vue-reactive properties indicating it's 
 
   Indicating whether there were errors during the request. This is cleared automatically upon the next successful request or manually with `ObservableFunction.clear()`.
 
+### hasReturned
+
+- **Type:** `Boolean`
+
+- **Details:**
+
+  Indicating whether the request has returned successfully at least once. Useful to differentiate between "first load" and "refresh" in conjunction with `ObservableFunction.isPending`.
+
 ### isPending
 
 - **Type:** `Boolean`
