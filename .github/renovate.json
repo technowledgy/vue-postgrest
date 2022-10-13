@@ -18,6 +18,10 @@
       "matchPackageNames": ["vue", "vue-template-compiler"],
       "groupName": "vue",
       "allowedVersions": "<3.0.0"
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true
     }
   ]
 }
