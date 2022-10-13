@@ -1,7 +1,6 @@
 {
   "extends": [
-    "config:js-lib",
-    "schedule:earlyMondays"
+    "config:js-lib"
   ],
   "packageRules": [
     {
