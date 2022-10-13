@@ -74,7 +74,7 @@ jobs:
         check-latest: true
     - run: yarn
     - run: yarn docs:build
-    - uses: JamesIves/github-pages-deploy-action@v4.4.0
+    - uses: JamesIves/github-pages-deploy-action@v4.4.1
       with:
         branch: gh-pages
         folder: docs/.vuepress/dist
