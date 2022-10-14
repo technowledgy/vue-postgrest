@@ -22,5 +22,6 @@
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "automerge": true
     }
-  ]
+  ],
+  "postUpdateOptions": ["yarnDedupeHighest"]
 }
