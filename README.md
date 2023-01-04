@@ -1,6 +1,6 @@
 <div align="center">
 
-[![GitHub Actions](https://img.shields.io/github/workflow/status/technowledgy/vue-postgrest/Push%20to%20main)](https://github.com/technowledgy/vue-postgrest/actions/workflows/push.yaml)
+[![GitHub Actions](https://img.shields.io/github/workflow/actions/status/technowledgy/vue-postgrest/push.yaml?branch=main)](https://github.com/technowledgy/vue-postgrest/actions/workflows/push.yaml)
 [![Coveralls GitHub](https://img.shields.io/coveralls/github/technowledgy/vue-postgrest)](https://coveralls.io/github/technowledgy/vue-postgrest)
 [![Dependabot](https://img.shields.io/badge/dependabot-enabled-success)](https://github.com/technowledgy/vue-postgrest/blob/main/package.json)
 [![License](https://img.shields.io/npm/l/vue-postgrest)](https://github.com/technowledgy/vue-postgrest/blob/main/LICENSE)
