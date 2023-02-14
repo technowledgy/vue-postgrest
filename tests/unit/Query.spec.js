@@ -52,6 +52,8 @@ describe('Query', () => {
     itt('represents false as string', { bool: false }, 'bool=false')
 
     itt('quotes string false', { str: 'false' }, 'str="false"')
+
+    itt('supports arguments with array values', { arr: [1, 2, 3] }, 'arr={1,2,3}')
   })
 
   describe('horizontal filtering', () => {

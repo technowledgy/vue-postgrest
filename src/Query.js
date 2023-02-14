@@ -160,7 +160,7 @@ class Query extends URL {
             break
           case undefined:
             // no operator + object = nested json
-            if (value && typeof value === 'object') {
+            if (value && typeof value === 'object' && !Array.isArray(value)) {
               return this._parseConditions(value, cc('', jsonPrefix, '->') + field)
             }
             // falls through
