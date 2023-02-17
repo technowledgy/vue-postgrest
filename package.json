@@ -7,8 +7,8 @@
   },
   "scripts": {
     "build": "vite build",
-    "docs:build": "vuepress build docs",
-    "docs:dev": "vuepress dev docs",
+    "docs:build": "NODE_OPTIONS=--openssl-legacy-provider vuepress build docs",
+    "docs:dev": "NODE_OPTIONS=--openssl-legacy-provider vuepress dev docs",
     "lint": "eslint --max-warnings=0 .",
     "lint:watch": "nodemon -q -x 'clear && yarn -s lint'",
     "pre-version": "yarn test && yarn lint && yarn build",
