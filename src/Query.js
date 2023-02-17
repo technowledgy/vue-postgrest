@@ -156,7 +156,7 @@ class Query extends URL {
         let strValue
         switch (ops[ops.length - 1]) {
           case 'in':
-            strValue = this._valueToString(value, '()')
+            strValue = this._valueToString(value, '()', true)
             break
           case undefined:
             // no operator + object = nested json
@@ -176,19 +176,19 @@ class Query extends URL {
     }).flat().filter(Boolean)
   }
 
-  _valueToString (value, arrayBrackets = '{}') {
+  _valueToString (value, arrayBrackets = '{}', quoteStrings = false) {
     if (value === null) {
       return 'null'
     } else if (typeof value === 'boolean') {
       return value.toString()
     } else if (Array.isArray(value)) {
-      return arrayBrackets.charAt(0) + value.map(v => this._valueToString(v)).join(',') + arrayBrackets.charAt(1)
+      return arrayBrackets.charAt(0) + value.map(v => this._valueToString(v, '{}', quoteStrings)).join(',') + arrayBrackets.charAt(1)
     } else if (typeof value === 'object') {
       // range type
       const { lower, includeLower = true, upper, includeUpper = false } = value
       return (includeLower ? '[' : '(') + lower + ',' + upper + (includeUpper ? ']' : ')')
     } else {
-      return quoteValue(value)
+      return quoteStrings ? quoteValue(value) : value
     }
   }
 }
