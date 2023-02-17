@@ -37,29 +37,27 @@ describe('Query', () => {
 
     itt('represents integer as string', { int: 1 }, 'int=1')
 
-    itt('quotes float', { pi: 3.14 }, 'pi="3.14"')
+    itt('does not quote float', { pi: 3.14 }, 'pi=3.14')
 
-    itt('quotes values with reserved postgrest characters', { str: 'test.test' }, 'str="test.test"')
+    itt('does not quote values with reserved postgrest characters', { str: 'test.test' }, 'str=test.test')
 
     itt('represents null as string', { null: null }, 'null=null')
 
-    itt('quotes string null', { str: 'null' }, 'str="null"')
+    itt('does not quote string null', { str: 'null' }, 'str=null')
 
     itt('represents true as string', { bool: true }, 'bool=true')
 
-    itt('quotes string true', { str: 'true' }, 'str="true"')
+    itt('does not quote string true', { str: 'true' }, 'str=true')
 
     itt('represents false as string', { bool: false }, 'bool=false')
 
-    itt('quotes string false', { str: 'false' }, 'str="false"')
+    itt('does not quote string false', { str: 'false' }, 'str=false')
 
     itt('supports arguments with array values', { arr: [1, 2, 3] }, 'arr={1,2,3}')
   })
 
   describe('horizontal filtering', () => {
     itt('sets single condition', { 'id.eq': 1 }, 'id=eq.1')
-
-    itt('quotes only value and not operator', { 'pi.eq': 3.14 }, 'pi=eq."3.14"')
 
     itt('sets multiple conditions', {
       'id.eq': 1,
@@ -122,6 +120,8 @@ describe('Query', () => {
     itt('supports full-text search operator options in key', { 'my_tsv.fts(french)': 'amusant' }, 'my_tsv=fts(french).amusant')
 
     itt('supports "in" operator with array', { 'id.in': [1, 2, 3] }, 'id=in.(1,2,3)')
+
+    itt('quotes values with reserved postgrest characters in "in" operator', { 'str.in': ['a.b', 'x', 'c,d', 5, 'e:f', true, '(', ')'] }, 'str=in.("a.b",x,"c,d",5,"e:f",true,"(",")")')
 
     itt('supports other operators with arrays', { 'tags.cs': ['example', 'new'] }, 'tags=cs.{example,new}')
 
