@@ -83,6 +83,15 @@ describe('Query', () => {
       }
     }, 'or=(id.eq.1,name.eq.test)')
 
+    itt('quotes values with reserved postgrest characters in "or" object', {
+      or: {
+        'id.gt': 1,
+        'salutation.eq': 'Hello, World!',
+        'simple.eq': 'stuff',
+        'name.eq': 'special: (case)'
+      }
+    }, 'or=(id.gt.1,salutation.eq."Hello,+World!",simple.eq.stuff,name.eq."special:+(case)")')
+
     itt('supports logical disjoining with aliased keys', {
       or: {
         'f:nb.is': false,

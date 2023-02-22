@@ -134,7 +134,7 @@ class Query extends URL {
     }
   }
 
-  _parseConditions (obj, jsonPrefix = '') {
+  _parseConditions (obj, jsonPrefix = '', quoteStrings = false) {
     return Object.entries(obj).map(([key, value]) => {
       if (value === undefined) return false
       // throw away alias - just used to allow the same condition more than once on one object
@@ -143,7 +143,7 @@ class Query extends URL {
       if (isLogicalOperator(key)) {
         if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('no object for logical operator')
         if (jsonPrefix) throw new Error('logical operators can\'t be nested with json operators')
-        const strValue = this._parseConditions(value).map(({ key: k, value: v }) => {
+        const strValue = this._parseConditions(value, '', true).map(({ key: k, value: v }) => {
           return isLogicalOperator(k) ? `${k}${v}` : `${k}.${v}`
         }).join(',')
         if (!strValue) return undefined
@@ -161,11 +161,11 @@ class Query extends URL {
           case undefined:
             // no operator + object = nested json
             if (value && typeof value === 'object' && !Array.isArray(value)) {
-              return this._parseConditions(value, cc('', jsonPrefix, '->') + field)
+              return this._parseConditions(value, cc('', jsonPrefix, '->', quoteStrings) + field)
             }
             // falls through
           default:
-            strValue = this._valueToString(value)
+            strValue = this._valueToString(value, '{}', quoteStrings)
         }
         const jsonOperator = typeof value === 'string' ? '->>' : '->'
         return {
@@ -176,7 +176,7 @@ class Query extends URL {
     }).flat().filter(Boolean)
   }
 
-  _valueToString (value, arrayBrackets = '{}', quoteStrings = false) {
+  _valueToString (value, arrayBrackets, quoteStrings) {
     if (value === null) {
       return 'null'
     } else if (typeof value === 'boolean') {
