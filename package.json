@@ -41,7 +41,7 @@
     "jest-environment-jsdom": "29.4.3",
     "jest-fetch-mock": "3.0.3",
     "jest-watch-typeahead": "2.2.2",
-    "nodemon": "2.0.20",
+    "nodemon": "2.0.21",
     "release-it": "15.7.0",
     "rollup-plugin-copy": "3.4.0",
     "vite": "4.1.4",
