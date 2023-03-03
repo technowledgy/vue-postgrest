@@ -182,7 +182,7 @@ class Query extends URL {
     } else if (typeof value === 'boolean') {
       return value.toString()
     } else if (Array.isArray(value)) {
-      return arrayBrackets.charAt(0) + value.map(v => this._valueToString(v, '{}', quoteStrings)).join(',') + arrayBrackets.charAt(1)
+      return arrayBrackets.charAt(0) + value.map(v => this._valueToString(v, '{}', true)).join(',') + arrayBrackets.charAt(1)
     } else if (typeof value === 'object') {
       // range type
       const { lower, includeLower = true, upper, includeUpper = false } = value

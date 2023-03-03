@@ -54,6 +54,8 @@ describe('Query', () => {
     itt('does not quote string false', { str: 'false' }, 'str=false')
 
     itt('supports arguments with array values', { arr: [1, 2, 3] }, 'arr={1,2,3}')
+
+    itt('quotes values with reserved postgrest characters in array arguments', { arr: ['a.b', 'x', 'c,d', 5, 'e:f', true, '(', ')'] }, 'arr={"a.b",x,"c,d",5,"e:f",true,"(",")"}')
   })
 
   describe('horizontal filtering', () => {
@@ -133,6 +135,8 @@ describe('Query', () => {
     itt('quotes values with reserved postgrest characters in "in" operator', { 'str.in': ['a.b', 'x', 'c,d', 5, 'e:f', true, '(', ')'] }, 'str=in.("a.b",x,"c,d",5,"e:f",true,"(",")")')
 
     itt('supports other operators with arrays', { 'tags.cs': ['example', 'new'] }, 'tags=cs.{example,new}')
+
+    itt('quotes values with reserved postgrest characters in array operators', { 'str.ov': ['a.b', 'x', 'c,d', 5, 'e:f', true, '(', ')'] }, 'str=ov.{"a.b",x,"c,d",5,"e:f",true,"(",")"}')
 
     itt('supports range operators with objects', { 'range.sl': { lower: 1, upper: 10 } }, 'range=sl.[1,10)')
 
