@@ -297,5 +297,35 @@ describe('ObservableFunction', () => {
       fn.clear(0)
       expect(fn.errors).toEqual([Error('test2')])
     })
+
+    it('clears hasPeturned only without arguments', async () => {
+      expect.assertions(4)
+
+      const ret = fn(Promise.resolve())
+      await ret
+      expect(fn.hasReturned).toBe(true)
+
+      const fail1 = fn(Promise.reject(new Error('test1')))
+      try {
+        await fail1
+      } catch {}
+
+      fn.clear(0)
+
+      expect(fn.hasReturned).toBe(true)
+
+      const fail2 = fn(Promise.reject(new Error('test2')))
+      try {
+        await fail2
+      } catch (e) {
+        fn.clear(e)
+      }
+
+      expect(fn.hasReturned).toBe(true)
+
+      fn.clear()
+
+      expect(fn.hasReturned).toBe(false)
+    })
   })
 })

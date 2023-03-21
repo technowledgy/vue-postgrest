@@ -1338,7 +1338,7 @@ An ObservableFunction has the following Vue-reactive properties indicating it's 
 
 - **Details:**
 
-  Removes errors from the `.errors` property. `clear(error, ...)` removes specific errors by reference. `clear(index, ...)` removes specific errors by index. `clear()` removes all errors.
+  Removes errors from the `.errors` property. `clear(error, ...)` removes specific errors by reference. `clear(index, ...)` removes specific errors by index. `clear()` removes all errors and resets `.hasReturned`.
 
   ``` javascript
   try {
@@ -1375,7 +1375,7 @@ An ObservableFunction has the following Vue-reactive properties indicating it's 
 
 - **Details:**
 
-  Indicating whether the request has returned successfully at least once. Useful to differentiate between "first load" and "refresh" in conjunction with `ObservableFunction.isPending`.
+  Indicating whether the request has returned successfully at least once. Useful to differentiate between "first load" and "refresh" in conjunction with `ObservableFunction.isPending`. This can be reset to false manually by calling `ObservableFunction.clear()` without arguments.
 
 ### isPending
 

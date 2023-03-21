@@ -43,6 +43,7 @@ class ObservableFunction extends Function {
       this.errors = this.errors.filter((e, i) => !args.includes(e) && !args.includes(i))
     } else {
       this.errors = []
+      this.hasReturned = false
     }
   }
 }
