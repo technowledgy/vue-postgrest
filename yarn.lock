@@ -5273,10 +5273,10 @@ eslint-plugin-standard@5.0.0:
   resolved "https://registry.yarnpkg.com/eslint-plugin-standard/-/eslint-plugin-standard-5.0.0.tgz#c43f6925d669f177db46f095ea30be95476b1ee4"
   integrity sha512-eSIXPc9wBM4BrniMzJRBm2uoVuXz2EPa+NXPk2+itrVt+r5SbKFERx/IgrK/HmfjddyKVz2f+j+7gBRvu19xLg==
 
-eslint-plugin-vue@9.16.0:
-  version "9.16.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-vue/-/eslint-plugin-vue-9.16.0.tgz#67b85756126e2a6989a5c2eeb8540a4afc91aa99"
-  integrity sha512-SonAuvQXFm9HBV9ww/YkYZVYPMR8ptxxuJwcKGnG9A65SyvNANP9MKlfnC49L6DIwt/YEQZwZWEMHOkL1d5s1A==
+eslint-plugin-vue@9.16.1:
+  version "9.16.1"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-vue/-/eslint-plugin-vue-9.16.1.tgz#3508d9279d797b40889db76da2fd26524e9144e6"
+  integrity sha512-2FtnTqazA6aYONfDuOZTk0QzwhAwi7Z4+uJ7+GHeGxcKapjqWlDsRWDenvyG/utyOfAS5bVRmAG3cEWiYEz2bA==
   dependencies:
     "@eslint-community/eslint-utils" "^4.4.0"
     natural-compare "^1.4.0"
