@@ -15,7 +15,7 @@ jobs:
       with:
         cache: yarn
         check-latest: true
-        node-version: 18
+        node-version: 20
     - run: yarn
     - run: yarn lint --no-fix
 
@@ -28,7 +28,7 @@ jobs:
       with:
         cache: yarn
         check-latest: true
-        node-version: 18
+        node-version: 20
     - run: yarn
     - run: yarn build
 
@@ -41,7 +41,7 @@ jobs:
       with:
         cache: yarn
         check-latest: true
-        node-version: 18
+        node-version: 20
     - run: yarn
     - run: yarn test
     - uses: coverallsapp/github-action@v2.2.1
@@ -55,8 +55,8 @@ jobs:
       fail-fast: false
       matrix:
         node:
-        - 14
         - 16
+        - 18
     steps:
     - uses: actions/checkout@v3.5.3
     - uses: actions/setup-node@v3.8.1
@@ -75,7 +75,7 @@ jobs:
       with:
         cache: yarn
         check-latest: true
-        node-version: 18
+        node-version: 20
     - run: yarn
     - run: yarn docs:build
     - uses: JamesIves/github-pages-deploy-action@v4.4.3
