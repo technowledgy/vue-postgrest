@@ -78,7 +78,7 @@ jobs:
         node-version: 20
     - run: yarn
     - run: yarn docs:build
-    - uses: JamesIves/github-pages-deploy-action@v4.4.3
+    - uses: JamesIves/github-pages-deploy-action@v4.5.0
       with:
         branch: gh-pages
         folder: docs/.vuepress/dist
