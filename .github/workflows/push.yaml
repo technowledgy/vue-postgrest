@@ -55,7 +55,6 @@ jobs:
       fail-fast: false
       matrix:
         node:
-        - 16
         - 18
     steps:
     - uses: actions/checkout@v3.6.0
