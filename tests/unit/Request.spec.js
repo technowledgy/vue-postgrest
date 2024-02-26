@@ -1,4 +1,4 @@
-import request from '@/request'
+import request, { setDefaultHeaders } from '@/request'
 import GenericModel from '@/GenericModel'
 import { FetchError, AuthError } from '@/errors'
 
@@ -6,6 +6,7 @@ describe('request method', () => {
   beforeEach(() => {
     // just reset .mock data, but not .mockResponse
     fetch.mockClear()
+    setDefaultHeaders()
   })
 
   it('sends a request with method GET, POST, PUT, PATCH or DELETE', async () => {
@@ -281,6 +282,17 @@ describe('request method', () => {
         Accept: 'application/json',
         Prefer: 'return=minimal,count=exact'
       })
+    }))
+  })
+
+  it('does not override default prefer header', async () => {
+    setDefaultHeaders({ Prefer: 'timezone=Europe/Berlin' })
+    await request('/api', '', 'clients', 'PATCH', {}, { count: 'exact', return: 'minimal' })
+    const expectedHeaders = new Headers({ Prefer: 'timezone=Europe/Berlin' })
+    expectedHeaders.set('Accept', 'application/json')
+    expectedHeaders.append('Prefer', 'return=minimal,count=exact')
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/clients', expect.objectContaining({
+      headers: expectedHeaders
     }))
   })
 

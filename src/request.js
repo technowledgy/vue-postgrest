@@ -59,7 +59,7 @@ async function request (apiRoot, token, route, method, query = {}, options = {},
     .map(key => `${key}=${options[key]}`)
     .join(',')
   if (prefer) {
-    headers.set('Prefer', prefer)
+    headers.append('Prefer', prefer)
   }
 
   if (token) {
