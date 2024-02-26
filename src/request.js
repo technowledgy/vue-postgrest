@@ -1,6 +1,12 @@
 import Query from '@/Query'
 import { throwWhenStatusNotOk } from '@/errors'
 
+let defaultHeaders
+
+export function setDefaultHeaders (headers) {
+  defaultHeaders = new Headers(headers)
+}
+
 const acceptHeaderMap = {
   '': 'application/json',
   single: 'application/vnd.pgrst.object+json',
@@ -9,7 +15,7 @@ const acceptHeaderMap = {
 }
 
 async function request (apiRoot, token, route, method, query = {}, options = {}, body) {
-  const headers = new Headers()
+  const headers = new Headers(defaultHeaders)
 
   const isJSONBody = !([
     Blob,

@@ -4,22 +4,34 @@ import Schema, { resetSchemaCache } from '@/Schema'
 import Route from '@/Route'
 
 describe('Plugin', () => {
+  let localVue
+
+  beforeEach(() => {
+    localVue = createLocalVue()
+  })
+
+  afterEach(() => {
+    fetch.mockClear()
+    resetSchemaCache()
+  })
+
   describe('Plugin installation', () => {
     it('registers a global component', () => {
-      const localVue = createLocalVue()
       expect(localVue.options.components.postgrest).toBeUndefined()
       localVue.use(Plugin)
       expect(localVue.options.components.postgrest).toBeTruthy()
     })
 
     describe('$postgrest', () => {
-      resetSchemaCache()
-      fetch.mockClear()
-      const localVue = createLocalVue()
-      localVue.use(Plugin, {
-        apiRoot: '/api'
+      beforeEach(async () => {
+        localVue.use(Plugin, {
+          apiRoot: '/api',
+          headers: {
+            Prefer: 'timezone=Europe/Berlin'
+          }
+        })
+        await localVue.prototype.$postgrest.$ready
       })
-      beforeAll(() => localVue.prototype.$postgrest.$ready)
 
       it('registers apiRoot Schema as $postgrest on the Vue prototype', async () => {
         expect(localVue.prototype.$postgrest).toBeInstanceOf(Schema)
@@ -31,10 +43,14 @@ describe('Plugin', () => {
       })
 
       it('allows request', async () => {
-        fetch.mockClear()
         const resp = await localVue.prototype.$postgrest.clients.get()
         const body = await resp.json()
-        expect(fetch).toHaveBeenCalledWith('http://localhost/api/clients', expect.anything())
+        expect(fetch).toHaveBeenCalledWith('http://localhost/api/clients', expect.objectContaining({
+          headers: new Headers({
+            Accept: 'application/json',
+            Prefer: 'timezone=Europe/Berlin'
+          })
+        }))
         expect(body).toEqual([
           {
             id: 1,
@@ -54,8 +70,6 @@ describe('Plugin', () => {
 
     describe('setDefaultToken', () => {
       it('uses new default token', async () => {
-        fetch.mockClear()
-        const localVue = createLocalVue()
         localVue.use(Plugin, {
           apiRoot: '/api'
         })

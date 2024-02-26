@@ -11,7 +11,8 @@ jest.mock('@/request', () => {
   const { default: req } = jest.requireActual('@/request')
   return {
     __esModule: true,
-    default: jest.fn(req)
+    default: jest.fn(req),
+    setDefaultHeaders: jest.fn()
   }
 })
 

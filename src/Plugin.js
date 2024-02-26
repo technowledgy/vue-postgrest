@@ -1,5 +1,6 @@
 import Postgrest from './Postgrest'
 import { setDefaultRoot } from './Schema'
+import { setDefaultHeaders } from './request'
 import usePostgrest from './use'
 
 export default {
@@ -11,5 +12,6 @@ export default {
       get: usePostgrest
     })
     setDefaultRoot(options.apiRoot)
+    setDefaultHeaders(options.headers)
   }
 }

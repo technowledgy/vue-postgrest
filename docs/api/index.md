@@ -152,6 +152,29 @@ Global options can be set when initializing Vue-Postgrest with `Vue.use`.
   })
   ```
 
+### headers
+
+- **Type:** `Object`
+
+- **Default:** `{}`
+
+- **Details:**
+
+  A key/value mapping of default headers to send with each request.
+
+- **Example:**
+
+  ``` js
+  import VuePostgrest from 'vue-postgrest'
+
+  Vue.use(VuePostgrest, {
+    apiRoot: '/api/',
+    headers: {
+      Prefer: 'timezone=' + Intl.DateTimeFormat().resolvedOptions().timeZone
+    }
+  })
+  ```
+
 ## Mixin Options
 
 Mixin options are set in the component using the `pg` mixin by setting the `pgConfig` object on the component instance.
