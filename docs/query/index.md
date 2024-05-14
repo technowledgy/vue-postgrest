@@ -503,13 +503,13 @@ const query = {
       offset: 2
     },
     '91_comps:competitions': {
-      select: 'name',
-      'year.eq': 1991
+      select: 'name'
     },
     'central_addresses!billing_address': {
       select: '*'
     }
-  }
+  },
+  '91_comps.year.eq': 1991
 }
 ```
 

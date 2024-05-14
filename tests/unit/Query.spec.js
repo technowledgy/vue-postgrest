@@ -329,6 +329,26 @@ describe('Query', () => {
       }
     }, 'select=*,roles(*)&roles.character=in.(Chico,Harpo,Groucho)')
 
+    itt('with nested fields filters', {
+      select: {
+        '*': true,
+        roles: {
+          select: '*'
+        }
+      },
+      'roles.character.eq': 'Gummo'
+    }, 'select=*,roles(*)&roles.character=eq.Gummo')
+
+    itt('with nested negated fields filters', {
+      select: {
+        '*': true,
+        roles: {
+          select: '*'
+        }
+      },
+      'roles.character.not.eq': 'Gummo'
+    }, 'select=*,roles(*)&roles.character=not.eq.Gummo')
+
     itt('with complex filter', {
       select: {
         '*': true,

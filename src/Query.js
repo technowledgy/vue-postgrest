@@ -2,6 +2,18 @@ function isLogicalOperator (k) {
   return ['and', 'or', 'not.and', 'not.or'].includes(k)
 }
 
+function parseKey (key) {
+  if (!key.includes('.')) return [key]
+
+  const parts = key.split('.')
+  const operator = parts.at(-1)
+  const not = parts.at(-2) === 'not'
+  const field = parts.slice(0, not ? -2 : -1).join('.')
+
+  if (not) return [field, 'not', operator]
+  return [field, operator]
+}
+
 function quoteValue (str) {
   str = str.toString()
   if ([',', '.', ':', '(', ')'].find(r => str.includes(r)) || ['null', 'true', 'false'].includes(str)) {
@@ -152,7 +164,7 @@ class Query extends URL {
           value: `(${strValue})`
         }
       } else {
-        const [field, ...ops] = key.split('.')
+        const [field, ...ops] = parseKey(key)
         let strValue
         switch (ops[ops.length - 1]) {
           case 'in':
