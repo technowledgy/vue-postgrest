@@ -122,6 +122,14 @@ describe('Mixin', () => {
       expect(wrapper.vm.pg).toBeInstanceOf(GenericCollection)
     })
 
+    it('pg should not make a call without route', async () => {
+      request.mockClear()
+      wrapper.vm.$set(wrapper.vm.pgConfig, 'route', undefined)
+
+      await flushPromises()
+      expect(request).not.toHaveBeenCalled()
+    })
+
     it('pg does make a call without query', async () => {
       await flushPromises()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { signal: expect.any(AbortSignal) })

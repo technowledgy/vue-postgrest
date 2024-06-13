@@ -47,6 +47,8 @@ const mixin = {
       deep: true,
       immediate: true,
       async handler (cfg) {
+        if (!cfg.route) return
+
         if (this.pg instanceof GenericCollection || cfg.query) {
           try {
             await this.pg?.$get()
