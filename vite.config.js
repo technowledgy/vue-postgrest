@@ -23,9 +23,6 @@ export default defineConfig({
     },
     sourcemap: true
   },
-  optimizeDeps: {
-    disabled: false
-  },
   plugins: [
     vue(),
     copy({
