@@ -39,6 +39,31 @@ describe('Mixin', () => {
   beforeEach(request.mockClear)
   afterEach(() => wrapper.destroy())
 
+  describe('with pgConfig unset initially', () => {
+    beforeEach(() => {
+      wrapper = shallowMount({
+        render () {},
+        mixins: [pg],
+        data () {
+          return { pgConfig: undefined }
+        }
+      })
+    })
+
+    it('should not make a request', async () => {
+      await flushPromises()
+      expect(request).not.toHaveBeenCalled()
+    })
+
+    it('should enable GenericCollection when pgConfig is set', async () => {
+      await flushPromises()
+      wrapper.vm.pgConfig = { route: 'clients' }
+      await flushPromises()
+      expect(wrapper.vm.pg).toBeInstanceOf(GenericCollection)
+      expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'GET', {}, { signal: expect.any(AbortSignal) })
+    })
+  })
+
   describe('with pgConfig.single = true', () => {
     beforeEach(() => {
       wrapper = shallowMount(Component, { propsData: { single: true } })
