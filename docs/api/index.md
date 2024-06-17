@@ -57,6 +57,18 @@ The `vue-postgrest` module exports a plugin, a mixin and several helper function
   }
   ```
 
+### resetSchemaCache()
+
+- **Type:** `Function`
+
+- **Arguments:**
+
+- **Returns:** `undefined`
+
+- **Usage:**
+
+  Reset the schema cache, i.e. the inverse of `$postgrest.$ready`. Useful in unit tests.
+
 ### setDefaultToken(token)
 
 - **Type:** `Function`
