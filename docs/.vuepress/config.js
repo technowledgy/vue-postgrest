@@ -1,4 +1,4 @@
-module.exports = { 
+module.exports = {
   base: '/vue-postgrest/',
   title: 'vue-postgrest',
   description: 'PostgREST integration for Vue.js',
@@ -10,7 +10,7 @@ module.exports = {
     editLinks: true,
     smoothScroll: true,
     sidebarDepth: 2,
-    sidebar: [ 
+    sidebar: [
       '/start/',
       '/guide/',
       '/api/',
@@ -20,19 +20,8 @@ module.exports = {
     nextLinks: false,
     prevLinks: false
   },
-  plugins: [ 
+  plugins: [
     '@vuepress/active-header-links',
     '@vuepress/back-to-top'
-  ],
-  chainWebpack: (config) => {
-    config.module
-      .rule('js')
-      .use('babel-loader')
-      .tap(options => Object.assign(options, {
-        plugins: [
-          '@babel/plugin-proposal-optional-chaining',
-          '@babel/plugin-proposal-nullish-coalescing-operator'
-        ]
-      }))
-    }
+  ]
 }
