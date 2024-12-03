@@ -228,6 +228,35 @@ describe('Query', () => {
         }
       }
     }, 'select=id,jd:json_data::text,bt:json_data->blood_type::integer')
+
+    itt('json field with quoted key', {
+      select: {
+        'some->nested->"https://json-that-needs-quotes"': true
+      }
+    }, 'select=some->nested->"https://json-that-needs-quotes"')
+
+    itt('json field with quoted key and aliased', {
+      select: {
+        'alias:some->nested->"https://json-that-needs-quotes"': true
+      }
+    }, 'select=alias:some->nested->"https://json-that-needs-quotes"')
+
+    itt('json field with quoted nested key', {
+      select: {
+        some: {
+          nested: {
+            '"https://json-that-needs-quotes"': true
+          }
+        }
+      }
+    }, 'select=some->nested->"https://json-that-needs-quotes"'
+    )
+
+    itt('should parse quoted aliases with escaped quotes properly', {
+      select: {
+        '"a:\\":b":"x:y:z"': true
+      }
+    }, 'select="a:\\":b":"x:y:z"')
   })
 
   describe('ordering', () => {
