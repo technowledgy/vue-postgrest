@@ -83,8 +83,12 @@ class Query extends URL {
       }
       // regular select
       let alias = ''; let field; let cast = ''; let subfields = []
-      if (k.includes(':')) {
-        [alias, field] = k.split(':')
+      if (/^[^"]*:/.test(k)) {
+        // first `:` is outside quotes
+        [alias, field] = k.split(/:(.+)/)
+      } else if (/^".*[^\\]":/.test(k)) {
+        // quoted alias
+        [alias, field] = k.split(/(?<=[^\\]"):(.+)/)
       } else {
         field = k
       }
