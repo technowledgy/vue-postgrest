@@ -4,11 +4,10 @@ import { setDefaultHeaders } from './request'
 import usePostgrest from './use'
 
 export default {
-  install (Vue, options = {}) {
-    // use the mergeHook strategy for onError that is also used for vue lifecycle hooks
-    Vue.config.optionMergeStrategies.onError = Vue.config.optionMergeStrategies.created
-    Vue.component('postgrest', Postgrest)
-    Object.defineProperty(Vue.prototype, '$postgrest', {
+  install (app, options = {}) {
+    app.config.optionMergeStrategies.onError = (to, from) => [...new Set([].concat(to ?? [], from))]
+    app.component('postgrest', Postgrest)
+    Object.defineProperty(app.config.globalProperties, '$postgrest', {
       get: usePostgrest
     })
     setDefaultRoot(options.apiRoot)

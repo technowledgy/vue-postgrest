@@ -15,6 +15,7 @@ export default {
   ],
   testEnvironment: 'jsdom',
   testEnvironmentOptions: {
+    customExportConditions: ['node', 'node-addons'],
     url: 'http://localhost/nested/path'
   },
   testMatch: [

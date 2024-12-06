@@ -10,14 +10,6 @@
       "groupName": "devDependencies"
     },
     {
-      "matchPackageNames": ["@vue/test-utils"],
-      "allowedVersions": "<2.0.0"
-    },
-    {
-      "matchPackageNames": ["vue", "vue-template-compiler", "vue-server-renderer"],
-      "groupName": "vue",
-      "allowedVersions": "<3.0.0"
-    },
     {
       "matchPackageNames": ["lru-cache"],
       "allowedVersions": "<6.0.0"

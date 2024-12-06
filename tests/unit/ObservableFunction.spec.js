@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import { watch } from 'vue'
 import ObservableFunction from '@/ObservableFunction'
 
 describe('ObservableFunction', () => {
@@ -10,6 +10,20 @@ describe('ObservableFunction', () => {
   it('is callable', () => {
     expect(typeof fn).toBe('function')
     expect(fn).not.toThrow()
+  })
+
+  it('allows custom properties', () => {
+    expect('test' in fn).toBe(false)
+    fn.test = 'test'
+    expect('test' in fn).toBe(true)
+    expect(Object.getOwnPropertyDescriptor(fn, 'test')).toStrictEqual({
+      configurable: true,
+      enumerable: true,
+      value: 'test',
+      writable: true
+    })
+    expect(fn.test).toBe('test')
+    expect(Object.keys(fn)).toStrictEqual(expect.arrayContaining(['test']))
   })
 
   describe('returns promise', () => {
@@ -26,6 +40,13 @@ describe('ObservableFunction', () => {
 
   describe('hasReturned', () => {
     it('has prop with default false', () => {
+      expect('hasReturned' in fn).toBe(true)
+      expect(Object.getOwnPropertyDescriptor(fn, 'isPending')).toStrictEqual({
+        configurable: true,
+        enumerable: true,
+        get: expect.any(Function),
+        set: undefined
+      })
       expect(fn.hasReturned).toBe(false)
     })
 
@@ -102,6 +123,13 @@ describe('ObservableFunction', () => {
 
   describe('pending', () => {
     it('has prop with default empty array', () => {
+      expect('pending' in fn).toBe(true)
+      expect(Object.getOwnPropertyDescriptor(fn, 'pending')).toStrictEqual({
+        configurable: true,
+        enumerable: true,
+        value: [],
+        writable: true
+      })
       expect(fn.pending).toMatchObject([])
     })
 
@@ -133,6 +161,13 @@ describe('ObservableFunction', () => {
 
   describe('isPending', () => {
     it('has prop with default false', () => {
+      expect('isPending' in fn).toBe(true)
+      expect(Object.getOwnPropertyDescriptor(fn, 'isPending')).toStrictEqual({
+        configurable: true,
+        enumerable: true,
+        get: expect.any(Function),
+        set: undefined
+      })
       expect(fn.isPending).toBe(false)
     })
 
@@ -160,6 +195,13 @@ describe('ObservableFunction', () => {
 
   describe('error handling', () => {
     it('has "hasError" prop with default false', () => {
+      expect('hasError' in fn).toBe(true)
+      expect(Object.getOwnPropertyDescriptor(fn, 'hasError')).toStrictEqual({
+        configurable: true,
+        enumerable: true,
+        get: expect.any(Function),
+        set: undefined
+      })
       expect(fn.hasError).toBe(false)
     })
 
@@ -186,7 +228,14 @@ describe('ObservableFunction', () => {
     })
 
     it('"errors" is array of multiple rejections', async () => {
-      expect.assertions(3)
+      expect.assertions(5)
+      expect('errors' in fn).toBe(true)
+      expect(Object.getOwnPropertyDescriptor(fn, 'errors')).toStrictEqual({
+        configurable: true,
+        enumerable: true,
+        value: [],
+        writable: true
+      })
       expect(fn.errors).toEqual([])
       const p1 = fn(new Promise((resolve, reject) => reject(new Error('test'))))
       const p2 = fn(new Promise((resolve, reject) => reject(new Error('test2'))))
@@ -230,19 +279,18 @@ describe('ObservableFunction', () => {
   describe('reactivity', () => {
     it('props are reactive', async () => {
       expect.assertions(3)
-      const vueInstance = new Vue({ data: () => ({ fn }) })
-      const unwatchIsPending = vueInstance.$watch('fn.isPending', (isPending) => {
+      const unwatchIsPending = watch(() => fn.isPending, (isPending) => {
         expect(isPending).toBe(true)
         unwatchIsPending()
       })
-      const unwatchHasError = vueInstance.$watch('fn.hasError', (hasError) => {
+      const unwatchHasError = watch(() => fn.hasError, (hasError) => {
         expect(hasError).toBe(true)
         unwatchHasError()
       })
-      const unwatchErrors = vueInstance.$watch('fn.errors', (errors) => {
+      const unwatchErrors = watch(() => fn.errors, (errors) => {
         expect(errors).toEqual([Error('test')])
         unwatchErrors()
-      })
+      }, { deep: true })
       const p = fn(new Promise((resolve, reject) => reject(new Error('test'))))
       try {
         await p
