@@ -10,10 +10,10 @@ yarn add vue-postgrest
 Import and install the Plugin in your `main.js`:
 
 ``` javascript
-import Vue from 'vue'
+import { createApp } from 'vue'
 import Postgrest from 'vue-postgrest'
 
-Vue.use(Postgrest)
+createApp(...).use(Postgrest)
 ```
 
 You can use the `<postgrest>` component:

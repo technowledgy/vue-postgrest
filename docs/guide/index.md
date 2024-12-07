@@ -15,10 +15,10 @@ npm install vue-postgrest
 The default export provides the plugin to use in your `main.js`. When installing the plugin, you can pass the root URI of your PostgREST server as a plugin option. All requests to the API made by the mixin, component or instance methods will use this URI as base.
 
 ``` js
-import Vue from 'vue'
+import { createApp } from 'vue'
 import VuePostgrest from 'vue-postgrest'
 
-Vue.use(VuePostgrest, {
+createApp(...).use(VuePostgrest, {
   apiRoot:  '/api/v1/'
 })
 ```

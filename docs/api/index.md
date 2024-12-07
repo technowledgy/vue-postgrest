@@ -24,10 +24,10 @@ The `vue-postgrest` module exports a plugin, a mixin and several helper function
 - **Example:**
 
   ``` js
-  import Vue from 'vue'
+  import { createApp } from 'vue'
   import VuePostgrest from 'vue-postgrest'
 
-  Vue.use(VuePostgrest)
+  createApp(...).use(VuePostgrest)
   ```
 
 ### pg - Mixin
@@ -143,7 +143,7 @@ Instances of PrimaryKeyError are thrown, when no primary keys are found for the 
 
 ## Plugin Options
 
-Global options can be set when initializing Vue-Postgrest with `Vue.use`.
+Global options can be set when initializing VuePostgrest with `app.use`.
 
 ### apiRoot
 
@@ -164,7 +164,7 @@ Global options can be set when initializing Vue-Postgrest with `Vue.use`.
   ``` js
   import VuePostgrest from 'vue-postgrest'
 
-  Vue.use(VuePostgrest, {
+  app.use(VuePostgrest, {
     apiRoot: '/api/'
   })
   ```
@@ -184,7 +184,7 @@ Global options can be set when initializing Vue-Postgrest with `Vue.use`.
   ``` js
   import VuePostgrest from 'vue-postgrest'
 
-  Vue.use(VuePostgrest, {
+  app.use(VuePostgrest, {
     apiRoot: '/api/',
     headers: {
       Prefer: 'timezone=' + Intl.DateTimeFormat().resolvedOptions().timeZone
