@@ -30,6 +30,7 @@ export default {
       type: String
     }
   },
+  emits: ['error'],
   computed: {
     pgConfig () {
       return {
@@ -48,6 +49,6 @@ export default {
     this.$emit('error', err)
   },
   render (h) {
-    return this.$scopedSlots.default(this.pg)
+    return this.$slots.default(this.pg)
   }
 }

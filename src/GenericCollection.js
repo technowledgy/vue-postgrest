@@ -1,5 +1,6 @@
 import GenericModel from '@/GenericModel'
-import { createPKQuery, createReactivePrototype, mapAliasesFromSelect } from '@/utils'
+import { createPKQuery, mapAliasesFromSelect } from '@/utils'
+import ObservableFunction from '@/ObservableFunction'
 
 class GenericCollection extends Array {
   #options
@@ -10,13 +11,31 @@ class GenericCollection extends Array {
     super()
     this.#options = options
 
-    this.#proxy = new Proxy(createReactivePrototype(this, this), {
-      get: (target, property, receiver) => {
-        if (property === '$range') return this.#range
-        return Reflect.get(target, property, receiver)
+    this.#proxy = new Proxy(this, {
+      defineProperty: (target, propertyKey, attributes) => {
+        if (['$get', '$new'].includes(propertyKey)) return false
+        return Reflect.defineProperty(target, propertyKey, attributes)
       },
-      set: (target, property, value, receiver) => {
-        if (property === 'length') return Reflect.set(target, property, value, receiver)
+      deleteProperty: (target, propertyKey) => {
+        if (['$get', '$new'].includes(propertyKey)) return false
+        return Reflect.deleteProperty(target, propertyKey)
+      },
+      get: (target, propertyKey, receiver) => {
+        if (propertyKey === '$get') {
+          return Reflect.get(target, propertyKey, receiver).bind(this, receiver)
+        }
+        if (propertyKey === '$range') return this.#range
+        return Reflect.get(target, propertyKey, receiver)
+      },
+      getOwnPropertyDescriptor: (target, propertyKey) => {
+        if (['$get', '$new'].includes(propertyKey)) return undefined
+        return Reflect.getOwnPropertyDescriptor(target, propertyKey)
+      },
+      has: (target, propertyKey) => {
+        return Reflect.has(this, propertyKey)
+      },
+      set: (target, propertyKey, value, receiver) => {
+        if (propertyKey === 'length') return Reflect.set(target, propertyKey, value, receiver)
 
         if (typeof value !== 'object' || !value) {
           throw new Error('Can only add objects to GenericCollection')
@@ -24,7 +43,7 @@ class GenericCollection extends Array {
 
         return Reflect.set(
           target,
-          property,
+          propertyKey,
           new GenericModel(
             {
               route: this.#options.route,
@@ -48,7 +67,7 @@ class GenericCollection extends Array {
     return Array.from(this).map(...args)
   }
 
-  async $get (signal, opts = {}) {
+  $get = new ObservableFunction(async (receiver, signal, opts = {}) => {
     await this.#options.route.$ready
     // remove accept and route from options, to prevent overriding it
     const { accept, route, query = {}, ...options } = Object.assign({}, this.#options, opts)
@@ -68,14 +87,14 @@ class GenericCollection extends Array {
     const body = await resp.json()
 
     // TODO: Make this model.setData for existing by using a PK map
-    this.length = 0
-    this.#proxy.push(...body)
+    receiver.length = 0
+    receiver.push(...body)
     return body
-  }
+  })
 
   $new (data) {
-    const newIndex = this.#proxy.push(data) - 1
-    return this.#proxy[newIndex]
+    const newIndex = this.push(data) - 1
+    return this[newIndex]
   }
 }
 

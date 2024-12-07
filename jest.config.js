@@ -10,11 +10,15 @@ export default {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1'
   },
-  setupFilesAfterEnv: [
+  setupFiles: [
     '<rootDir>/tests/setup.js'
+  ],
+  setupFilesAfterEnv: [
+    '<rootDir>/tests/setupAfterEnv.js'
   ],
   testEnvironment: 'jsdom',
   testEnvironmentOptions: {
+    customExportConditions: ['node', 'node-addons'],
     url: 'http://localhost/nested/path'
   },
   testMatch: [

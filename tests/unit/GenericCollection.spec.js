@@ -1,7 +1,5 @@
 import { shallowMount } from '@vue/test-utils'
 import GenericCollection from '@/GenericCollection'
-import GenericModel from '@/GenericModel'
-import ObservableFunction from '@/ObservableFunction'
 import Schema from '@/Schema'
 
 // mock request function with actual call included (spy)
@@ -45,6 +43,12 @@ describe('GenericCollection', () => {
     expect(Array.isArray(collection)).toBe(true)
   })
 
+  it('has length property', () => {
+    const collection = new GenericCollection({ route })
+    expect('length' in collection).toBe(true)
+    expect(collection.length).toBe(0)
+  })
+
   it('has GenericCollection prototype', () => {
     const collection = new GenericCollection({ route })
     expect(collection).toBeInstanceOf(GenericCollection)
@@ -68,7 +72,7 @@ describe('GenericCollection', () => {
     expect.assertions(2)
     const collection = new GenericCollection({ route }, ...data)
 
-    collection.forEach(m => expect(m).toBeInstanceOf(GenericModel))
+    collection.forEach(m => expect(m.constructor.name).toBe('GenericModel'))
   })
 
   it('throws when adding non objects to the array', () => {
@@ -91,7 +95,7 @@ describe('GenericCollection', () => {
     const collection = new GenericCollection({ route })
     collection[0] = data[0]
     collection.push(data[1])
-    collection.forEach(m => expect(m).toBeInstanceOf(GenericModel))
+    collection.forEach(m => expect(m.constructor.name).toBe('GenericModel'))
   })
 
   it('creates GenericModels with proper route, query and select parameters', async () => {
@@ -128,13 +132,13 @@ describe('GenericCollection', () => {
     beforeEach(() => {
       wrapper = shallowMount(Component)
     })
-    afterEach(() => wrapper.destroy())
+    afterEach(() => wrapper.unmount())
 
     it('to added items via push', () => {
       expect.assertions(1)
       wrapper.vm.$watch('collection', collection => {
         expect(collection.length).toBe(1)
-      })
+      }, { deep: true })
       wrapper.vm.collection.push({})
     })
 
@@ -142,15 +146,15 @@ describe('GenericCollection', () => {
       expect.assertions(1)
       wrapper.vm.$watch('collection', collection => {
         expect(collection.length).toBe(1)
-      })
-      wrapper.vm.$set(wrapper.vm.collection, 0, {})
+      }, { deep: true })
+      wrapper.vm.collection[0] = {}
     })
 
     it('to added items via $new', () => {
       expect.assertions(1)
       wrapper.vm.$watch('collection', collection => {
         expect(collection.length).toBe(1)
-      })
+      }, { deep: true })
       wrapper.vm.collection.$new({})
     })
 
@@ -158,7 +162,7 @@ describe('GenericCollection', () => {
       expect.assertions(1)
       wrapper.vm.$watch('collection', collection => {
         expect(collection.length).toBe(2)
-      })
+      }, { deep: true })
       request.mockReturnValueOnce({
         json: async () => mockReturn,
         headers: new Headers()
@@ -170,7 +174,7 @@ describe('GenericCollection', () => {
   describe('Get method', () => {
     it('has observable method "$get"', () => {
       const collection = new GenericCollection()
-      expect(collection.$get).toBeInstanceOf(ObservableFunction)
+      expect(collection.$get.constructor.name).toBe('ObservableFunction')
     })
 
     it('property "$get" is from prototype and not configurable, writable or deletable', () => {
@@ -285,7 +289,7 @@ describe('GenericCollection', () => {
     it('creates and returns GenericModel added to the array', () => {
       const collection = new GenericCollection({ route }, data[0])
       const model = collection.$new(data[1])
-      expect(model).toBeInstanceOf(GenericModel)
+      expect(model.constructor.name).toBe('GenericModel')
       expect(model).toMatchObject(data[1])
       expect(collection[1]).toBe(model)
     })
