@@ -4,30 +4,52 @@
   ],
   "packageRules": [
     {
-      "matchFiles": ["package.json"],
-      "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["patch", "minor"],
+      "matchFileNames": [
+        "package.json"
+      ],
+      "matchDepTypes": [
+        "devDependencies"
+      ],
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ],
       "groupName": "devDependencies"
     },
     {
-      "matchPackageNames": ["@vue/test-utils"],
+      "matchPackageNames": [
+        "@vue/test-utils"
+      ],
       "allowedVersions": "<2.0.0"
     },
     {
-      "matchPackageNames": ["vue", "vue-template-compiler", "vue-server-renderer"],
+      "matchPackageNames": [
+        "vue",
+        "vue-template-compiler",
+        "vue-server-renderer"
+      ],
       "groupName": "vue",
       "allowedVersions": "<3.0.0"
     },
     {
-      "matchPackageNames": ["lru-cache"],
+      "matchPackageNames": [
+        "lru-cache"
+      ],
       "allowedVersions": "<6.0.0"
     },
     {
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
       "automerge": true
     }
   ],
-  "postUpdateOptions": ["yarnDedupeHighest"],
+  "postUpdateOptions": [
+    "yarnDedupeHighest"
+  ],
   "lockFileMaintenance": {
     "enabled": true
   }
