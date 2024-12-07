@@ -19,6 +19,10 @@
       "allowedVersions": "<3.0.0"
     },
     {
+      "matchPackageNames": ["lru-cache"],
+      "allowedVersions": "<6.0.0"
+    },
+    {
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "automerge": true
     }
