@@ -1,4 +1,2 @@
-import { enableFetchMocks } from 'jest-fetch-mock'
-import postgrestMock from './fetch.mock.js'
-enableFetchMocks()
-fetch.mockResponse(postgrestMock)
+import { TextEncoder, TextDecoder } from 'util'
+Object.assign(global, { TextDecoder, TextEncoder })

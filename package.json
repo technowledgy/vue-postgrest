@@ -12,7 +12,7 @@
     "docs:preview": "vitepress preview docs",
     "lint": "eslint --max-warnings=0 .",
     "lint:watch": "nodemon -q -x 'clear && yarn -s lint'",
-    "test": "jest"
+    "test": "NODE_OPTIONS=--no-experimental-require-module jest"
   },
   "files": [
     "dist/*"
@@ -47,6 +47,9 @@
     "vite": "6.0.3",
     "vitepress": "1.5.0",
     "vue": "3.5.13"
+  },
+  "resolutions": {
+    "whatwg-url": "14.0.0"
   },
   "homepage": "https://github.com/technowledgy/vue-postgrest#readme",
   "keywords": [
