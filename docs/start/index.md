@@ -18,7 +18,7 @@ Vue.use(Postgrest)
 
 You can use the `<postgrest>` component:
 
-``` html
+``` vue
 <postgrest route="ROUTE" query={}>
   <template #default="items">
     {{ items }}
@@ -59,4 +59,4 @@ Or you can directly use the instance method provided on your Vue instance:
 this.$postgrest.ROUTE.get()
 ```
 
-For in depth documentation see the [API](../api) and [Query](../query) documentation.
+For in depth documentation see the [API](../api/index) and [Query](../query/index) documentation.

@@ -1,3 +1,8 @@
+<script setup>
+import PostgrestDocs from '../components/PostgrestDocs.vue'
+import Query from '../components/Query.vue'
+</script>
+
 # Query
 
 The `Query` class converts an input object into a PostgREST query string.

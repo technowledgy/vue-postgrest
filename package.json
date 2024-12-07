@@ -7,8 +7,9 @@
   },
   "scripts": {
     "build": "vite build",
-    "docs:build": "NODE_OPTIONS=--openssl-legacy-provider vuepress build docs",
-    "docs:dev": "NODE_OPTIONS=--openssl-legacy-provider vuepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:dev": "vitepress dev docs",
+    "docs:preview": "vitepress preview docs",
     "lint": "eslint --max-warnings=0 .",
     "lint:watch": "nodemon -q -x 'clear && yarn -s lint'",
     "test": "jest"
@@ -21,11 +22,10 @@
     "@babel/eslint-parser": "7.25.9",
     "@babel/plugin-proposal-class-properties": "7.18.6",
     "@babel/plugin-proposal-private-methods": "7.18.6",
+    "@babel/preset-env": "7.26.0",
     "@vitejs/plugin-vue": "5.2.1",
     "@vue/eslint-config-standard": "8.0.1",
     "@vue/test-utils": "2.4.6",
-    "@vuepress/plugin-active-header-links": "1.9.10",
-    "@vuepress/plugin-back-to-top": "1.9.10",
     "core-js": "3.39.0",
     "coveralls": "3.1.1",
     "eslint": "9.16.0",
@@ -45,8 +45,8 @@
     "rollup-plugin-copy": "3.5.0",
     "semantic-release": "24.2.0",
     "vite": "6.0.3",
-    "vue": "3.5.13",
-    "vuepress": "1.9.10"
+    "vitepress": "1.5.0",
+    "vue": "3.5.13"
   },
   "homepage": "https://github.com/technowledgy/vue-postgrest#readme",
   "keywords": [
