@@ -43,7 +43,7 @@
     "lru-cache": "5.1.1",
     "nodemon": "3.1.9",
     "rollup-plugin-copy": "3.5.0",
-    "semantic-release": "24.2.2",
+    "semantic-release": "24.2.3",
     "vite": "6.1.0",
     "vue": "2.7.16",
     "vue-server-renderer": "2.7.16",
