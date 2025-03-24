@@ -18,7 +18,7 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "@babel/eslint-parser": "7.26.10",
+    "@babel/eslint-parser": "7.27.0",
     "@babel/plugin-proposal-class-properties": "7.18.6",
     "@babel/plugin-proposal-private-methods": "7.18.6",
     "@vitejs/plugin-vue2": "2.3.3",
@@ -44,7 +44,7 @@
     "nodemon": "3.1.9",
     "rollup-plugin-copy": "3.5.0",
     "semantic-release": "24.2.3",
-    "vite": "6.2.2",
+    "vite": "6.2.3",
     "vue": "2.7.16",
     "vue-server-renderer": "2.7.16",
     "vue-template-compiler": "2.7.16",
