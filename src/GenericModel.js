@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { PrimaryKeyError } from '@/errors'
-import { $diff, $freeze, createDiffProxy, createReactivePrototype, mapAliasesFromSelect } from '@/utils'
+import { $diff, $freeze, createDiffProxy, createPKQuery, createReactivePrototype, mapAliasesFromSelect } from '@/utils'
 
 class GenericModel {
   #options
@@ -75,7 +75,12 @@ class GenericModel {
 
   async $post (signal, opts = {}) {
     const options = { return: 'representation', ...opts }
-    return this.#request({ method: 'post', needsQuery: false }, signal, options, this.#proxy)
+    const body = await this.#request({ method: 'post', needsQuery: false }, signal, options, this.#proxy)
+    if (body) {
+      // we need to make sure the query is updated with the primary key
+      this.#options.query = createPKQuery(this.#options.route.pks, mapAliasesFromSelect(this.#options.query?.select, body))
+    }
+    return body
   }
 
   async $put (signal, opts) {
