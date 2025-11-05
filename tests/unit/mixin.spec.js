@@ -296,20 +296,80 @@ describe('Mixin', () => {
   })
 
   describe('reactivity', () => {
-    beforeEach(() => {
+    it('keeps pg when single is changed to same semantics', async () => {
       wrapper = shallowMount(Component, {
         global: {
           plugins: [[Postgrest, { apiRoot: '/api' }]]
         }
       })
-    })
 
-    it('keeps pg when single is changed to same semantics', async () => {
       await flushPromises()
       const pgBefore = wrapper.vm.pg
       wrapper.vm.pgConfig.single = undefined
       await flushPromises()
       expect(wrapper.vm.pg).toBe(pgBefore)
+    })
+
+    it('creates a reactive pg GenericCollection', async () => {
+      wrapper = shallowMount(
+        {
+          template: '<pre>{{ pg }}</pre>',
+          mixins: [pg],
+          data () {
+            return { pgConfig: { route: 'clients', query: { select: ['*'], single: false } } }
+          }
+        },
+        { global: { plugins: [[Postgrest, { apiRoot: '/api' }]] } }
+      )
+
+      expect(wrapper.vm.pg).toEqual([])
+      expect(wrapper.html()).toBe('<pre>[]</pre>')
+
+      await flushPromises()
+
+      expect(wrapper.vm.pg).toEqual([{ id: 1, name: 'Test Client 1' }, { id: 2, name: 'Test Client 2' }, { id: 3, name: 'Test Client 3' }])
+      expect(wrapper.html()).toMatchInlineSnapshot(`
+        "<pre>[
+          {
+            "id": 1,
+            "name": "Test Client 1"
+          },
+          {
+            "id": 2,
+            "name": "Test Client 2"
+          },
+          {
+            "id": 3,
+            "name": "Test Client 3"
+          }
+        ]</pre>"
+      `)
+    })
+
+    it('creates a reactive pg GenericModel', async () => {
+      wrapper = shallowMount(
+        {
+          template: '<pre>{{ pg }}</pre>',
+          mixins: [pg],
+          data () {
+            return { pgConfig: { route: 'clients', query: { select: ['*'], id: 'eq.1' }, single: true } }
+          }
+        },
+        { global: { plugins: [[Postgrest, { apiRoot: '/api' }]] } }
+      )
+
+      expect(wrapper.vm.pg).toEqual({})
+      expect(wrapper.html()).toBe('<pre>{}</pre>')
+
+      await flushPromises()
+
+      expect(wrapper.vm.pg).toEqual({ id: 1, name: 'Test Client 1' })
+      expect(wrapper.html()).toMatchInlineSnapshot(`
+"<pre>{
+  "id": 1,
+  "name": "Test Client 1"
+}</pre>"
+`)
     })
   })
 })
