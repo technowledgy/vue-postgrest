@@ -365,12 +365,11 @@ describe('Mixin', () => {
 
       expect(wrapper.vm.pg).toEqual({ id: 1, name: 'Test Client 1' })
       expect(wrapper.html()).toMatchInlineSnapshot(`
-        "<pre>{
-            "id": 1,
-            "name": "Test Client 1"
-          }
-        </pre>"
-      `)
+"<pre>{
+  "id": 1,
+  "name": "Test Client 1"
+}</pre>"
+`)
     })
   })
 })
