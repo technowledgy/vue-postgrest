@@ -8,7 +8,7 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5.0.0
+    - uses: actions/checkout@v5.0.1
     - uses: actions/setup-node@v4.4.0
       with:
         cache: yarn
@@ -21,7 +21,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5.0.0
+    - uses: actions/checkout@v5.0.1
     - uses: actions/setup-node@v4.4.0
       with:
         cache: yarn
@@ -34,7 +34,7 @@ jobs:
     name: Test Coverage
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5.0.0
+    - uses: actions/checkout@v5.0.1
     - uses: actions/setup-node@v4.4.0
       with:
         cache: yarn
@@ -55,7 +55,7 @@ jobs:
         node:
         - 20
     steps:
-    - uses: actions/checkout@v5.0.0
+    - uses: actions/checkout@v5.0.1
     - uses: actions/setup-node@v4.4.0
       with:
         cache: yarn
@@ -67,7 +67,7 @@ jobs:
     name: Build Docs
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5.0.0
+    - uses: actions/checkout@v5.0.1
     - uses: actions/setup-node@v4.4.0
       with:
         cache: yarn
