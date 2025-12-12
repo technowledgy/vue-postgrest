@@ -13,7 +13,7 @@ jobs:
       with:
         cache: yarn
         check-latest: true
-        node-version: 22
+        node-version: 24
     - run: yarn
     - run: yarn lint --no-fix
 
@@ -26,7 +26,7 @@ jobs:
       with:
         cache: yarn
         check-latest: true
-        node-version: 22
+        node-version: 24
     - run: yarn
     - run: yarn build
 
@@ -39,7 +39,7 @@ jobs:
       with:
         cache: yarn
         check-latest: true
-        node-version: 22
+        node-version: 24
     - run: yarn
     - run: yarn test
     - uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
@@ -72,6 +72,6 @@ jobs:
       with:
         cache: yarn
         check-latest: true
-        node-version: 22
+        node-version: 24
     - run: yarn
     - run: yarn docs:build
