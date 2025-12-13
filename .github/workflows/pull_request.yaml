@@ -8,12 +8,12 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4.2.2
-    - uses: actions/setup-node@v4.1.0
+    - uses: actions/checkout@v6.0.1
+    - uses: actions/setup-node@v6.1.0
       with:
         cache: yarn
         check-latest: true
-        node-version: 22
+        node-version: 24
     - run: yarn
     - run: yarn lint --no-fix
 
@@ -21,12 +21,12 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4.2.2
-    - uses: actions/setup-node@v4.1.0
+    - uses: actions/checkout@v6.0.1
+    - uses: actions/setup-node@v6.1.0
       with:
         cache: yarn
         check-latest: true
-        node-version: 22
+        node-version: 24
     - run: yarn
     - run: yarn build
 
@@ -34,15 +34,15 @@ jobs:
     name: Test Coverage
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4.2.2
-    - uses: actions/setup-node@v4.1.0
+    - uses: actions/checkout@v6.0.1
+    - uses: actions/setup-node@v6.1.0
       with:
         cache: yarn
         check-latest: true
-        node-version: 22
+        node-version: 24
     - run: yarn
     - run: yarn test
-    - uses: coverallsapp/github-action@cfd0633edbd2411b532b808ba7a8b5e04f76d2c8 # v2.3.4
+    - uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -53,10 +53,10 @@ jobs:
       fail-fast: false
       matrix:
         node:
-        - 20
+        - 22
     steps:
-    - uses: actions/checkout@v4.2.2
-    - uses: actions/setup-node@v4.1.0
+    - uses: actions/checkout@v6.0.1
+    - uses: actions/setup-node@v6.1.0
       with:
         cache: yarn
         node-version: ${{ matrix.node }}
@@ -67,11 +67,11 @@ jobs:
     name: Build Docs
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4.2.2
-    - uses: actions/setup-node@v4.1.0
+    - uses: actions/checkout@v6.0.1
+    - uses: actions/setup-node@v6.1.0
       with:
         cache: yarn
         check-latest: true
-        node-version: 22
+        node-version: 24
     - run: yarn
     - run: yarn docs:build

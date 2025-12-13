@@ -293,5 +293,38 @@ describe('GenericCollection', () => {
       expect(model).toMatchObject(data[1])
       expect(collection[1]).toBe(model)
     })
+
+    it('can delete "$new" records after they "$post"', async () => {
+      request.mockReturnValue({
+        json: async () => ({
+          name: 'client 2',
+          id: 2
+        }),
+        headers: new Headers()
+      })
+
+      const collection = new GenericCollection({ route, query: { select: { id: true, name: true } } })
+      await collection.$new({ name: 'client 2' })
+
+      const model = collection.at(-1)
+      await model.$post()
+      request.mockClear()
+
+      expect(model.id).toBe(2)
+      expect(model.name).toBe('client 2')
+
+      await model.$delete()
+
+      expect(request).toHaveBeenCalledTimes(1)
+      expect(request).toHaveBeenCalledWith('/api', undefined, 'clients', 'DELETE',
+        {
+          'id.eq': 2,
+          select: { id: true, name: true }
+        },
+        {
+          accept: 'single',
+          signal: expect.any(AbortSignal)
+        })
+    })
   })
 })

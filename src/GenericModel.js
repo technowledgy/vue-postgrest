@@ -1,5 +1,5 @@
 import { PrimaryKeyError } from '@/errors'
-import { $diff, $freeze, createDiffProxy, mapAliasesFromSelect } from '@/utils'
+import { $diff, $freeze, createDiffProxy, createPKQuery, mapAliasesFromSelect } from '@/utils'
 import ObservableFunction from '@/ObservableFunction'
 
 class GenericModel {
@@ -96,7 +96,12 @@ class GenericModel {
 
   $post = new ObservableFunction(async (signal, opts = {}) => {
     const options = { return: 'representation', ...opts }
-    return this.#request({ method: 'post', needsQuery: false }, signal, options, this.#proxy)
+    const body = await this.#request({ method: 'post', needsQuery: false }, signal, options, this.#proxy)
+    if (body) {
+      // we need to make sure the query is updated with the primary key
+      this.#options.query = createPKQuery(this.#options.route.pks, mapAliasesFromSelect(this.#options.query?.select, body))
+    }
+    return body
   })
 
   $put = new ObservableFunction(async (signal, opts) => {
