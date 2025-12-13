@@ -93,6 +93,7 @@ jobs:
     - docs
     permissions:
       contents: write
+      id-token: write
       issues: write
       pull-requests: write
     steps:
@@ -107,5 +108,4 @@ jobs:
     - run: yarn build
     - env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       run: yarn semantic-release
