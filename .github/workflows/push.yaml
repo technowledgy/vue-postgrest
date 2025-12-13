@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6.0.1
-    - uses: actions/setup-node@v4.4.0
+    - uses: actions/setup-node@v6.1.0
       with:
         cache: yarn
         check-latest: true
@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6.0.1
-    - uses: actions/setup-node@v4.4.0
+    - uses: actions/setup-node@v6.1.0
       with:
         cache: yarn
         check-latest: true
@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6.0.1
-    - uses: actions/setup-node@v4.4.0
+    - uses: actions/setup-node@v6.1.0
       with:
         cache: yarn
         check-latest: true
@@ -58,7 +58,7 @@ jobs:
         - 20
     steps:
     - uses: actions/checkout@v6.0.1
-    - uses: actions/setup-node@v4.4.0
+    - uses: actions/setup-node@v6.1.0
       with:
         cache: yarn
         node-version: ${{ matrix.node }}
@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6.0.1
-    - uses: actions/setup-node@v4.4.0
+    - uses: actions/setup-node@v6.1.0
       with:
         cache: yarn
         check-latest: true
@@ -97,7 +97,7 @@ jobs:
       pull-requests: write
     steps:
     - uses: actions/checkout@v6.0.1
-    - uses: actions/setup-node@v4.4.0
+    - uses: actions/setup-node@v6.1.0
       with:
         cache: yarn
         check-latest: true
