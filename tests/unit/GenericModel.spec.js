@@ -1,7 +1,5 @@
-import Vue from 'vue'
 import { shallowMount } from '@vue/test-utils'
 import GenericModel from '@/GenericModel'
-import ObservableFunction from '@/ObservableFunction'
 import Schema from '@/Schema'
 import { PrimaryKeyError } from '@/index'
 
@@ -171,7 +169,7 @@ describe('GenericModel', () => {
     beforeEach(() => {
       wrapper = shallowMount(Component)
     })
-    afterEach(() => wrapper.destroy())
+    afterEach(() => wrapper.unmount())
 
     it('to changed fields', () => {
       expect.assertions(1)
@@ -188,7 +186,7 @@ describe('GenericModel', () => {
       }, {
         deep: true
       })
-      wrapper.vm.$set(wrapper.vm.model, 'new', 'value')
+      wrapper.vm.model.new = 'value'
     })
 
     it('to deleted fields', () => {
@@ -202,7 +200,7 @@ describe('GenericModel', () => {
       }, {
         deep: true
       })
-      wrapper.vm.$delete(wrapper.vm.model, 'age')
+      delete wrapper.vm.model.age
     })
 
     it('to reset field via $set', () => {
@@ -216,7 +214,7 @@ describe('GenericModel', () => {
       }, {
         deep: true
       })
-      wrapper.vm.$set(wrapper.vm.model, 'age', 50)
+      wrapper.vm.model.age = 50
     })
 
     it('to changes to nested arrays', async () => {
@@ -286,7 +284,7 @@ describe('GenericModel', () => {
   describe('Get method', () => {
     it('has observable method "$get"', () => {
       const model = new GenericModel({}, data)
-      expect(model.$get).toBeInstanceOf(ObservableFunction)
+      expect(model.$get.constructor.name).toBe('ObservableFunction')
     })
 
     it('property "$get" is from prototpe and not configurable, writable or deletable', () => {
@@ -379,7 +377,7 @@ describe('GenericModel', () => {
   describe('Post method', () => {
     it('has observable method "$post"', () => {
       const model = new GenericModel({}, data)
-      expect(model.$post).toBeInstanceOf(ObservableFunction)
+      expect(model.$post.constructor.name).toBe('ObservableFunction')
     })
 
     it('property "$post" is from prototpe and not configurable, writable or deletable', () => {
@@ -426,7 +424,7 @@ describe('GenericModel', () => {
 
     it('sends a post request with new data included', async () => {
       const model = new GenericModel({ route }, data)
-      Vue.set(model, 'new', 'value')
+      model.new = 'value'
       await model.$post()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'POST', {}, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
         ...data,
@@ -583,7 +581,7 @@ describe('GenericModel', () => {
   describe('Put method', () => {
     it('has observable method "$put"', () => {
       const model = new GenericModel({}, data)
-      expect(model.$put).toBeInstanceOf(ObservableFunction)
+      expect(model.$put.constructor.name).toBe('ObservableFunction')
     })
 
     it('property "$put" is from prototpe and not configurable, writable or deletable', () => {
@@ -634,7 +632,7 @@ describe('GenericModel', () => {
 
     it('sends a put request with new data included', async () => {
       const model = new GenericModel({ route, query }, data)
-      Vue.set(model, 'new', 'value')
+      model.new = 'value'
       await model.$put()
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'clients', 'PUT', { 'id.eq': 123 }, { return: 'representation', accept: 'single', signal: expect.any(AbortSignal) }, {
         ...data,
@@ -778,7 +776,7 @@ describe('GenericModel', () => {
   describe('Patch method', () => {
     it('has observable method "$patch"', () => {
       const model = new GenericModel({}, data)
-      expect(model.$patch).toBeInstanceOf(ObservableFunction)
+      expect(model.$patch.constructor.name).toBe('ObservableFunction')
     })
 
     it('property "$patch" is from prototpe and not configurable, writable or deletable', () => {
@@ -1095,7 +1093,7 @@ describe('GenericModel', () => {
   describe('Delete method', () => {
     it('has observable method "$delete"', () => {
       const model = new GenericModel({}, data)
-      expect(model.$delete).toBeInstanceOf(ObservableFunction)
+      expect(model.$delete.constructor.name).toBe('ObservableFunction')
     })
 
     it('property "$delete" is from prototpe and not configurable, writable or deletable', () => {

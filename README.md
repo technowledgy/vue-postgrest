@@ -5,7 +5,7 @@
 [![Dependabot](https://img.shields.io/badge/dependabot-enabled-success)](https://github.com/technowledgy/vue-postgrest/blob/main/package.json)
 [![License](https://img.shields.io/npm/l/vue-postgrest)](https://github.com/technowledgy/vue-postgrest/blob/main/LICENSE)
 [![npm](https://img.shields.io/npm/v/vue-postgrest)](https://www.npmjs.com/package/vue-postgrest)
-![vue](https://img.shields.io/badge/vue-2.x-brightgreen)
+![vue](https://img.shields.io/badge/vue-3.x-brightgreen)
 
 </div>
 
@@ -28,10 +28,10 @@ yarn add vue-postgrest
 Import and install the Plugin in your `main.js`:
 
 ``` javascript
-import Vue from 'vue'
+import { createApp } from 'vue'
 import Postgrest from 'vue-postgrest'
 
-Vue.use(Postgrest)
+createApp(...).use(Postgrest)
 ```
 
 You can use the `<postgrest>` component:

@@ -2,7 +2,8 @@
 node_modules
 /dist
 /coverage
-/docs/.vuepress/dist
+/docs/.vitepress/cache
+/docs/.vitepress/dist
 
 # local env files
 .env.local

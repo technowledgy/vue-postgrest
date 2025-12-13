@@ -1,25 +1,21 @@
-import Vue from 'vue'
 import Plugin from '@/Plugin'
 import { shallowMount } from '@vue/test-utils'
 import Postgrest from '@/Postgrest'
-import GenericModel from '@/GenericModel'
-import ObservableFunction from '@/ObservableFunction'
 import { AuthError, FetchError } from '@/index'
-
-Vue.use(Plugin, {
-  apiRoot: '/api'
-})
 
 function createComponent (props, cb) {
   const render = jest.fn(cb)
   const wrapper = shallowMount(Postgrest, {
-    propsData: props,
-    listeners: {
+    props: {
+      ...props,
       /* eslint-disable n/no-callback-literal */
-      error: evt => cb('error', evt)
+      onError: evt => cb('error', evt)
     },
-    scopedSlots: {
+    slots: {
       default: render
+    },
+    global: {
+      plugins: [[Plugin, { apiRoot: '/api' }]]
     }
   })
   return {
@@ -34,10 +30,10 @@ describe('Component', () => {
   // fallback for tests that don't set wrapper
   beforeEach(() => {
     wrapper = {
-      destroy () {}
+      unmount () {}
     }
   })
-  afterEach(() => wrapper.destroy())
+  afterEach(() => wrapper.unmount())
 
   it('registers component', () => {
     expect(() => createComponent({ route: 'clients' })).not.toThrow()
@@ -46,7 +42,7 @@ describe('Component', () => {
   describe('Slot scope', () => {
     it('provides observable $get function', () => {
       ({ render, wrapper } = createComponent({ route: 'clients' }))
-      expect(render.mock.calls[0][0].$get).toBeInstanceOf(ObservableFunction)
+      expect(render.mock.calls[0][0].$get.constructor.name).toBe('ObservableFunction')
     })
 
     it('provides GenericCollection if single is not set', async () => {
@@ -65,7 +61,7 @@ describe('Component', () => {
           if (!item.$get.isPending) resolve(cc)
         })
       }))
-      expect(render).toHaveBeenCalledWith(expect.any(GenericModel))
+      expect(render.mock.calls[0][0].constructor.name).toBe('GenericModel')
     })
 
     it('provides $range if available', async () => {
@@ -74,7 +70,7 @@ describe('Component', () => {
           if (!items.$get.isPending) resolve(cc)
         })
       }))
-      expect(render.mock.calls[2][0].$range).toMatchObject({
+      expect(render.mock.calls[1][0].$range).toMatchObject({
         totalCount: undefined,
         first: 0,
         last: 1

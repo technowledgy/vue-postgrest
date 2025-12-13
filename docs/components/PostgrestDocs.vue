@@ -1,7 +1,6 @@
 <template>
   <a :href="href" target="_blank">
     PostgREST docs
-    <outbound-link/>
   </a>
 </template>
 

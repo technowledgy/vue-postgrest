@@ -1,6 +1,6 @@
-import Vue from 'vue'
 import { PrimaryKeyError } from '@/errors'
-import { $diff, $freeze, createDiffProxy, createPKQuery, createReactivePrototype, mapAliasesFromSelect } from '@/utils'
+import { $diff, $freeze, createDiffProxy, createPKQuery, mapAliasesFromSelect } from '@/utils'
+import ObservableFunction from '@/ObservableFunction'
 
 class GenericModel {
   #options
@@ -8,12 +8,35 @@ class GenericModel {
 
   constructor (options, data) {
     this.#options = options
-    Object.assign(this, data)
-    this.#proxy = createReactivePrototype(createDiffProxy(this), this)
-    return this.#proxy
+    this.#proxy = createDiffProxy(Object.assign({}, data))
+    return new Proxy(this.#proxy, {
+      defineProperty: (target, propertyKey, attributes) => {
+        if (Reflect.ownKeys(this).includes(propertyKey)) return false
+        return Reflect.defineProperty(target, propertyKey, attributes)
+      },
+      deleteProperty: (target, propertyKey) => {
+        if (Reflect.ownKeys(this).includes(propertyKey)) return false
+        return Reflect.deleteProperty(target, propertyKey)
+      },
+      get: (target, propertyKey, receiver) => {
+        if (propertyKey === 'constructor') {
+          return Reflect.get(this, propertyKey, this)
+        } else if (Reflect.ownKeys(this).includes(propertyKey)) {
+          return Reflect.get(this, propertyKey, this).bind(this, receiver)
+        }
+        return Reflect.get(target, propertyKey, receiver)
+      },
+      has: (target, propertyKey) => {
+        return Reflect.has(this, propertyKey) || Reflect.has(target, propertyKey)
+      },
+      set: (target, propertyKey, value, receiver) => {
+        if (Reflect.ownKeys(this).includes(propertyKey)) return false
+        return Reflect.set(target, propertyKey, value, receiver)
+      }
+    })
   }
 
-  async #request ({ method, keepChanges = false, needsQuery = true }, signal, opts, ...data) {
+  async #request (receiver, { method, keepChanges = false, needsQuery = true }, signal, opts, ...data) {
     await this.#options.route.$ready
     const { columns, ...options } = opts
 
@@ -58,37 +81,37 @@ class GenericModel {
     // TODO: do we need to delete missing keys?
     if (keepChanges) {
       const diff = this.#proxy[$diff]
-      Object.entries(body).forEach(([key, value]) => Vue.set(this.#proxy, key, value))
+      Object.entries(body).forEach(([key, value]) => { receiver[key] = value })
       this.#proxy[$freeze]()
-      Object.entries(diff).forEach(([key, value]) => Vue.set(this.#proxy, key, value))
+      Object.entries(diff).forEach(([key, value]) => { receiver[key] = value })
     } else {
-      Object.entries(body).forEach(([key, value]) => Vue.set(this.#proxy, key, value))
+      Object.entries(body).forEach(([key, value]) => { receiver[key] = value })
       this.#proxy[$freeze]()
     }
     return body
   }
 
-  async $get (signal, opts = {}) {
+  $get = new ObservableFunction(async (receiver, signal, opts = {}) => {
     const { keepChanges, ...options } = opts
-    return this.#request({ method: 'get', keepChanges }, signal, options)
-  }
+    return this.#request(receiver, { method: 'get', keepChanges }, signal, options)
+  })
 
-  async $post (signal, opts = {}) {
+  $post = new ObservableFunction(async (receiver, signal, opts = {}) => {
     const options = { return: 'representation', ...opts }
-    const body = await this.#request({ method: 'post', needsQuery: false }, signal, options, this.#proxy)
+    const body = await this.#request(receiver, { method: 'post', needsQuery: false }, signal, options, this.#proxy)
     if (body) {
       // we need to make sure the query is updated with the primary key
       this.#options.query = createPKQuery(this.#options.route.pks, mapAliasesFromSelect(this.#options.query?.select, body))
     }
     return body
-  }
+  })
 
-  async $put (signal, opts) {
+  $put = new ObservableFunction(async (receiver, signal, opts) => {
     const options = { return: 'representation', ...opts }
-    return this.#request({ method: 'put' }, signal, options, this.#proxy)
-  }
+    return this.#request(receiver, { method: 'put' }, signal, options, this.#proxy)
+  })
 
-  async $patch (signal, opts, data = {}) {
+  $patch = new ObservableFunction(async (receiver, signal, opts, data = {}) => {
     const options = { return: 'representation', ...opts }
 
     if (!data || typeof data !== 'object') {
@@ -105,12 +128,12 @@ class GenericModel {
       return this.#proxy
     }
 
-    return this.#request({ method: 'patch' }, signal, options, patchData)
-  }
+    return this.#request(receiver, { method: 'patch' }, signal, options, patchData)
+  })
 
-  async $delete (signal, options = {}) {
-    return this.#request({ method: 'delete' }, signal, options)
-  }
+  $delete = new ObservableFunction(async (receiver, signal, options = {}) => {
+    return this.#request(receiver, { method: 'delete' }, signal, options)
+  })
 }
 
 export default GenericModel

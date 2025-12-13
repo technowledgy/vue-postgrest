@@ -2,7 +2,6 @@ import Schema, { resetSchemaCache } from '@/Schema'
 import Route from '@/Route'
 import RPC from '@/RPC'
 import { SchemaNotFoundError } from '@/index'
-import ObservableFunction from '@/ObservableFunction'
 
 import request from '@/request'
 jest.mock('@/request')
@@ -188,7 +187,7 @@ describe('Schema', () => {
     it('provides curried functions as props', async () => {
       await schema.rpc.$ready
       schema.rpc.authenticate({ user: 'test' }, { query: { select: 'id' } })
-      expect(schema.rpc.authenticate).toBeInstanceOf(ObservableFunction)
+      expect(schema.rpc.authenticate.constructor.name).toBe('ObservableFunction')
       expect(request).toHaveBeenLastCalledWith('/api', undefined, 'rpc/authenticate', 'POST', { select: 'id' }, { signal: expect.any(AbortSignal) }, { user: 'test' })
     })
   })

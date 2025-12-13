@@ -1,3 +1,8 @@
+---
+outline:
+  level: [2, 2]
+---
+
 # API
 
 ## Module Exports
@@ -19,10 +24,10 @@ The `vue-postgrest` module exports a plugin, a mixin and several helper function
 - **Example:**
 
   ``` js
-  import Vue from 'vue'
+  import { createApp } from 'vue'
   import VuePostgrest from 'vue-postgrest'
 
-  Vue.use(VuePostgrest)
+  createApp(...).use(VuePostgrest)
   ```
 
 ### pg - Mixin
@@ -138,7 +143,7 @@ Instances of PrimaryKeyError are thrown, when no primary keys are found for the 
 
 ## Plugin Options
 
-Global options can be set when initializing Vue-Postgrest with `Vue.use`.
+Global options can be set when initializing VuePostgrest with `app.use`.
 
 ### apiRoot
 
@@ -159,7 +164,7 @@ Global options can be set when initializing Vue-Postgrest with `Vue.use`.
   ``` js
   import VuePostgrest from 'vue-postgrest'
 
-  Vue.use(VuePostgrest, {
+  app.use(VuePostgrest, {
     apiRoot: '/api/'
   })
   ```
@@ -179,7 +184,7 @@ Global options can be set when initializing Vue-Postgrest with `Vue.use`.
   ``` js
   import VuePostgrest from 'vue-postgrest'
 
-  Vue.use(VuePostgrest, {
+  app.use(VuePostgrest, {
     apiRoot: '/api/',
     headers: {
       Prefer: 'timezone=' + Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -292,7 +297,7 @@ Mixin options are set in the component using the `pg` mixin by setting the `pgCo
 
 - **Details:**
 
-  The query sent to the API is constructed from this option. See the [Query API](../query) as well as [API](https://postgrest.org/en/latest/api.html) in the PostgREST documentation for more details.
+  The query sent to the API is constructed from this option. See the [Query API](../query/index) as well as [API](https://postgrest.org/en/latest/api.html) in the PostgREST documentation for more details.
 
 - **Example:**
 
@@ -579,7 +584,7 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
     
     - `{string} method` one of `'OPTIONS'`, `'GET'`, `'HEAD'`, `'POST'`, `'PATCH'`, `'PUT'` or `'DELETE'`
     
-    - `{object} query` see [Query](../query)
+    - `{object} query` see [Query](../query/index)
 
     - `{object} options` additional options, see below
 
