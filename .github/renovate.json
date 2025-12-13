@@ -4,22 +4,37 @@
   ],
   "packageRules": [
     {
-      "matchFiles": ["package.json"],
-      "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["patch", "minor"],
+      "matchFileNames": [
+        "package.json"
+      ],
+      "matchDepTypes": [
+        "devDependencies"
+      ],
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ],
       "groupName": "devDependencies"
     },
     {
-    {
-      "matchPackageNames": ["lru-cache"],
+      "matchPackageNames": [
+        "lru-cache"
+      ],
       "allowedVersions": "<6.0.0"
     },
     {
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
       "automerge": true
     }
   ],
-  "postUpdateOptions": ["yarnDedupeHighest"],
+  "postUpdateOptions": [
+    "yarnDedupeHighest"
+  ],
   "lockFileMaintenance": {
     "enabled": true
   }
