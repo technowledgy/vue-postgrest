@@ -44,7 +44,7 @@
     "nodemon": "3.1.11",
     "rollup-plugin-copy": "3.5.0",
     "semantic-release": "25.0.2",
-    "vite": "7.2.7",
+    "vite": "7.3.0",
     "vue": "2.7.16",
     "vue-server-renderer": "2.7.16",
     "vue-template-compiler": "2.7.16",
