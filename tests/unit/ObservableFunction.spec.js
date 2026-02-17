@@ -157,6 +157,26 @@ describe('ObservableFunction', () => {
         expect(fn.pending).toMatchObject([])
       }
     })
+
+    it('is reset with mocked AbortController', async () => {
+      const OriginalAbortController = global.AbortController
+      class MockAbortController {
+        constructor () {
+          this.signal = {}
+        }
+      }
+
+      global.AbortController = MockAbortController
+      try {
+        fn = new ObservableFunction((signal, id) => id)
+        const p = fn(new Promise((resolve) => resolve()))
+        expect(fn.pending).toHaveLength(1)
+        await p
+        expect(fn.pending).toHaveLength(0)
+      } finally {
+        global.AbortController = OriginalAbortController
+      }
+    })
   })
 
   describe('isPending', () => {
