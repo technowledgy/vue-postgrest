@@ -12,7 +12,7 @@ yarn add vue-postgrest
 npm install vue-postgrest
 ```
 
-The default export provides the plugin to use in your `main.js`. When installing the plugin, you can pass the root URI of your PostgREST server as a plugin option. All requests to the API made by the mixin, component or instance methods will use this URI as base.
+The default export provides the plugin to use in your `main.js`. When installing the plugin, you can pass the root URI of your PostgREST server as a plugin option. All requests to the API made by the composble, mixin, component or instance methods will use this URI as base.
 
 ``` js
 import { createApp } from 'vue'
@@ -23,15 +23,39 @@ createApp(...).use(VuePostgrest, {
 })
 ```
 
-When installed, the plugin registers the `postgrest` component globally on your vue instance for use in your templates, as well as several instance methods on `vm.$postgrest`. The most convenient way is to use the `pg` mixin, though.
+When installed, the plugin registers the `postgrest` component globally on your vue instance for use in your templates, as well as several instance methods on `vm.$postgrest`. For Vue 3 components using `setup()`, the most convenient way is to use the `usePg` composable.
 
 ::: warning
-You have to install the plugin, even if you only use the mixin in your components!
+You have to install the plugin, even if you only use the composable or mixin in your components!
 :::
 
 ## Retrieving Data
 
-To use the mixin, provide a `pgConfig` object on your component instance with the `route` option set to the table/view you want to query:
+To use the `usePg` composable, create a reactive `pgConfig` with the `route` option set to the table/view you want to query:
+
+``` vue
+<script>
+import { reactive } from 'vue'
+import { usePg } from 'vue-postgrest'
+
+export default {
+  name: 'HeroesList',
+  setup () {
+    const pgConfig = reactive({
+      route: 'heroes'
+    })
+
+    const { pg } = usePg(pgConfig, {
+      onError: (err) => console.log(err)
+    })
+
+    return { pg, pgConfig }
+  }
+}
+</script>
+```
+
+If you prefer the Options API, you can use the `pg` mixin:
 
 ``` vue
 <script>
@@ -63,9 +87,9 @@ To access the data sent by the server, use `this.pg`, which is an array holding 
 </template>
 ```
 
-Using the mixin option `single: true` will set the `Accept` header to tell PostgREST to return a single item unenclosed by an array. In this case you can use `this.pg` to access the returned item directly.
+Using the `single: true` option will set the `Accept` header to tell PostgREST to return a single item unenclosed by an array. In this case you can use `this.pg` to access the returned item directly.
 
-The mixin option `query` is used to construct the PostgREST query string. Use `query.select` for column filtering like this:
+The `query` option is used to construct the PostgREST query string. Use `query.select` for column filtering like this:
 
 ``` vue
 <script>
@@ -137,7 +161,7 @@ E.g. to use multiple conditions:
     query: {
       select: ['*'],
       'id.in': [1, 2, 3],
-      'age.gte': 50    
+      'age.gte': 50
     }
 ...
 </script>
@@ -152,7 +176,7 @@ For convenient creation of range objects see [Range Objects](../query/#range-obj
 
 ### Embedding
 
-PostgREST offers an easy way to handle relationships between tables/views. You can leverage this by using the embed syntax in your queries. The syntax to filter, order or select embeds corresponds to the root level of the query object: 
+PostgREST offers an easy way to handle relationships between tables/views. You can leverage this by using the embed syntax in your queries. The syntax to filter, order or select embeds corresponds to the root level of the query object:
 
 ``` vue
 <script>
@@ -193,10 +217,10 @@ You can call the `$get` function to rerun the get request, e.g. if you need to r
 
 ### Pagination
 
-Server side pagination can be achieved by setting the mixin options `limit` and `offset`. When used as a mixin option (or component prop), these options set the appropriate request headers automatically. When used inside a query object, limit and offset will be appended to the query string.
+Server side pagination can be achieved by setting the options `limit` and `offset`. When used as mixin options (or component props), these options set the appropriate request headers automatically. When used inside a query object, limit and offset will be appended to the query string.
 
 **Range**
-To get information about the paginated response, the mixin provides the `pg.$range` object, based on the response's `Content-Range` header. To get the total count of available rows, use the mixin option `count = 'exact'` which sets the corresponding `Prefer` header.
+To get information about the paginated response, `pg.$range` is provided based on the response's `Content-Range` header. To get the total count of available rows, use `count = 'exact'` which sets the corresponding `Prefer` header.
 
 ``` vue
 <template>
@@ -321,7 +345,7 @@ The component takes the same options as the `pg` mixin as props and provides it'
 
 ## Modifying Data
 
-Each item provided by the mixin or the component is a [Generic Model](../api/#genericmodel), which is a wrapper for the entity received from the server with some added methods and getters. 
+Each item provided by the mixin or the component is a [Generic Model](../api/#genericmodel), which is a wrapper for the entity received from the server with some added methods and getters.
 
 Getting an item, modifying it's data and patching it on the server can be as simple as:
 
@@ -633,7 +657,7 @@ export default {
     async destroyAllPlanets () {
       // wait till schema is loaded
       await this.$postgrest.$ready
-      const result = await this.$postgrest.rpc.destroyplanets({ countdown: false }, { 
+      const result = await this.$postgrest.rpc.destroyplanets({ countdown: false }, {
         accept: 'text',
         headers: { 'Warning': 'Will cause problems!' }
       })

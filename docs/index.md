@@ -22,7 +22,7 @@ hero:
 
 features:
   - title: Flexible
-    details: Make requests through <code>&lt;postgrest&gt;</code> components, the <code>pg</code> mixin or <code>$postgrest</code> instance methods.
+    details: Make requests through <code>usePg</code>, <code>&lt;postgrest&gt;</code> components, the <code>pg</code> mixin, or <code>$postgrest</code> instance methods.
   - title: Easy to use
     details: Edit items with <code>v-model</code> and persist with <code>item.$post()</code>, <code>item.$patch()</code> and <code>item.$delete()</code>.
   - title: Powerful

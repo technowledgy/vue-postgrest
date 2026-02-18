@@ -26,7 +26,37 @@ You can use the `<postgrest>` component:
 </postgrest>
 ```
 
-Use the `pg` mixin:
+Use the `usePg` composable in `setup()`:
+
+``` vue
+<template>
+  <ul>
+    <li v-for="item in items" :key="item.id">{{ item.name }}</li>
+  </ul>
+</template>
+
+<script>
+import { reactive } from 'vue'
+import { usePg } from 'vue-postgrest'
+
+export default {
+  setup () {
+    const pgConfig = reactive({
+      route: 'ROUTE',
+      query: {}
+    })
+
+    const { pg } = usePg(pgConfig, {
+      onError: (err) => console.error(err)
+    })
+
+    return { items: pg }
+  }
+}
+</script>
+```
+
+Or use the `pg` mixin:
 
 ``` vue
 <template>
