@@ -217,6 +217,20 @@ describe('GenericModel', () => {
       wrapper.vm.model.age = 50
     })
 
+    it('to reset field via $reset', () => {
+      expect.assertions(4)
+      wrapper.vm.model.age += 1
+      expect(wrapper.vm.model.age).toBe(51)
+      expect(wrapper.vm.model.$isDirty).toBe(true)
+      wrapper.vm.$watch('model', model => {
+        expect(model.age).toBe(50)
+        expect(model.$isDirty).toBe(false)
+      }, {
+        deep: true
+      })
+      wrapper.vm.model.$reset()
+    })
+
     it('to changes to nested arrays', async () => {
       expect.assertions(5)
       wrapper.vm.model = new GenericModel({}, {

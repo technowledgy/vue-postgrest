@@ -35,7 +35,7 @@ function createDiffProxy (target, parentDirty = false) {
           }
 
         case '$reset':
-          return () => copy(base, target, '$reset')
+          return () => copy(base, receiver, '$reset')
       }
       return Reflect.get(target, property, receiver)
     },
