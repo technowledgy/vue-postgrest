@@ -7,18 +7,18 @@ outline:
 
 ## Module Exports
 
-The `vue-postgrest` module exports a plugin, a mixin and several helper functions and classes.
+The `vue-postgrest` module exports a plugin, a composable, a mixin and several helper functions and classes.
 
 ### VuePostgrest - Plugin
 
 - **Type:** `VuePlugin`
 
 - **Usage:**
-  
+
   Installing the plugin registers the instance method $postgrest on your Vue instance. See available [plugin options](./#plugin-options).
 
   ::: warning
-  You have to install the plugin in any case, even if you only use the mixin in your components!
+  You have to install the plugin in any case, even if you only use the composable or mixin in your components!
   :::
 
 - **Example:**
@@ -58,6 +58,45 @@ The `vue-postgrest` module exports a plugin, a mixin and several helper function
     },
     onError (err) {
       console.log(err)
+    }
+  }
+  ```
+
+### usePg(pgConfig[, options])
+
+- **Type:** `Function`
+
+- **Arguments:**
+  - `{Object|Ref<Object>} pgConfig`
+  - `{Object} options`
+  - `{Function} options.onError`
+
+- **Returns:** `{ pg }`
+
+- **Usage:**
+
+  Composition API alternative to the `pg` mixin. `pgConfig` supports the same options as documented in [Mixin Options](./#mixin-options), and `pg` exposes the same API as documented in [Mixin Properties](./#mixin-properties).
+
+- **Example:**
+
+  ``` js
+  import { reactive } from 'vue'
+  import { usePg } from 'vue-postgrest'
+
+  export default {
+    setup () {
+      const pgConfig = reactive({
+        route: 'inhabitants',
+        query: {
+          select: ['id', 'name', 'age']
+        }
+      })
+
+      const { pg } = usePg(pgConfig, {
+        onError: (err) => console.log(err)
+      })
+
+      return { pg }
     }
   }
   ```
@@ -122,7 +161,7 @@ The `vue-postgrest` module exports a plugin, a mixin and several helper function
 - **Usage:**
 
   Used to create a new schema for the specified baseUri with the specified default auth token. If `apiRoot` is undefined, the apiRoot of the existing Schema is used.
-  
+
   The returned value is the same as `this.$postgrest` and can be used without the vue instance, e.g. in a store module.
 
 ### AuthError
@@ -153,7 +192,7 @@ Global options can be set when initializing VuePostgrest with `app.use`.
 
 - **Details:**
 
-  The URI used as the base for all requests to the API by the mixin, global and local components, as well as the global vue-postgrest instance. This should be the URI to your PostgREST installation.
+  The URI used as the base for all requests to the API by the composable, mixin, global and local components, as well as the global vue-postgrest instance. This should be the URI to your PostgREST installation.
 
   ::: tip
   You can override the base URI locally by setting the [component prop](./#component-props) or [mixin option](./#apiroot-2).
@@ -195,6 +234,7 @@ Global options can be set when initializing VuePostgrest with `app.use`.
 ## Mixin Options
 
 Mixin options are set in the component using the `pg` mixin by setting the `pgConfig` object on the component instance.
+The same `pgConfig` options are also used by the `usePg` composable.
 
 ### apiRoot
 
@@ -482,8 +522,8 @@ Hooks are called on the component instance that uses the `pg` mixin.
 
 - **Type:** `Function`
 
-- **Arguments:** 
-  
+- **Arguments:**
+
   - `{FetchError | AuthError} error`
 
 - **Details:**
@@ -558,7 +598,7 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
 - **Type:** `Route`
 
 - **Arguments:**
-  
+
   - `{string} apiRoot`
 
   - `{string} token`
@@ -581,9 +621,9 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
 
   After the schema is [ready](./#postgrest-ready), all available routes are exposed on the $postgrest instance.
   The exposed `Route` accepts the following arguments:
-    
+
     - `{string} method` one of `'OPTIONS'`, `'GET'`, `'HEAD'`, `'POST'`, `'PATCH'`, `'PUT'` or `'DELETE'`
-    
+
     - `{object} query` see [Query](../query/index)
 
     - `{object} options` additional options, see below
@@ -668,7 +708,7 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
     async mounted: {
       // wait for the schema to be ready
       try {
-        await this.$postgrest.$ready 
+        await this.$postgrest.$ready
       } catch (e) {
         console.log('Could not connect to API...')
       }
@@ -681,7 +721,7 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
 - **Type:** `Function`
 
 - **Arguments:**
-  
+
   - `{string} route`
 
 - **Returns:** `Route`
@@ -717,7 +757,7 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
   After the schema is [ready](./#postgrest-ready), all available stored procedures are exposed on $postgrest.rpc[function-name] and can be called like this: `$postgrest.rpc[function-name]([params, options])`.
 
   The `params` object contains parameters that are passed to the stored procedure.
-  
+
   Available `options` are:
 
   - `{boolean} get` set request method to 'GET' if true, otherwise 'POST'
@@ -735,7 +775,7 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
       async destroyAllPlanets () {
         // wait till schema is loaded
         await this.$postgrest.$ready
-        const result = await this.$postgrest.rpc.destroyplanets({ countdown: false }, { 
+        const result = await this.$postgrest.rpc.destroyplanets({ countdown: false }, {
           accept: 'text',
           headers: { 'Warning': 'Will cause problems!' }
         })
@@ -755,7 +795,7 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
 - **Throws:** `AuthError | FetchError`
 
 - **Arguments:**
-  
+
   - `{string} function-name`
 
   - `{object} params`
@@ -775,7 +815,7 @@ The instance method `vm.$postgrest` is available on your Vue Instance after inst
     name: 'Component',
     methods: {
       async destroyAllPlanets () {
-        await this.$postgrest.rpc('destroyplanets', { countdown: false }, { 
+        await this.$postgrest.rpc('destroyplanets', { countdown: false }, {
           accept: 'text',
           headers: { 'Warning': 'Will cause problems!' }
         })
@@ -805,7 +845,7 @@ The `<postgrest>` component accepts all [mixin options](./#mixin-options) as pro
 The `<postgrest>` component provides the `pg` [mixin property](./#mixin-properties) as scope in the default slot, see above for details.
 
 - **Example**:
-  
+
   ``` html
   <template>
     <postgrest
@@ -832,10 +872,10 @@ The `<postgrest>` component provides the `pg` [mixin property](./#mixin-properti
 
 - **Usage:**
 
-  This event is emitted when an AuthError or FetchError occurs. 
+  This event is emitted when an AuthError or FetchError occurs.
 
 - **Example:**
-  
+
     ``` vue
     <template>
       <postgrest
@@ -1092,7 +1132,7 @@ The data of a GenericModel is available directly on the instance in addition to 
     - All Options described in [postgrest route](./#postgrest-route) are available here as well. **Note:** The `accept` option is not valid here - the `Accept` header will always be set to `'single'` if not overwritten via the `headers` object.
 
   If option `return` is set to `'representation'`, which is the default value, the model is updated with the response from the server.
-  
+
   If option `return` is set to `'minimal'` and the `Location` header is set, the location header is returned as an object.
 
 - **Example:**
@@ -1148,7 +1188,7 @@ The data of a GenericModel is available directly on the instance in addition to 
     - All Options described in [postgrest route](./#postgrest-route) are available here as well. **Note:** The `accept` option is not valid here - the `Accept` header will always be set to `'single'` if not overwritten via the `headers` object.
 
   If option `return` is set to `'representation'`, which is the default value, the model is updated with the response from the server.
-  
+
   If option `return` is set to `'minimal'` and the `Location` header is set, the location header is returned as an object.
 
 - **Example:**
