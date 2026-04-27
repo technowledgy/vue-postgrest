@@ -109,6 +109,33 @@ The `vue-postgrest` module exports a plugin, a mixin and several helper function
   }
   ```
 
+### setDefaultHeaders(headers)
+
+- **Type:** `Function`
+
+- **Arguments:**
+  - `{object} headers`
+
+- **Returns:** `undefined`
+
+- **Usage:**
+
+  Set default headers sent with every request to the API. Useful for setting headers globally after the plugin has been installed, e.g. in response to a user action.
+
+  ::: tip
+  You can also set default headers at install time via the [plugin option](./#headers).
+  :::
+
+- **Example:**
+
+  ``` js
+  import { setDefaultHeaders } from 'vue-postgrest'
+
+  setDefaultHeaders({
+    'Accept-Language': 'en'
+  })
+  ```
+
 ### usePostgrest(apiRoot, token)
 
 - **Type:** `Function`
