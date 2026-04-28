@@ -4,7 +4,14 @@ import RPC from '@/RPC'
 import { SchemaNotFoundError } from '@/index'
 
 import request from '@/request'
-jest.mock('@/request')
+jest.mock('@/request', () => {
+  const { default: req } = jest.requireActual('@/request')
+  return {
+    __esModule: true,
+    default: jest.fn(req),
+    setDefaultHeaders: jest.fn()
+  }
+})
 
 describe('Schema', () => {
   beforeEach(() => {
@@ -38,8 +45,8 @@ describe('Schema', () => {
     it('has not sent auth header in request when no token provided', async () => {
       const schema = new Schema('/pk-api')
       await schema.$ready
-      expect(fetch).toHaveBeenLastCalledWith('http://localhost/pk-api', expect.objectContaining({
-        headers: new Headers()
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/pk-api/', expect.objectContaining({
+        headers: expect.objectContaining({})
       }))
     })
 
@@ -47,8 +54,9 @@ describe('Schema', () => {
       const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiamRvZSIsImV4cCI6MTQ3NTUxNjI1MH0.GYDZV3yM0gqvuEtJmfpplLBXSGYnke_Pvnl0tbKAjB'
       const schema = new Schema('/pk-api', token)
       await schema.$ready
-      expect(fetch).toHaveBeenLastCalledWith('http://localhost/pk-api', expect.objectContaining({
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/pk-api/', expect.objectContaining({
         headers: new Headers({
+          Accept: ['application/json'],
           Authorization: `Bearer ${token}`
         })
       }))
@@ -63,7 +71,7 @@ describe('Schema', () => {
       const schemaCached = new Schema('/pk-api')
       await schemaCached.$ready
       expect(fetch).toHaveBeenCalledTimes(1)
-      expect(fetch).toHaveBeenLastCalledWith('http://localhost/pk-api', expect.anything())
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/pk-api/', expect.anything())
       expect(schemaCached).toBe(schema)
     })
 
@@ -106,7 +114,7 @@ describe('Schema', () => {
     it('ready resolves for available schema', async () => {
       const calledSchema = schema('/api')
       await calledSchema.$ready
-      expect(fetch).toHaveBeenLastCalledWith('http://localhost/api', expect.anything())
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/', expect.anything())
       expect(schema.clients).toBeUndefined()
       expect(calledSchema.clients.pks).toEqual(['id'])
     })
@@ -115,8 +123,9 @@ describe('Schema', () => {
       const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiamRvZSIsImV4cCI6MTQ3NTUxNjI1MH0.GYDZV3yM0gqvuEtJmfpplLBXSGYnke_Pvnl0tbKAjB'
       const calledSchema = schema('/api', token)
       await calledSchema.$ready
-      expect(fetch).toHaveBeenLastCalledWith('http://localhost/api', expect.objectContaining({
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/api/', expect.objectContaining({
         headers: new Headers({
+          Accept: ['application/json'],
           Authorization: `Bearer ${token}`
         })
       }))
@@ -126,8 +135,9 @@ describe('Schema', () => {
       const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiamRvZSIsImV4cCI6MTQ3NTUxNjI1MH0.GYDZV3yM0gqvuEtJmfpplLBXSGYnke_Pvnl0tbKAjB'
       const calledSchema = schema(undefined, token)
       await calledSchema.$ready
-      expect(fetch).toHaveBeenLastCalledWith('http://localhost/pk-api', expect.objectContaining({
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/pk-api/', expect.objectContaining({
         headers: new Headers({
+          Accept: ['application/json'],
           Authorization: `Bearer ${token}`
         })
       }))

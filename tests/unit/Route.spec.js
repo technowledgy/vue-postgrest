@@ -1,13 +1,16 @@
 import Schema from '@/Schema'
 
 import request from '@/request'
-jest.mock('@/request')
+jest.mock('@/request', () => {
+  const { default: req } = jest.requireActual('@/request')
+  return {
+    __esModule: true,
+    default: jest.fn(req),
+    setDefaultHeaders: jest.fn()
+  }
+})
 
 describe('Route', () => {
-  const schema = new Schema('/api')
-  const route = schema.$route('clients')
-  beforeAll(() => route.$ready)
-
   beforeEach(() => {
     request.mockClear()
   })
@@ -15,7 +18,7 @@ describe('Route', () => {
   it('has proper primary keys set', async () => {
     const schema = new Schema('/pk-api')
     await schema.$ready
-    expect(fetch).toHaveBeenLastCalledWith('http://localhost/pk-api', expect.anything())
+    expect(fetch).toHaveBeenLastCalledWith('http://localhost/pk-api/', expect.anything())
 
     const no = schema.$route('no_pk')
     expect(no.pks).toEqual([])
@@ -28,6 +31,13 @@ describe('Route', () => {
   })
 
   describe('request methods', () => {
+    let schema, route
+    beforeAll(async () => {
+      schema = new Schema('/api')
+      await schema.$ready
+      route = schema.$route('clients')
+    })
+
     it('has properly curried request method without token', () => {
       route()
       expect(request).toHaveBeenCalledWith('/api', undefined, 'clients')

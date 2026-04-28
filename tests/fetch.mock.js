@@ -98,7 +98,9 @@ export default async req => {
         }
       }
     case '/pk-api':
+    case '/pk-api/':
     case '/pk-api2':
+    case '/pk-api2/':
       return {
         body: JSON.stringify(pkSchema),
         init: {
@@ -110,6 +112,7 @@ export default async req => {
         }
       }
     case '/empty':
+    case '/empty/':
       return {
         body: JSON.stringify({}),
         init: {
@@ -121,6 +124,7 @@ export default async req => {
         }
       }
     case '/text':
+    case '/text/':
       return {
         body: 'just some text',
         init: {
@@ -132,6 +136,7 @@ export default async req => {
         }
       }
     case '/json':
+    case '/json/':
       return {
         body: JSON.stringify({
           just: 'some',

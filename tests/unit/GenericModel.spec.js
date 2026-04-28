@@ -4,26 +4,25 @@ import Schema from '@/Schema'
 import { PrimaryKeyError } from '@/index'
 
 import request from '@/request'
-jest.mock('@/request')
+jest.mock('@/request', () => {
+  const { default: req } = jest.requireActual('@/request')
+  return {
+    __esModule: true,
+    default: jest.fn(req),
+    setDefaultHeaders: jest.fn()
+  }
+})
 
 const data = {
   id: 123,
-  name: 'client123',
-  age: 50,
-  level: 10
+  name: 'client123'
 }
 
 const mockReturn = {
   ...data,
-  name: 'client321',
-  id: 321,
-  obj: { test: 'test' }
+  name: 'Test Client 1',
+  id: 1
 }
-
-request.mockReturnValue({
-  json: async () => mockReturn,
-  headers: new Headers()
-})
 
 describe('GenericModel', () => {
   const schema = new Schema('/api')
@@ -191,12 +190,12 @@ describe('GenericModel', () => {
 
     it('to deleted fields', () => {
       expect.assertions(4)
-      wrapper.vm.model.age += 1
+      wrapper.vm.model.age = 51
       expect(wrapper.vm.model.age).toBe(51)
       expect(wrapper.vm.model.$isDirty).toBe(true)
       wrapper.vm.$watch('model', model => {
         expect('age' in model).toBe(false)
-        expect(model.$isDirty).toBe(true)
+        expect(model.$isDirty).toBe(false)
       }, {
         deep: true
       })
@@ -205,25 +204,25 @@ describe('GenericModel', () => {
 
     it('to reset field via $set', () => {
       expect.assertions(4)
-      wrapper.vm.model.age += 1
-      expect(wrapper.vm.model.age).toBe(51)
+      wrapper.vm.model.id = 444
+      expect(wrapper.vm.model.id).toBe(444)
       expect(wrapper.vm.model.$isDirty).toBe(true)
       wrapper.vm.$watch('model', model => {
-        expect(model.age).toBe(50)
+        expect(model.id).toBe(123)
         expect(model.$isDirty).toBe(false)
       }, {
         deep: true
       })
-      wrapper.vm.model.age = 50
+      wrapper.vm.model.id = 123
     })
 
     it('to reset field via $reset', () => {
       expect.assertions(4)
-      wrapper.vm.model.age += 1
-      expect(wrapper.vm.model.age).toBe(51)
+      wrapper.vm.model.id = 444
+      expect(wrapper.vm.model.id).toBe(444)
       expect(wrapper.vm.model.$isDirty).toBe(true)
       wrapper.vm.$watch('model', model => {
-        expect(model.age).toBe(50)
+        expect(model.id).toBe(123)
         expect(model.$isDirty).toBe(false)
       }, {
         deep: true
@@ -384,7 +383,7 @@ describe('GenericModel', () => {
       expect(model.id).toBe(123)
       await model.$get({ keepChanges: true })
       expect(model.name).toBe('localName')
-      expect(model.id).toBe(321)
+      expect(model.id).toBe(1)
     })
   })
 
