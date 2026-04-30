@@ -35,7 +35,7 @@ describe('Plugin', () => {
 
       it('registers apiRoot Schema as $postgrest on the Vue prototype', async () => {
         expect(app._context.config.globalProperties.$postgrest).toBeInstanceOf(Schema)
-        expect(fetch).toHaveBeenCalledWith('http://localhost/api', expect.anything())
+        expect(fetch).toHaveBeenCalledWith('http://localhost/api/', expect.anything())
       })
 
       it('exposes routes', () => {

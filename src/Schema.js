@@ -1,7 +1,7 @@
 import Route from '@/Route'
 import RPC from '@/RPC'
 import request from '@/request'
-import { throwWhenStatusNotOk, SchemaNotFoundError } from '@/errors'
+import { SchemaNotFoundError } from '@/errors'
 import ObservableFunction from '@/ObservableFunction'
 
 let schemaCache = {}
@@ -84,13 +84,8 @@ export default class Schema extends Function {
   }
 
   async _fetchSchema (apiRoot, token) {
-    const headers = new Headers()
-    if (token) {
-      headers.set('Authorization', `Bearer ${token}`)
-    }
     try {
-      const url = new URL(apiRoot, window.location.href)
-      const resp = await fetch(url.toString(), { headers }).then(throwWhenStatusNotOk)
+      const resp = await request(apiRoot, token, '', 'GET')
       const body = await resp.json()
       if (!resp.headers.get('Content-Type').startsWith('application/openapi+json')) {
         throw new Error('wrong body format')
