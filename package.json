@@ -28,7 +28,7 @@
     "@vuepress/plugin-back-to-top": "1.9.10",
     "core-js": "3.49.0",
     "coveralls": "3.1.1",
-    "eslint": "9.39.4",
+    "eslint": "10.3.0",
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-n": "17.24.0",
     "eslint-plugin-promise": "7.3.0",
