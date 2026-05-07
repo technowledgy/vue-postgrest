@@ -1,4 +1,5 @@
-import request, { setDefaultHeaders } from '@/request'
+import request from '@/request'
+import { setDefaultHeaders } from '@/headers'
 import GenericModel from '@/GenericModel'
 import { FetchError, AuthError } from '@/errors'
 

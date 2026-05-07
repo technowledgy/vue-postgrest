@@ -2,6 +2,7 @@ import Schema, { resetSchemaCache } from '@/Schema'
 import Route from '@/Route'
 import RPC from '@/RPC'
 import { SchemaNotFoundError } from '@/index'
+import { setDefaultHeaders } from '@/headers'
 
 import request from '@/request'
 jest.mock('@/request')
@@ -31,6 +32,34 @@ describe('Schema', () => {
 
     it('does not throw for empty schema with correct header', async () => {
       await expect((new Schema('/empty')).$ready).resolves.toBeUndefined()
+    })
+  })
+
+  describe('default headers', () => {
+    afterEach(() => {
+      setDefaultHeaders(undefined)
+    })
+
+    it('sends default headers in fetchSchema request', async () => {
+      setDefaultHeaders({ 'Accept-Language': 'en' })
+      const schema = new Schema('/pk-api')
+      await schema.$ready
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/pk-api', expect.objectContaining({
+        headers: new Headers({ 'Accept-Language': 'en' })
+      }))
+    })
+
+    it('sends default headers alongside authorization header in fetchSchema request', async () => {
+      setDefaultHeaders({ 'Accept-Language': 'en' })
+      const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiamRvZSIsImV4cCI6MTQ3NTUxNjI1MH0.GYDZV3yM0gqvuEtJmfpplLBXSGYnke_Pvnl0tbKAjB'
+      const schema = new Schema('/pk-api', token)
+      await schema.$ready
+      expect(fetch).toHaveBeenLastCalledWith('http://localhost/pk-api', expect.objectContaining({
+        headers: new Headers({
+          'Accept-Language': 'en',
+          Authorization: `Bearer ${token}`
+        })
+      }))
     })
   })
 

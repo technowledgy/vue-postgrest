@@ -3,6 +3,7 @@ import RPC from '@/RPC'
 import request from '@/request'
 import { throwWhenStatusNotOk, SchemaNotFoundError } from '@/errors'
 import ObservableFunction from '@/ObservableFunction'
+import { getDefaultHeaders } from '@/headers'
 
 let schemaCache = {}
 
@@ -84,7 +85,7 @@ export default class Schema extends Function {
   }
 
   async _fetchSchema (apiRoot, token) {
-    const headers = new Headers()
+    const headers = new Headers(getDefaultHeaders())
     if (token) {
       headers.set('Authorization', `Bearer ${token}`)
     }
