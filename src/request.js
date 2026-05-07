@@ -1,11 +1,6 @@
 import Query from '@/Query'
 import { throwWhenStatusNotOk } from '@/errors'
-
-let defaultHeaders
-
-export function setDefaultHeaders (headers) {
-  defaultHeaders = new Headers(headers)
-}
+import { getDefaultHeaders } from '@/headers'
 
 const acceptHeaderMap = {
   '': 'application/json',
@@ -15,7 +10,7 @@ const acceptHeaderMap = {
 }
 
 async function request (apiRoot, token, route, method, query = {}, options = {}, body) {
-  const headers = new Headers(defaultHeaders)
+  const headers = new Headers(getDefaultHeaders())
 
   const isJSONBody = !([
     Blob,
