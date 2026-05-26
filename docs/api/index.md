@@ -136,6 +136,31 @@ The `vue-postgrest` module exports a plugin, a mixin and several helper function
   })
   ```
 
+### setDefaultRoot(apiRoot)
+
+- **Type:** `Function`
+
+- **Arguments:**
+  - `{string} apiRoot`
+
+- **Returns:** `undefined`
+
+- **Usage:**
+
+  Set the default API root used for all requests. Useful for setting the API root globally after the plugin has been installed, e.g. in response to a user action.
+
+  ::: tip
+  You can also set the API root at install time via the [plugin option](./#apiroot).
+  :::
+
+- **Example:**
+
+  ``` js
+  import { setDefaultRoot } from 'vue-postgrest'
+
+  setDefaultRoot('/api/v2/')
+  ```
+
 ### usePostgrest(apiRoot, token)
 
 - **Type:** `Function`
