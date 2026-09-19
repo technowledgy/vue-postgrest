@@ -90,6 +90,9 @@ export default class Schema extends Function {
     }
     try {
       const url = new URL(apiRoot, window.location.href)
+      if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+        throw new Error('unsupported protocol')
+      }
       const resp = await fetch(url.toString(), { headers }).then(throwWhenStatusNotOk)
       const body = await resp.json()
       if (!resp.headers.get('Content-Type').startsWith('application/openapi+json')) {
